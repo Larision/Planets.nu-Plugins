@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.12
+// @version       1.3.12a
 // @date          2020-07-15
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -15,9 +15,10 @@
 // @resource      userscript https://greasyfork.org/en/scripts/405728-planets-nu-ship-list-plugin
 // @require       https://cdn.jsdelivr.net/npm/ractive
 // ==/UserScript==
- 
+
 /*
      Changelog:
+     1.3.12a    1st release planets data
      1.3.12     Feature: track robbed ships
      1.3.11     Bug fix: auto-sending messages
      1.3.10     Bug fix: ship notes
@@ -83,19 +84,19 @@
                 Bug fix: Notes weren't read in correctly (vgap.nowTurn)
      1.0.0      Initial release
      */
- 
+
 /*
      Known Issues:
- 
+
      Roadmap:
- 
+
      - Show dotted lines instead of dashed lines when history isn't consecutive
      - Track intercepts when rebuilding
      - Add info about towing ships and ships being towed
      - Make it possible to add ships without knowing their exact ID
      - Tooltip over ship showing notes
      */
- 
+
 // no globals (vgap)
 /**
  *
@@ -104,21 +105,21 @@
  */
 const ShipList = function (vgap)
 {
- 
+
     if (vgap.version < 3.0) {
         console.log("Ship List: [3000] NU version < 3.0. Plugin Disabled.");
         return;
     }
- 
+
     /** PROPERTIES */
- 
-    this.version = '1.3.12';
- 
+
+    this.version = '1.3.12a';
+
     // views
     this.view = 1;
     this.playerId = 1;
     this.hideWarningPane = false;
- 
+
     // internal
     this.doImport = false;
     this.doLoop = false;
@@ -128,15 +129,16 @@ const ShipList = function (vgap)
     this.maxShipId = 0;
     this.nowTurn = 0;
     this.appName = "Ship List";
- 
+
     // serialized
     this.firstTurn = 0;
     this.intercepts = [];
     this.lastTurn = 0;
     this.ships = [];
- 
+    this.planets = [];
+
     console.log('Ship List v' + this.version);
- 
+
     /**
      * Initialize the app and its helpers
      * @returns {ShipList}
@@ -144,10 +146,10 @@ const ShipList = function (vgap)
     this.init = function ()
     {
         this.processedActivities = {};
- 
+
         // quick hack to hide features in development
-        if (vgap.player.username == 'space pirate harlock') this.devMode = true;
- 
+        if (vgap.player.username == 'Karkass') this.devMode = true;
+
         this.activityIndex = null;
         this.gameName = vgap.game.name;
         this.importPrefix = 'EnemyShipListPlugin.';
@@ -157,10 +159,10 @@ const ShipList = function (vgap)
         this.raceName = (vgap.getRace(vgap.player.raceid)).shortname;
         this.storagePrefix = 'ShipList.';
         this.storagePath = this.storagePrefix + vgap.gameId + '.' + vgap.player.id + '.';
- 
+
         // view preferences
         this.settings = {
-            addShipHistory: true,
+            addShipHistory: false,
             addShipHistoryForOwn: false,
             debugMode: true,
             deleteAfterImport: false,
@@ -170,27 +172,27 @@ const ShipList = function (vgap)
             showOwnShips: false,
             showUnknown: false,
             showColoredText: false,
-            showCompactTable: false,
-            showLocationHistory: true,
+            showCompactTable: true,
+            showLocationHistory: false,
             showVerticalButtons: true,
             acceptShipData: {},
             updates: {},
             updates2: {}
         };
- 
+
         // reuse the same instance or it's binding hell with dom elements
         if (!this.drawer)
             this.drawer = new DrawHelper(vgap, this.settings);
         else
             this.drawer.settings = this.settings;
- 
+
         this.templater = new Templater();
- 
+
         return this;
     }
- 
+
     /** VGAP Hooks */
- 
+
     /**
      * Called when redrawing the map
      * @namespace vgap.plugins.shipList
@@ -198,7 +200,7 @@ const ShipList = function (vgap)
     this.draw = function ()
     {
         const app = vgap.plugins.shipList;
- 
+
         try {
             app.drawer.drawShips(app.ships);
             app.drawer.shipsDrawn = [];
@@ -209,12 +211,12 @@ const ShipList = function (vgap)
                 console.trace();
         }
     };
- 
+
     /** Called when building the dashboard */
     this.loaddashboard = function ()
     {
         const app = vgap.plugins.shipList;
- 
+
         try {
             let menu = document.getElementById("DashboardMenu").childNodes[2];
             $("<li>Ship List »</li>").tclick(_ => { app.showShips(1); }).appendTo(menu);
@@ -225,16 +227,16 @@ const ShipList = function (vgap)
                 console.trace();
         }
     };
- 
+
     /** Called after loading the first turn to create the map */
     this.loadmap = function ()
     {
         const app = vgap.plugins.shipList;
- 
+
         try {
             app.drawer.init();
             app.drawer.addMapTool();
- 
+
             new ShipListCss({
                 data: {
                     numPlayers: vgap.players.length,
@@ -242,7 +244,7 @@ const ShipList = function (vgap)
                     addHistory: app.settings.addShipHistory
                 }
             });
- 
+
             console.log('Ship List: [' + vgap.game.turn + '] (loadmap)');
         } catch (e) {
             console.log('Ship List: [' + vgap.game.turn + '] (loadmap)');
@@ -251,27 +253,28 @@ const ShipList = function (vgap)
                 console.trace();
         }
     };
- 
+
     /** Called when loading a turn (current turn or time machine) */
     this.processload = function ()
     {
         const app = vgap.plugins.shipList;
- 
+
         try {
             console.log('Ship List: [' + vgap.game.turn + '] (processload)');
- 
+
             app.init();
- 
+
             if (app.doReset) {
                 app.doReset = false;
                 app.ships = [];
+                app.planets = [];
                 app.firstTurn = vgap.game.turn;
                 app.lastTurn = vgap.game.turn - 1;
             } else {
                 // load ships from storage
                 // no need if we're looping
                 if (!app.doLoop) app.load();
- 
+
                 // disable looping here instead of in processLoadHistory - doesn't get called on current turn
                 // don't use vgap.nowTurn - hasn't been set at this point on first load
                 // keep track of it ourselves on first load
@@ -280,41 +283,42 @@ const ShipList = function (vgap)
                 }
                 if (!vgap.inHistory) app.nowTurn = vgap.settings.turn;
             }
- 
+
             if (!app.enabled) return;
- 
+
             app.loopThroughActivities()
                 .catch(e => {}) // e has been logged already, just continue
                 .then(_ =>
                 {
- 
+
                     if (vgap.game.turn <= app.lastTurn) {
                         console.log('Ship List: [' + vgap.game.turn + '] (processload) Turn ' + vgap.game.turn + ' already processed, skipping.');
                     } else if (vgap.game.turn != (app.lastTurn + 1)) {
                         console.log('Ship List: [' + vgap.game.turn + '] (processload) Turn ' + vgap.game.turn + '. Turn for update required: ' + (app.lastTurn + 1) + ', skipping.');
                     } else {
                         app.updateShips();
- 
+                        app.updatePlanets();
+
                         if (vgap.game.turn == app.nowTurn)
                             app
                                 .sendMessages()
                                 .catch(e => {console.error(e);});
                     }
- 
+
                     if (app.doLoop) {
                         console.log('Ship List: [' + vgap.game.turn + '] (processload) ' + vgap.game.turn + ' Next Turn: ' + (vgap.settings.turn + 1) + '/' + app.nowTurn + '.');
- 
+
                         if (vgap.settings.turn + 1 == app.nowTurn) {
                             vgap.loadNow();
                         } else {
                             vgap.loadHistory(vgap.settings.turn + 1);
                         }
                     }
- 
+
                 })
                 .catch(e => console.error(e))
             ;
- 
+
         } catch (e) {
             console.log('Ship List: [' + vgap.game.turn + '] (processload)');
             console.error(e);
@@ -322,23 +326,23 @@ const ShipList = function (vgap)
                 console.trace();
         }
     };
- 
+
     /** Called when viewing the home screen of the dashboard */
     this.showsummary = function ()
     {
         const app = vgap.plugins.shipList;
- 
+
         try {
             let ships = app.ships;
             let shipCount = 0;
             app.maxShipId = vgap.settings.shiplimit;
- 
+
             for (let i = app.ships.length - 1; i >= 0; i--) {
                 if (ships[i].id > app.maxShipId) app.maxShipId = ships[i].id;
                 if (ships[i].ownerid == vgap.player.id) continue;
                 shipCount++;
             }
- 
+
             let icon = $([
                 '<span><div class="iconholder">',
                 '<img src="https://planets.nu/_library/2013/7/enemy_ships.png"/>',
@@ -346,7 +350,7 @@ const ShipList = function (vgap)
             ]
                 .join(''))
                 .click(_ => { app.showShips(1); });
- 
+
             if (vgap.isMobileVersion()) {
                 $('<span></span>').append(icon).insertBefore($('#TurnSummary').find(':nth-child(5)'));
             } else {
@@ -359,19 +363,19 @@ const ShipList = function (vgap)
                 console.trace();
         }
     };
- 
+
     /** loadplanet: Called when selecting a planet */
- 
+
     /** loadstarbase: Called when selecting a planet */
- 
+
     /** loadship: Called when selecting a ship */
- 
+
     /** showdashboard: Called when switching to dashboard */
- 
+
     /** showmap: Called when switching to starmap */
- 
+
     /** MEAT AND BONES: SHIP LIST UPDATE FUNCTIONS */
- 
+
     /**
      * Update the ship list with data from current turn
      * @returns {ShipList}
@@ -379,30 +383,30 @@ const ShipList = function (vgap)
     this.updateShips = function ()
     {
         console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Ships.');
- 
+
         try {
             this.updateShipsFromIntercepts();
         }
         catch (e) { console.error(e); }
- 
+
         try {
             this.updateShipsFromTowCaptureReports();
         }
         catch (e) { console.error(e); }
- 
+
         const vcr = new vcrPlayer();
- 
+
         try {
             for (let i = 0; i < vgap.vcrs.length; i++) {
- 
+
                 let ship;
                 let shipIdx;
                 let shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
                 vcr.runReport(vgap.vcrs[i]);
- 
+
                 shipIdx = shipIds.indexOf(vgap.vcrs[i].left.objectid);
- 
+
                 if (vcr.results[0] == 'Left Destroyed') {
                     // delete ship
                     if (shipIdx != -1) this.ships.splice(shipIdx, 1);
@@ -410,15 +414,15 @@ const ShipList = function (vgap)
                     // build ship
                     ship = this.updateShipsFromVcr(vcr, vgap.vcrs[i], 0, shipIdx);
                 }
- 
+
                 // ignore planets
                 if (vgap.vcrs[i].battletype == 1) continue;
- 
+
                 // refresh ship ids
                 shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
                 shipIdx = shipIds.indexOf(vgap.vcrs[i].right.objectid);
- 
+
                 for (let j = 0; j < vcr.results.length; j++) {
                     if (vcr.results[j] == 'Right Destroyed') {
                         if (shipIdx != -1) this.ships.splice(shipIdx, 1);
@@ -429,48 +433,67 @@ const ShipList = function (vgap)
                 }
             }
         } catch (e) { console.error(e); }
- 
+
         // before adding vgap ships
         try {
             this.updateShipsFromMinehitReports();
         } catch (e) { console.error(e); }
- 
+
         // visible ships
         try {
             this.updateShipsFromVgap();
         } catch (e) { console.error(e); }
- 
+
         this.ships.sort((a, b) => { return (a.id - b.id); });
         this.lastTurn = vgap.game.turn;
         this.save();
         return this;
     };
- 
+
+    /**
+     * Update the planet list with data from current turn
+     * @returns {ShipList}
+     */
+    this.updatePlanets = function ()
+    {
+        console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Planets.');
+
+        // visible planets
+        try {
+            this.updatePlanetsFromVgap();
+        } catch (e) { console.error(e); }
+
+        this.planets.sort((a, b) => { return (a.id - b.id); });
+        this.lastTurn = vgap.game.turn;
+        this.save();
+        return this;
+    };
+
     this.updateShipsFromIntercepts = function ()
     {
         // if in history, abort - only end-of-turn data available
         if (vgap.inHistory) return this;
- 
+
         const shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         const vgapShipIds = vgap.ships.map((ship) => { return ship.id; });
- 
+
         for (let i = this.intercepts.length - 1; i >= 0; i--) {
             const intercept = this.intercepts[i];
- 
+
             // find source ship in vgap ship list
             const srcShipIdx = vgapShipIds.indexOf(intercept.srcId);
- 
+
             // ship could have been destroyed - so check
             if (srcShipIdx != -1) {
                 const srcShip = vgap.ships[srcShipIdx];
- 
+
                 // find target ship in app ship list
                 const tgtShipIdx = shipIds.indexOf(intercept.tgtId)
- 
+
                 if (tgtShipIdx != -1) {
                     const tgtShip = this.ships[tgtShipIdx];
- 
+
                     tgtShip.heading = Math.round((
                                                  90 - Math.atan2(srcShip.targety - tgtShip.y, srcShip.targetx - tgtShip.x)
                                                       * 180 / Math.PI + 360) % 360);
@@ -481,10 +504,10 @@ const ShipList = function (vgap)
                 }
             }
         }
- 
+
         return this;
     };
- 
+
     /**
      * Checks for ships destroyed by mine hits
      * @returns {ShipList}
@@ -493,68 +516,68 @@ const ShipList = function (vgap)
     {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
- 
+
             // critical messages
             if (message.messagetype != 16) continue;
- 
+
             const match = message.body.match(/#(\d+) has struck a mine!.*Damage is at: (\d+)/)
- 
+
             if (match && match[2] >= 100) {
                 ships.push([parseInt(match[1]), parseInt(match[2])]);
             }
         }
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             let shipIdx = shipIds.indexOf(ships[i][0]);
- 
+
             if (shipIdx != -1 &&
                 // Lizards
                 ( vgap.players[this.ships[shipIdx].ownerid].raceid != 2 ||
                   ships[i][1] >= 150 )
             ) this.ships.splice(shipIdx, 1);
         }
- 
+
         return this;
     };
- 
+
     /**
      * Checks for ships destroyed by mine hits
      * @returns {ShipList}
      */
- 
+
     this.updateShipsFromTowCaptureReports = function ()
     {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
- 
+
             // ship messages
             if (message.messagetype != 8) continue;
- 
+
             const by = message.body.match(/Our ship has been captured by the starship: #(\d+)/)
- 
+
             if (by) {
                 const victim = message.headline.match(/#(\d+)$/);
                 ships.push([parseInt(victim[1]), parseInt(by[1])]);
             }
         }
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             let victimIdx = shipIds.indexOf(ships[i][0]);
             let robberIdx = shipIds.indexOf(ships[i][1]);
- 
+
             if (robberIdx != -1)
                 this.ships[victimIdx].ownerid = this.ships[robberIdx].ownerid;
         }
- 
+
         return this;
     };
- 
+
     /**
      * Builds a ship object from VCR player and VCR report
      * @param {vcrPlayer}      vcr
@@ -565,19 +588,19 @@ const ShipList = function (vgap)
      */
     this.updateShipsFromVcr = function (vcr, report, ix, shipIdx)
     {
- 
+
         const combatInfo = vcr.Objects[ix];
         const side = ix == 0 ? 'left' : 'right';
         const shipInfo = report[side];
- 
+
         let ownerId = report[side + 'ownerid'];
- 
+
         for (let j = 0; j < vcr.results.length; j++) {
             if (vcr.results[j].toLowerCase() == side + ' captured') {
                 ownerId = ix == 0 ? /** @type int */ report.rightownerid : /** @type int */ report.leftownerid;
             }
         }
- 
+
         let ship = {
             id: shipInfo.objectid,
             name: shipInfo.name,
@@ -595,7 +618,7 @@ const ShipList = function (vgap)
             x: report.x,
             y: report.y,
         };
- 
+
         if (shipIdx == -1) {
             // add missing properties
             $.extend(ship, {
@@ -611,17 +634,17 @@ const ShipList = function (vgap)
             this.updateShipHistory(oldShip, ship);
             $.extend(true, oldShip, ship);
         }
- 
+
         if (this.settings.addShipHistory) this.updateShipNote(ship);
- 
+
         if (this.settings.debugMode) {
             console.log('Ship List: [' + vgap.game.turn + '] (updateShipsFromVcr) Adding Ship.');
             console.log(ship);
         }
- 
+
         return ship;
     };
- 
+
     /**
      * Update ship list from VGAP ship list
      * @returns {ShipList}
@@ -632,15 +655,15 @@ const ShipList = function (vgap)
         for (let i = this.ships.length - 1; i >= 0; i--) {
             this.ships[i].visible = false;
         }
- 
+
         let shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         // loop through vgap ship list
         for (let i = vgap.ships.length - 1; i >= 0; i--) {
             const vgapShip = vgap.ships[i];
             //support for sphere add-on
             if (vgapShip.id < 0) continue;
- 
+
             let ship = {
                 id: vgapShip.id,
                 name: vgapShip.name,
@@ -656,9 +679,9 @@ const ShipList = function (vgap)
                 x: vgapShip.x,
                 y: vgapShip.y
             };
- 
+
             let shipIdx = shipIds.indexOf(vgapShip.id);
- 
+
             if (shipIdx == -1) {
                 // add missing properties
                 $.extend(ship, {
@@ -673,7 +696,7 @@ const ShipList = function (vgap)
                     torpedoid: vgapShip.torpedoid,
                     torps: vgapShip.torps
                 });
- 
+
                 this.updateShipHistory(ship, ship);
                 this.ships.push(ship);
                 if (this.settings.addShipHistory) this.updateShipNote(ship);
@@ -686,17 +709,17 @@ const ShipList = function (vgap)
                 if (vgapShip.engineid) ship.engineid = vgapShip.engineid;
                 if (vgapShip.torpedoid) ship.torpedoid = vgapShip.torpedoid;
                 if (vgapShip.torps) ship.torps = vgapShip.torps;
- 
+
                 let oldShip = this.ships[shipIdx];
                 this.updateShipHistory(oldShip, ship);
                 $.extend(true, oldShip, ship);
                 if (this.settings.addShipHistory) this.updateShipNote(oldShip);
             }
         }
- 
+
         // get ids of vgap ships
         const vgapShipIds = vgap.ships.map((ship) => { return ship.id; });
- 
+
         // delete own ships / from share intel / full allies that aren't visible
         for (let i = this.ships.length - 1; i >= 0; i--) {
             if (vgapShipIds.indexOf(this.ships[i].id) == -1 &&
@@ -704,16 +727,124 @@ const ShipList = function (vgap)
                   this.ships[i].ownerid == vgap.player.id )
             ) this.ships.splice(i, 1);
         }
- 
+
         return this;
     };
- 
+
+    /**
+     * Update planet list from VGAP ship list
+     * @returns {ShipList}
+     */
+    this.updatePlanetsFromVgap = function ()
+    {
+        // mark all planets in list invisible
+        for (let i = this.planets.length - 1; i >= 0; i--) {
+            this.planets[i].visible = false;
+        }
+
+        let planetIds = this.planets.map((planet) => { return planet.id; });
+
+        // loop through vgap planet list
+        for (let i = vgap.planets.length - 1; i >= 0; i--) {
+            const vgapPlanet = vgap.planets[i];
+            //support for sphere add-on
+            if (vgapPlanet.id < 0) continue;
+
+            let planet = {
+                id: vgapPlanet.id,
+                infoturn: vgapPlanet.infoturn,
+                name: vgapPlanet.name,
+                visible: true,
+                x: vgapPlanet.x,
+                y: vgapPlanet.y
+            };
+
+            let planetIdx = planetIds.indexOf(vgapPlanet.id);
+
+            if (planetIdx == -1) {
+                // add missing properties
+                $.extend(planet, {
+                    clans: vgapPlanet.clans,
+                    climate: vgapPlanet.climate,
+                    defense: vgapPlanet.defense,
+                    densityduranium: vgapPlanet.densityduranium,
+                    densitymolybdenum: vgapPlanet.densitymolybdenum,
+                    densityneutronium: vgapPlanet.densityneutronium,
+                    densitytritanium: vgapPlanet.densitytritanium,
+                    duranium: vgapPlanet.duranium,
+                    factories: vgapPlanet.factories,
+                    groundduranium: vgapPlanet.groundduranium,
+                    groundmolybdenum: vgapPlanet.groundmolybdenum,
+                    groundneutronium: vgapPlanet.groundneutronium,
+                    groundtritanium: vgapPlanet.groundtritanium,
+                    megacredits: vgapPlanet.megacredits,
+                    mines: vgapPlanet.mines,
+                    molybdenum: vgapPlanet.molybdenum,
+                    nativeclans: vgapPlanet.nativeclans,
+                    nativegovernment: vgapPlanet.nativegovernment,
+                    nativetype: vgapPlanet.nativetype,
+                    nativegovernmentname: vgapPlanet.nativegovernmentname,
+                    nativeracename: vgapPlanet.nativeracename,
+                    neutronium: vgapPlanet.neutronium,
+                    ownerid: vgapPlanet.ownerid,
+                    supplies: vgapPlanet.supplies,
+                    temp: vgapPlanet.temp,
+                    tritanium: vgapPlanet.tritanium
+                });
+                this.planets.push(planet);
+            } else {
+                if (vgapPlanet.clans) planet.clans = vgapPlanet.clans;
+                if (vgapPlanet.climate) planet.climate = vgapPlanet.climate;
+                if (vgapPlanet.defense) planet.defense = vgapPlanet.defense;
+                if (vgapPlanet.densityduranium) planet.densityduranium = vgapPlanet.densityduranium;
+                if (vgapPlanet.densitymolybdenum) planet.densitymolybdenum = vgapPlanet.densitymolybdenum;
+                if (vgapPlanet.densityneutronium) planet.densityneutronium = vgapPlanet.densityneutronium;
+                if (vgapPlanet.densitytritanium) planet.densitytritanium = vgapPlanet.densitytritanium;
+                if (vgapPlanet.duranium) planet.duranium = vgapPlanet.duranium;
+                if (vgapPlanet.factories) planet.factories = vgapPlanet.factories;
+                if (vgapPlanet.groundduranium) planet.groundduranium = vgapPlanet.groundduranium;
+                if (vgapPlanet.groundmolybdenum) planet.groundmolybdenum = vgapPlanet.groundmolybdenum;
+                if (vgapPlanet.groundneutronium) planet.groundneutronium = vgapPlanet.groundneutronium;
+                if (vgapPlanet.groundtritanium) planet.groundtritanium = vgapPlanet.groundtritanium;
+                if (vgapPlanet.megacredits) planet.megacredits = vgapPlanet.megacredits;
+                if (vgapPlanet.mines) planet.mines = vgapPlanet.mines;
+                if (vgapPlanet.molybdenum) planet.molybdenum = vgapPlanet.molybdenum;
+                if (vgapPlanet.nativeclans) planet.nativeclans = vgapPlanet.nativeclans;
+                if (vgapPlanet.nativegovernment) planet.nativegovernment = vgapPlanet.nativegovernment;
+                if (vgapPlanet.nativetype) planet.nativetype = vgapPlanet.nativetype;
+                if (vgapPlanet.nativegovernmentname) planet.nativegovernmentname = vgapPlanet.nativegovernmentname;
+                if (vgapPlanet.nativeracename) planet.nativeracename = vgapPlanet.nativeracename;
+                if (vgapPlanet.neutronium) planet.neutronium = vgapPlanet.neutronium;
+                if (vgapPlanet.ownerid) planet.ownerid = vgapPlanet.ownerid;
+                if (vgapPlanet.supplies) planet.supplies = vgapPlanet.supplies;
+                if (vgapPlanet.temp) planet.temp = vgapPlanet.temp;
+                if (vgapPlanet.tritanium) planet.tritanium = vgapPlanet.tritanium;
+
+                let oldPlanet = this.planets[planetIdx];
+                $.extend(true, oldPlanet, planet);
+            }
+        }
+
+        // get ids of vgap planets
+        const vgapPlanetIds = vgap.planets.map((planet) => { return planet.id; });
+
+        // delete own planets / from share intel / full allies that aren't visible
+        for (let i = this.planets.length - 1; i >= 0; i--) {
+            if (vgapPlanetIds.indexOf(this.planets[i].id) == -1 &&
+                this.planets[i].ownerid == vgap.player.id
+            ) this.planets.splice(i, 1);
+        }
+
+        return this;
+    };
+
     /**
      * Update ship history
      * @param {Object}      oldShip     ship info to be updated
      * @param {Object}      newShip     ship info to update with
      * @returns {Object} oldShip
      */
+
     this.updateShipHistory = function (oldShip, newShip)
     {
         if (oldShip.history.length == 0 || oldShip.history[0].turn < newShip.infoturn) {
@@ -729,10 +860,10 @@ const ShipList = function (vgap)
         {
             return (b.turn - a.turn);
         });
- 
+
         return oldShip;
     };
- 
+
     /**
      * Add ship history to ship note
      * @param {Object}      ship
@@ -744,16 +875,16 @@ const ShipList = function (vgap)
         const note = vgap.getNote(ship.id, 2);
         const body = note.body.split(start);
         const rows = [];
- 
+
         rows.push(body[0]);
- 
+
         if ((this.settings.addShipHistoryForOwn && (ship.ownerid == vgap.player.id || vgap.fullallied(ship.ownerid))) ||
             (this.settings.addShipHistory && ship.ownerid != vgap.player.id && !vgap.fullallied(ship.ownerid))
         ) {
             rows.push(start);
             rows.push('\nT', ship.infoturn.toString().padEnd(3, ' '), '', ship.x, ',', ship.y, ' W', (ship.warp == -1 ? '?' : ship.warp),
                 ' H', ship.heading ? ship.heading.toString().padStart(3, ' ') : '   ', ship.mass.toString().padStart(5, ' '), 'kt');
- 
+
             if (body.length > 1) {
                 const turns = body[1].split('\n');
                 // remove empty strings
@@ -773,7 +904,7 @@ const ShipList = function (vgap)
                 if (turns.length > 0) turns[0] = '\n' + turns[0];
                 rows.push(rows, turns.join('\n'));
             }
- 
+
             note.body = rows.join('');
         } else {
             note.body = body[0];
@@ -781,9 +912,9 @@ const ShipList = function (vgap)
         note.changed = 1;
         return this;
     };
- 
+
     /** HTML */
- 
+
     /**
      * HTML for Ship List tabs
      * @param {number}  view
@@ -792,17 +923,17 @@ const ShipList = function (vgap)
      */
     this.showShips = function (view, playerId)
     {
- 
+
         if (view)
             this.view = view;
- 
+
         if (playerId)
             this.playerId = playerId;
- 
+
         vgap.playSound("button");
         vgap.closeSecond();
         vgap.dash.content.empty();
- 
+
         this.ractive = new Ractive({
             el: vgap.dash.content,
             components: {
@@ -822,10 +953,10 @@ const ShipList = function (vgap)
                 '</div>'
             ].join('')
         });
- 
+
         // disable hotkeys in edit mode
         // if (this.editMode) vgap.hotkeysOn = false;
- 
+
         switch (this.view) {
             case 1:
                 this.ractive.attachChild(new ShipListOverviewPane(), {target: 'main'});
@@ -851,14 +982,14 @@ const ShipList = function (vgap)
                 this.ractive.attachChild(new ShipListFleetsPane(), {target: 'main'});
                 return this;
         }
- 
+
         let pane = $('#dashPane');
- 
+
         console.time('showShips');
         if (this.view == 2) this.ractive.attachChild(new ShipListSelectionPaneComplete(), {target: 'main'});
         //if (view == 2) this.showSelectionPaneComplete(pane, view, playerId);
         if (this.view == 4) this.ractive.attachChild(new ShipListSelectionPaneAllied(), {target: 'main'});
- 
+
         //if (view == 4) this.showSelectionPaneAllied(pane, view, playerId);
         if (this.view == 6) {
             //this.showSelectionPaneSingle(pane, view, playerId);
@@ -866,37 +997,37 @@ const ShipList = function (vgap)
             this.showShipForm($('#newShipForm'), this.view, this.playerId);
         }
         if (this.ships.length) this.showShipTableHeader(pane, this.view, this.playerId);
- 
+
         const shipIds = this.ships.map(function (ship)
         {
             return ship.id;
         });
- 
+
         const shipRows = $('#ShipRows');
         const freighterRows = $('#FreighterRows');
         const shortEngineNames = ['?', 'SD1', 'SD2', 'SD3', 'SSD4', 'ND5', 'HND6', 'QD7', 'HD8', 'TW'];
         const shortBeamNames = ['?', 'Las', 'X-Ray', 'Pla', 'Bla', 'Posi', 'Dis', 'HB', 'PH', 'HD', 'HP'];
         const shortTorpNames = ['?', 'Mk1', 'Prot', 'Mk2', 'GaB', 'Mk3', 'Mk4', 'Mk5', 'Mk6', 'Mk7', 'Mk8', 'QT'];
- 
+
         // loop through all ship ids
         for (let id = 1; id <= this.maxShipId; id++) {
             const shipIdx = shipIds.indexOf(id);
- 
+
             if (shipIdx == -1) {
                 // no unknown ships or not complete view - continue
                 if (!this.settings.showUnknown || this.view != 2) continue;
                 shipRows.append('<tr>' + (!this.editMode ? '' : '<td></td>') + '<td>' + id + '</td><td>-</td><td>-</td><td>-</td><td>-</td><td></td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>');
                 continue;
             }
- 
+
             let ship = this.ships[shipIdx];
- 
+
             const relation = vgap.getRelationFromForShip(ship.ownerid);
- 
+
             // thanks to Jellyfishspam for this one
             // ghost ship - continue loop
             if (!ship.ownerid) continue;
- 
+
             if (
                 //ships of other players
             (this.view == 3 && ship.ownerid == vgap.player.id) ||
@@ -915,20 +1046,20 @@ const ShipList = function (vgap)
             //single player
             (this.view == 6 && ship.ownerid != this.playerId)
             ) continue;
- 
+
             const hull = vgap.getHull(ship.hullid);
             const player = vgap.getPlayer(ship.ownerid);
- 
+
             let beam_weapons = '?';
- 
+
             if (hull.beams == 0) {
                 beam_weapons = "---";
             } else if (ship.beams != 0 && ship.beamid != 0) {
                 beam_weapons = (ship.beams ? ship.beams + ' ' : '') + shortBeamNames[ship.beamid];
             }
- 
+
             let secondary_weapons = '?';
- 
+
             if (hull.fighterbays > 0) {
                 secondary_weapons = hull.fighterbays + (hull.fighterbays == 1 ? ' Bay' : ' Bays');
             } else if (hull.launchers > 0) {
@@ -936,7 +1067,7 @@ const ShipList = function (vgap)
                 else if (ship.torps == 0 || ship.torpedoid == 0) secondary_weapons = "---";
                 else secondary_weapons = ( ship.torps ? ship.torps + ' ' : '') + shortTorpNames[ship.torpedoid];
             } else secondary_weapons = "---";
- 
+
             let row = [
                 '<tr class="shipRow' + player.id + (this.settings.showColoredText ? ' alt' : '') + '">',
                 !this.editMode ? '' : '<td><div class="BasicFlatButton" onclick="vgap.plugins.shipList.deleteShip(' + ship.id + ').showShips(' + this.view + ',' + this.playerId + ');">Delete</div></td>',
@@ -959,9 +1090,9 @@ const ShipList = function (vgap)
                 '<td>' + ((ship.damage == -1) ? '?' : ship.damage) + '</td>',
                 '</tr>'
             ].join('');
- 
+
             const note = vgap.getNote(ship.id, 2).body;
- 
+
             const noteRow = [
                 '<tr class="shipRow' + player.id + (this.settings.showColoredText ? ' alt' : '') + ' noteRow tablesorter-childRow">',
                 '<td colspan="' + (this.editMode ? '18' : '17') + '">',
@@ -972,7 +1103,7 @@ const ShipList = function (vgap)
                 '</td>',
                 '</tr>'
             ].join('');
- 
+
             if (this.view == 6 && hull.beams == 0 && hull.launchers == 0 && hull.fighterbays == 0) {
                 row = $(row).appendTo(freighterRows);
                 freighterRows.append(noteRow);
@@ -980,7 +1111,7 @@ const ShipList = function (vgap)
                 row = $(row).appendTo(shipRows);
                 shipRows.append(noteRow);
             }
- 
+
             if (this.view == 6 && this.editMode) {
                 row.on('fill-form', this.fillShipForm.bind(this));
                 row.click(function ()
@@ -993,7 +1124,7 @@ const ShipList = function (vgap)
                 {
                     this.showScan(ship);
                 }).bind(this.drawer, ship), this.drawer.hideScan.bind(this.drawer));
- 
+
                 row.click((function (x, y, id, ships)
                 {
                     vgap.showMap();
@@ -1002,7 +1133,7 @@ const ShipList = function (vgap)
                         .drawShips(ships);
                 }).bind(this.drawer, ship.x, ship.y, ship.ownerid, this.ships));
             }
- 
+
             // add slide toggle for notes row
             row.children('.noteIcon').click(function (e)
             {
@@ -1011,7 +1142,7 @@ const ShipList = function (vgap)
                     .parent().next().slideToggle();
                 e.stopPropagation();
             });
- 
+
             // save note on blur
             row.next().find('textarea').blur(function ()
             {
@@ -1019,41 +1150,41 @@ const ShipList = function (vgap)
                 note.body = $(this).val();
                 note.changed = 1;
             });
- 
+
         }
- 
+
         //add freighters and warships to end of list
         this.showUnknownShipsSingle(this.view, this.playerId, shipRows, freighterRows);
- 
+
         $('#ShipTable').tablesorter({cssChildRow: 'tablesorter-childRow'});
         shipRows.find('td:nth-child(2)').addClass('capitalize');
- 
+
         if (this.view == 6) {
             $("#FreighterTable").tablesorter();
             freighterRows.find('td:nth-child(2)').addClass('capitalize');
         }
- 
+
         pane.jScrollPane({animateScroll: true, hideFocus: true});
         // fix annoying scroll up behavior
         $('#newShipForm *').off('focus');
         // remove focus handler on textareas
         shipRows.find('textarea').off('focus');
         freighterRows.find('textarea').off('focus');
- 
+
         // vgap.action added for the assistant
         vgap.showShipsViewed = 1;
         vgap.action();
- 
+
         console.timeEnd('showShips');
- 
+
         return this;
     };
- 
+
     /** Unknown Ships for "Single Player" view */
     this.showUnknownShipsSingle = function (view, playerId, shipRows, freighterRows)
     {
         if (view == 6 && this.settings.showUnknown) {
- 
+
             const player = vgap.getPlayer(playerId);
             const race = vgap.getRace(player.raceid).shortname.substr(3);
             const warshipTotal = vgap.getPlayerScore(player.id, "capitalships");
@@ -1062,12 +1193,12 @@ const ShipList = function (vgap)
             let freighterCount = 0;
             let row = '<tr class="shipRow"' + playerId + '>' + (this.editMode ? '<td></td>' : '') + '<td>-</td><td>' + player.username + '</td><td>' + race + '</td><td>-</td><td>-</td><td></td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>';
             let rows = [];
- 
+
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 let ship = this.ships[i];
- 
+
                 if (ship.ownerid != player.id) continue;
- 
+
                 let hull = vgap.getHull(ship.hullid);
                 if (hull.beams == 0 && hull.launchers == 0 && hull.fighterbays == 0) {
                     freighterCount++;
@@ -1075,12 +1206,12 @@ const ShipList = function (vgap)
                     warshipCount++;
                 }
             }
- 
+
             for (let i = warshipCount; i < warshipTotal; i++) {
                 rows.push(row);
             }
             shipRows.append(rows.join(''));
- 
+
             for (let i = freighterCount; i < freighterTotal; i++) {
                 rows.push(row);
             }
@@ -1088,7 +1219,7 @@ const ShipList = function (vgap)
         }
         return this;
     };
- 
+
     /**
      * Update ships from received data
      * @param data
@@ -1097,21 +1228,21 @@ const ShipList = function (vgap)
     this.processActivity = function (data)
     {
         /** @todo add version check and abort if incompatible */
- 
+
         const ships = data.ships;
         const planets = data.planets;
- 
+
         if (ships) {
             for (let i = ships.length - 1; i >= 0; i--) {
                 const shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
                 let ship = ships[i];
                 let shipIdx = shipIds.indexOf(ship.id);
- 
+
                 // nasty stuff - what to merge?
                 if (shipIdx != -1) {
                     let listShip = this.ships[shipIdx];
- 
+
                     if (ship.infoturn >= listShip.infoturn) {
                         // ammo could be 0 after vcr, so keep new value
                         //ship.ammo
@@ -1144,41 +1275,107 @@ const ShipList = function (vgap)
                         ship.x = listShip.x;
                         ship.y = listShip.y;
                     }
- 
+
                     // merge history
- 
+
                     ship.history = ship.history.concat(listShip.history);
- 
+
                     ship.history.sort((a, b) => { return (b.turn - a.turn); });
- 
+
                     let prev = 0;
- 
+
                     for (let j = ship.history.length - 1; j >= 0; j--) {
                         let turn = ship.history[j].turn;
- 
+
                         if (ship.history[j].turn == prev)
                             ship.history.splice(j, 1);
- 
+
                         prev = turn;
                     }
- 
+
                     /** @todo update ship notes from history if addShipHistory is true */
                 }
- 
+
                 this.saveShip(ship, true);
             }
         }
- 
+
         if (planets) {
             for (let i = planets.length - 1; i >= 0; i--) {
-                if (planets[i].infoturn > vgap.planets[i].infoturn)
-                    vgap.planets[i] = planets[i];
+                const planetIds = this.planets.map((planet) => { return planet.id; });
+
+                let planet = planets[i];
+                let planetIdx = planetIds.indexOf(planet.id);
+
+                // nasty stuff - what to merge?
+                if (planetIdx != -1) {
+                    let listPlanet = this.planets[planetIdx];
+
+                    if (planet.infoturn >= listPlanet.infoturn) {
+                        planet.clans = planet.clans != -1 ? planet.clans : listPlanet.clans;
+                        planet.defense = planet.defense != -1 ? planet.defense : listPlanet.defense;
+                        planet.densityduranium = planet.densityduranium != -1 ? planet.densityduranium : listPlanet.densityduranium;
+                        planet.densitymolybdenum = planet.densitymolybdenum != -1 ? planet.densitymolybdenum : listPlanet.densitymolybdenum;
+                        planet.densityneutronium = planet.densityneutronium != -1 ? planet.densityneutronium : listPlanet.densityneutronium;
+                        planet.densitytritanium = planet.densitytritanium != -1 ? planet.densitytritanium : listPlanet.densitytritanium;
+                        planet.duranium = planet.duranium != -1 ? planet.duranium : listPlanet.duranium;
+                        planet.factories = planet.factories != -1 ? planet.factories : listPlanet.factories;
+                        planet.groundduranium = planet.groundduranium != -1 ? planet.groundduranium : listPlanet.groundduranium;
+                        planet.groundmolybdenum = planet.groundmolybdenum != -1 ? planet.groundmolybdenum : listPlanet.groundmolybdenum;
+                        planet.groundneutronium = planet.groundneutronium != -1 ? planet.groundneutronium : listPlanet.groundneutronium;
+                        planet.groundtritanium = planet.groundtritanium != -1 ? planet.groundtritanium : listPlanet.groundtritanium;
+                        planet.megacredits = planet.megacredits != -1 ? planet.megacredits : listPlanet.megacredits;
+                        planet.mines = planet.mines != -1 ? planet.mines : listPlanet.mines;
+                        planet.molybdenum = planet.molybdenum != -1 ? planet.molybdenum : listPlanet.molybdenum;
+                        planet.nativeclans = planet.nativeclans ? planet.nativeclans : listPlanet.nativeclans;
+                        planet.nativegovernment = planet.nativegovernment ? planet.nativegovernment : listPlanet.nativegovernment;
+                        planet.nativetype = planet.nativetype ? planet.nativetype : listPlanet.nativetype;
+                        planet.neutronium = planet.neutronium != -1 ? planet.neutronium : listPlanet.neutronium;
+                        planet.supplies = planet.supplies != -1 ? planet.supplies : listPlanet.supplies;
+                        planet.temp = planet.temp != -1 ? planet.temp : listPlanet.temp;
+                        planet.tritanium = planet.tritanium != -1 ? planet.tritanium : listPlanet.tritanium;
+                        // imported planet more recent: false, same turn: keep visibility
+                        planet.visible = planet.infoturn > listPlanet.infoturn ? false : listPlanet.visible;
+                    } else {
+                        planet.clans = listPlanet.clans != -1 ? listPlanet.clans : planet.clans;
+                        planet.defense = listPlanet.defense != -1 ? listPlanet.defense : planet.defense;
+                        planet.densityduranium = listPlanet.densityduranium != -1 ? listPlanet.densityduranium : planet.densityduranium;
+                        planet.densitymolybdenum = listPlanet.densitymolybdenum != -1 ? listPlanet.densitymolybdenum : planet.densitymolybdenum;
+                        planet.densityneutronium = listPlanet.densityneutronium != -1 ? listPlanet.densityneutronium : planet.densityneutronium;
+                        planet.densitytritanium = listPlanet.densitytritanium != -1 ? listPlanet.densitytritanium : planet.densitytritanium;
+                        planet.duranium = listPlanet.duranium != -1 ? listPlanet.duranium : planet.duranium;
+                        planet.factories = listPlanet.factories != -1 ? listPlanet.factories : planet.factories;
+                        planet.groundduranium = listPlanet.groundduranium != -1 ? listPlanet.groundduranium : planet.groundduranium;
+                        planet.groundmolybdenum = listPlanet.groundmolybdenum != -1 ? listPlanet.groundmolybdenum : planet.groundmolybdenum;
+                        planet.groundneutronium = listPlanet.groundneutronium != -1 ? listPlanet.groundneutronium : planet.groundneutronium;
+                        planet.groundtritanium = listPlanet.groundtritanium != -1 ? listPlanet.groundtritanium : planet.groundtritanium;
+                        planet.megacredits = listPlanet.megacredits != -1 ? listPlanet.megacredits : planet.megacredits;
+                        planet.mines = listPlanet.mines != -1 ? listPlanet.mines : planet.mines;
+                        planet.molybdenum = listPlanet.molybdenum != -1 ? listPlanet.molybdenum : planet.molybdenum;
+                        planet.nativeclans = listPlanet.nativeclans != -1 ? listPlanet.nativeclans : planet.nativeclans;
+                        planet.nativegovernment = listPlanet.nativegovernment ? listPlanet.nativegovernment : planet.nativegovernment;
+                        planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
+                        planet.neutronium = listPlanet.neutronium != -1 ? listPlanet.neutronium : planet.neutronium;
+                        planet.supplies = listPlanet.supplies != -1 ? listPlanet.supplies : planet.supplies;
+                        planet.temp = listPlanet.temp != -1 ? listPlanet.temp : planet.temp;
+                        planet.tritanium = listPlanet.tritanium != -1 ? listPlanet.tritanium : planet.tritanium;
+                        planet.name = listPlanet.name;
+                        planet.ownerid = listPlanet.ownerid;
+                        planet.visible = listPlanet.visible;
+                        planet.x = listPlanet.x;
+                        planet.y = listPlanet.y;
+                    }
+
+                    /** @todo update ship notes from history if addShipHistory is true */
+                }
+
+                this.savePlanet(planet, true);
             }
         }
- 
+
         return this;
     };
- 
+
     /**
      * So checkActivity doesn't have to recursively call itself
      * Beware call stack exceeded-man
@@ -1188,7 +1385,7 @@ const ShipList = function (vgap)
     {
         if (this.activityIndex == null)
             this.activityIndex = vgap.activity.length - 1;
- 
+
         while (this.activityIndex > -1)
             await this
                 .checkActivity()
@@ -1200,13 +1397,13 @@ const ShipList = function (vgap)
                     //this.activityIndex = -1;
                 })
             ;
- 
+
         // save processed activities
         this.save();
- 
+
         return this;
     }
- 
+
     /**
      * Check activities for ship list data
      * @returns {Promise.<ShipList>}
@@ -1214,29 +1411,29 @@ const ShipList = function (vgap)
     this.checkActivity = async function ()
     {
         const activity = vgap.activity[this.activityIndex];
- 
+
         // processed or from yourself
- 
+
         if ((!this.devMode && vgap.activity[this.activityIndex].isfromme) ||
             this.processedActivities[activity.id]
         ) {
             this.activityIndex--;
             return this;
         }
- 
+
         const match = activity
                 .message
                 .match(/Ship Data on (.+) from (.+)<br\/><br\/>JSON_START(.+)J\s?S\s?O\s?N\s?_\s?E\s?N\s?D\s?$/)
             ;
- 
+
         if (!match) {
             this.activityIndex--;
             return this;
         }
- 
+
         // strip annoying whitespace NU adds
         let data = match[3].replace(/\s/g, '');
- 
+
         try {
             data = JSON.parse(decodeURIComponent(data));
         }
@@ -1245,17 +1442,17 @@ const ShipList = function (vgap)
             this.activityIndex--;
             return this;
         }
- 
+
         // security check - no spoofing
         if (activity.sourceid != vgap.players[data.from - 1].accountid) {
             let spoofer;
- 
+
             for (let i = vgap.players.length - 1; i >= 0; i--) {
                 if (activity.sourceid == vgap.players[j].accountid) {
                     spoofer = vgap.players[i];
- 
+
                     this.settings.acceptShipData[spoofer.id] = false;
- 
+
                     new ShipListInfoDialog({
                         data: {
                             title: 'Ship List: Cheating Alert!',
@@ -1273,25 +1470,25 @@ const ShipList = function (vgap)
                         name: spoofer.username
                     }), 'Ship List: [4003] Cheating Alert!', 400);
                     */
- 
+
                     break;
                 }
             }
         }
- 
+
         // auto ignore
         if (this.settings.acceptShipData[data.from] == false) {
             this.activityIndex--;
             return this;
         }
- 
+
         // auto accept
         if (this.settings.acceptShipData[data.from] == true) {
             this.processActivity(data);
             this.activityIndex--;
             return this;
         }
- 
+
         const promise = (...args) =>
         {
             return new Promise((resolve, reject) =>
@@ -1331,24 +1528,24 @@ const ShipList = function (vgap)
                 });
             });
         };
- 
+
         await promise();
- 
+
         // only track activities for players not auto-accepted or auto-ignored
- 
+
         if (this.settings.acceptShipData[data.from] == undefined)
- 
+
             this.processedActivities[activity.id] = true;
- 
+
         this.activityIndex--;
- 
+
         return this;
     };
- 
+
     this.sendMessages = async function ()
     {
         const messages = {};
- 
+
         for (let to in this.settings.updates) {
             messages[to] = {};
             for (let on in this.settings.updates[to]) {
@@ -1356,50 +1553,55 @@ const ShipList = function (vgap)
                     messages[to][on] = 'ships';
             }
         }
- 
+
         for (let to in this.settings.updates2) {
             for (let on in this.settings.updates2[to]) {
                 if (parseInt(on))
-                    if (messages[to][on])
-                        messages[to][on] = 'all';
-                    else
-                        messages[to][on] = 'planets';
+                    messages[to][on] = 'planets';
             }
         }
- 
+
         for (let to in messages)
             for (let on in messages[to])
                 this.sendMessage(on, to, messages[to][on]);
- 
+
         return this;
     }
- 
+
     this.sendMessage = function (on, to, type)
     {
         const planets = [];
         const ships = [];
- 
+
         let json = {
             from: vgap.player.id,
             version: this.version
         };
- 
-        if (type == 'all' || type == 'planets') {
+
+        if (type == 'planets') {
             for (let i = vgap.planets.length - 1; i >= 0; i--) {
-                if (vgap.planets[i].ownerid == on) planets.push(this.ships[i]);
+                if (this.planets[i].ownerid == on) {
+                    const cut = this.planets[i];
+                    Object.keys(cut).forEach(key => {
+                        if (cut[key] === undefined) {
+                            delete cut[key];
+                        }
+                    });
+                    planets.push(cut);
+                }
             }
- 
+
             json.planets = planets;
         }
- 
-        if (type == 'all' || type == 'ships') {
+
+        if (type == 'ships') {
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 if (this.ships[i].ownerid == on) ships.push(this.ships[i]);
             }
- 
+
             json.ships = ships;
         }
- 
+
         vgap.postGameMessage([
             'Ship Data on ', vgap.players[on - 1].username.ucWords(), ' from ', vgap.players[vgap.player.id - 1].username.ucWords(), '\n\n',
             'JSON_START',
@@ -1408,32 +1610,32 @@ const ShipList = function (vgap)
             'JSON_END'
         ].join(''), null, to);
     }
- 
+
     this.hideMessages = function ()
     {
         const messages = $('#egameactivity').find('.egamefeedline');
- 
+
         messages.each(function ()
         {
             const message = $(this).find('.eexcerpt').text();
- 
+
             if (message && message.match(/\s+Ship Data on .+ from .+\s/)) {
                 $(this).css('display', 'none');
             }
         });
     }
- 
+
     this.showShipForm = function (target, view, playerId)
     {
         if (!(view == 6) || !this.editMode) return this;
- 
+
         let engineTypes = [...vgap.engines];
         engineTypes.unshift({id: 0, name: 'Unknown'});
         let beamTypes = [...vgap.beams];
         beamTypes.unshift({id: 0, name: 'Unknown'});
         let torpTypes = [...vgap.torpedos];
         torpTypes.unshift({id: 0, name: 'Unknown'});
- 
+
         target.append([
             '<div id="ShipEditPane">',
             '<table id="ShipEditTable">',
@@ -1461,9 +1663,9 @@ const ShipList = function (vgap)
             '<div id="shipResetButton" class="BasicFlatButton">Reset</div></td></tr>',
             '</table></div>'
         ].join(''));
- 
+
         /** Select Box Fillers */
- 
+
         let player = vgap.getPlayer(playerId);
         let race = vgap.getRace(player.raceid);
         let shipForm = $('#newShipForm');
@@ -1475,7 +1677,7 @@ const ShipList = function (vgap)
         let optGroupNew = $('#optGroupNew');
         let optGroupOwn = $('#optGroupOwn');
         let options;
- 
+
         let id = 1;
         for (let i = 0; i < this.ships.length; i++) {
             while (id < this.ships[i].id) {
@@ -1487,36 +1689,36 @@ const ShipList = function (vgap)
             }
             id++;
         }
- 
+
         while (id <= this.maxShipId) {
             optGroupNew.append('<option value="' + id + '">' + id + '</option>');
             id++;
         }
         idSelect.val((optGroupNew).find(':first').val());
- 
+
         options = [];
         let hulls = race.hulls.split(',');
         for (let i = 0; i < hulls.length; i++) {
             options.push('<option value="' + hulls[i] + '">' + vgap.getHull(hulls[i]).name + '</option>');
         }
- 
+
         options.push('<option value="0">-------</option>');
         hulls = vgap.hulls;
         for (let i = 0; i < hulls.length; i++) {
             options.push('<option value="' + hulls[i].id + '">' + hulls[i].name + '</option>');
         }
         shipHullSelect.append(options.join(''));
- 
+
         /** Event Handlers */
- 
+
         shipForm.change(this.changeShipForm);
- 
+
         idSelect.on('fill-form', this.fillShipForm.bind(this));
         idSelect.change(function ()
         {
             $(this).trigger('fill-form', [$(this).val(), playerId]);
         });
- 
+
         shipHullSelect.change(function ()
         {
             const val = $(this).val();
@@ -1530,10 +1732,10 @@ const ShipList = function (vgap)
                 $('#hullImg')[0].src = hullImg(hull.id);
             }
         });
- 
+
         // fill form when loading the page
         shipHullSelect.trigger('change');
- 
+
         /** @this ShipList */
         $('#shipSaveButton').click((function (view, playerId)
         {
@@ -1542,7 +1744,7 @@ const ShipList = function (vgap)
             console.log(newShip);
             this.saveShip(newShip.ship, newShip.overwrite).showShips(view, playerId);
         }).bind(this, view, playerId));
- 
+
         $('#shipResetButton').click(function ()
         {
             shipForm.trigger('reset');
@@ -1555,19 +1757,19 @@ const ShipList = function (vgap)
             // update hull and name
             shipHullSelect.trigger('change');
         });
- 
+
         return this;
     };
- 
+
     this.fillShipForm = function (e, shipId, playerId)
     {
- 
+
         const shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         shipId = parseInt(shipId);
- 
+
         let shipIdx = shipIds.indexOf(shipId);
- 
+
         if (shipIdx != -1) {
             let ship = this.ships[shipIdx];
             newShip.overwrite = true;
@@ -1605,7 +1807,7 @@ const ShipList = function (vgap)
         }
         return this;
     };
- 
+
     /**
      * Event handler for ship form change
      * @returns {ShipList}
@@ -1613,7 +1815,7 @@ const ShipList = function (vgap)
     this.changeShipForm = function ()
     {
         let ship = newShip.ship;
- 
+
         ship.id = parseInt($('#id').val());
         ship.ownerid = parseInt($('#ownerid').val());
         ship.hullid = parseInt($('#hullid').val());
@@ -1632,35 +1834,35 @@ const ShipList = function (vgap)
         ship.crew = parseInt($('#crew').val());
         ship.damage = parseInt($('#damage').val());
         ship.visible = ($('#visible').val() == 'true');
- 
+
         for (let key in ship) {
             if (isNaN(ship[key])) ship[key] = -1;
         }
- 
+
         ship.name = $('#name').val();
         ship.history = JSON.parse($('#history').val());
         console.log(newShip);
- 
+
         return this;
     };
- 
+
     /** Ship table header */
     this.showShipTableHeader = function (target, view, playerId)
     {
- 
+
         let warshipsTotal = vgap.getPlayerScore(playerId, "capitalships");
         let freightersTotal = vgap.getPlayerScore(playerId, "freighters");
         let warshipsKnown = 0;
         let freightersKnown = 0;
- 
+
         if (view == 6) {
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 let ship = this.ships[i];
- 
+
                 if (ship.ownerid != playerId) continue;
- 
+
                 let hull = vgap.getHull(ship.hullid);
- 
+
                 if (hull.beams == 0 && hull.launchers == 0 && hull.fighterbays == 0) {
                     freightersKnown++;
                 } else {
@@ -1668,7 +1870,7 @@ const ShipList = function (vgap)
                 }
             }
         }
- 
+
         target.append(
             this.templater.get('headerShipTable', {
                 compact: this.settings.showCompactTable,
@@ -1679,12 +1881,12 @@ const ShipList = function (vgap)
                 freightersKnown: freightersKnown,
                 freightersTotal: freightersTotal
             }));
- 
+
         return this;
     };
- 
+
     /** PERSISTENCE */
- 
+
     /**
      * Load app data from storage or initialize empty list
      * @returns {ShipList}
@@ -1698,9 +1900,10 @@ const ShipList = function (vgap)
          */
         if (vgap.game.turn == vgap.settings.turn && !this.doLoop) {
             let data = this.fromNote('data');
- 
+
             if (data) {
                 this.ships = data.ships;
+                this.planets = data.planets;
                 $.extend(this.settings, data.settings);
                 this.firstTurn = data.firstTurn;
                 this.lastTurn = data.lastTurn;
@@ -1709,15 +1912,16 @@ const ShipList = function (vgap)
                 return this;
             }
         }
- 
+
         // get from Local Storage
         let str = this.fromStorage('data');
- 
+
         if (str) {
             try {
                 if (this.settings.debugMode) console.log(str);
                 let data = JSON.parse(str);
                 this.ships = data.ships;
+                this.planets = data.planets;
                 $.extend(this.settings, data.settings);
                 this.firstTurn = data.firstTurn;
                 this.lastTurn = data.lastTurn;
@@ -1731,22 +1935,23 @@ const ShipList = function (vgap)
             if (this.settings.debugMode) console.log(this);
             return this;
         }
- 
+
         // compatibility mode
         console.log('Ship List: [' + vgap.game.turn + '] (load) Compatibility Mode.')
         this.storagePath = this.importPrefix + vgap.gameId + '.' + vgap.player.id + '.';
- 
+
         const stored_version = this.fromStorage('version');
         const stored_list = this.fromStorage('shiplist');
         const stored_turn = this.fromStorage('turn');
         const first_turn = this.fromStorage('firstturn');
- 
+
         if (stored_version) {
             this.enabled = true;
             this.ships = JSON.parse(stored_list);
+            this.planets = JSON.parse(stored_list);
             this.lastTurn = parseInt(stored_turn);
             this.firstTurn = parseInt(first_turn);
- 
+
             if (stored_version < 1.40) {
                 for (let i = this.ships.length - 1; i >= 0; i--) {
                     this.ships[i].history = [];
@@ -1763,11 +1968,11 @@ const ShipList = function (vgap)
             console.log('Ship List: [' + vgap.game.turn + '] (load) No Game Data Found.');
             this.reInitialize();
         }
- 
+
         if (this.settings.debugMode) console.log(this);
         return this;
     };
- 
+
     /**
      * Save app data to local storage
      * @returns {ShipList}
@@ -1775,12 +1980,13 @@ const ShipList = function (vgap)
     this.save = function ()
     {
         if (!this.enabled) return this;
- 
+
         console.log('Ship List: [' + vgap.game.turn + '] (save) Saving Game Data.')
- 
+
         const data = {
             version: this.version,
             ships: this.ships,
+            planets: this.planets,
             firstTurn: this.firstTurn,
             lastTurn: this.lastTurn,
             gameName: this.gameName,
@@ -1790,34 +1996,34 @@ const ShipList = function (vgap)
             settings: this.settings,
             activities: this.processedActivities
         };
- 
+
         if (this.settings.debugMode) console.log(data);
- 
+
         // saving notes in time machine does f*all
         if (vgap.game.turn == this.nowTurn) {
             this.toNote('data', data);
         }
- 
+
         const old = this.fromStorage('data');
- 
+
         try {
             this.toStorage('data', JSON.stringify(data));
         } catch (e) {
             this.toStorage(old);
- 
+
             // abort loop
             this.doLoop = false;
- 
+
             nu.info([
                 'Your browser has run out of Local Storage space. ',
                 'Please go to the "Storage" tab to delete data, ',
                 'then try re-enabling the plugin.'
             ].join(''), this.appName + ' Error 4002: No Storage Available.', 400);
         }
- 
+
         return this;
     };
- 
+
     /**
      * Get from local storage
      * @param key
@@ -1832,7 +2038,7 @@ const ShipList = function (vgap)
         }
         return localStorage.getItem(this.storagePath + key);
     };
- 
+
     /**
      * Save to local storage
      * @param key
@@ -1852,12 +2058,12 @@ const ShipList = function (vgap)
         }
         // 2 arguments
         localStorage.setItem(this.storagePath + key, data);
- 
+
         return data;
     };
- 
+
     /** Thanks to McNimble for the pointers to using notes. */
- 
+
     /** Get data from VGAP notes
      * returns {*}
      */
@@ -1866,17 +2072,17 @@ const ShipList = function (vgap)
         try {
             let noteId = 0;
             let arr = [];
- 
+
             let chunks = JSON.parse(vgap.getNote(noteId--, this.noteType).body).chunks;
- 
+
             for (let i = 0; i < chunks; i++) {
                 arr.push(vgap.getNote(noteId--, this.noteType).body);
             }
- 
+
             let obj = JSON.parse(arr.join(''));
- 
+
             console.log('Ship List: [' + vgap.game.turn + '] (fromNote) VGAP Note Read Success.');
- 
+
             return obj[key];
         } catch (e) {
             console.log('Ship List: [' + vgap.game.turn + '] (fromNote) VGAP Note Read Error.');
@@ -1884,7 +2090,7 @@ const ShipList = function (vgap)
             console.trace();
         }
     };
- 
+
     /** Save data to VGAP notes
      * @param key
      * @param value
@@ -1896,20 +2102,20 @@ const ShipList = function (vgap)
             let noteId = 0;
             let obj = {};
             obj[key] = value;
- 
+
             let match = JSON.stringify(obj).match(/.{1,16384}/g);
             let chunks = match.length;
- 
+
             let note = vgap.getNote(noteId--, this.noteType);
             note.body = JSON.stringify({chunks: chunks});
             note.changed = 1;
- 
+
             for (let i = 0; i < chunks; i++) {
                 note = vgap.getNote(noteId--, this.noteType);
                 note.body = match[i];
                 note.changed = 1;
             }
- 
+
             //vgap.save();
             console.log('Ship List: [' + vgap.game.turn + '] (toNote) VGAP Note Save Success.');
         } catch (e) {
@@ -1919,9 +2125,9 @@ const ShipList = function (vgap)
         }
         return this;
     };
- 
+
     /** UTILITIES */
- 
+
     /**
      * Delete data for a given game and player
      * @param   gameId         int
@@ -1931,9 +2137,9 @@ const ShipList = function (vgap)
     this.deleteGame = function (gameId, playerId)
     {
         console.log('Ship List: [' + vgap.game.turn + '] (deleteGame) Deleting Game Data.');
- 
+
         const path = this.storagePrefix + gameId + '.' + playerId + '.';
- 
+
         if (this.doImport) {
             let keys = ['version', 'shiplist', 'turn', 'firstturn', 'player', 'race', 'game_name'];
             for (let i = keys.length - 1; i >= 0; i--) {
@@ -1942,33 +2148,33 @@ const ShipList = function (vgap)
         } else {
             localStorage.removeItem(path + 'data');
         }
- 
+
         if (gameId == vgap.gameId && playerId == vgap.player.id) {
             this.reInitialize();
             this.enabled = false;
         }
- 
+
         return this;
     };
- 
+
     /**
      * Delete all game data from local storage
      * @returns {ShipList}
      */
     this.deleteAllGames = function ()
     {
- 
+
         console.log('Ship List: [' + vgap.game.turn + '] (deleteAllGames) Deleting Game Data.');
- 
+
         let prefix = this.storagePrefix;
         let re = new RegExp(prefix + '\\d+\\.\\d+\\.data');
- 
+
         for (let key in localStorage) {
             if (re.test(key)) localStorage.removeItem(key);
         }
         return this;
     };
- 
+
     /**
      * Delete a ship (ship form)
      * @param id    id of ship to remove
@@ -1985,7 +2191,7 @@ const ShipList = function (vgap)
         this.save();
         return this;
     };
- 
+
     /**
      * Enable app
      * @returns {ShipList}
@@ -2007,18 +2213,18 @@ const ShipList = function (vgap)
         this.enabled = true;
         return this;
     };
- 
+
     /** Exports all game data to JSON */
     this.exportGameData = function ()
     {
         const appData = {};
- 
+
         for (let key in localStorage) {
             if (key.indexOf(this.storagePrefix) != -1) {
                 appData[key] = localStorage.getItem(key);
             }
         }
- 
+
         let blob = new Blob([JSON.stringify(appData)], {type: 'text/json;charset=utf-8'});
         /** @namespace window.URL.createObjectURL */
         let url = window.URL.createObjectURL(blob);
@@ -2031,27 +2237,27 @@ const ShipList = function (vgap)
         /** @namespace window.URL.revokeObjectURL */
         window.URL.revokeObjectURL(url);
     };
- 
+
     /** Import JSON game data */
     this.importGameData = function ()
     {
         console.log('Ship List: [' + vgap.game.turn + '] (importGameData) Starting Import.');
- 
+
         let fileInput = $('#fileInput');
- 
+
         if (fileInput[0].files.length == 0) return;
- 
+
         const file = fileInput[0].files[0];
         const read = new FileReader();
         const self = this;
- 
+
         // reset fileInput
         fileInput.val('');
- 
+
         read.onload = function ()
         {
             let obj;
- 
+
             try {
                 obj = JSON.parse(read.result.toString())
             }
@@ -2073,7 +2279,7 @@ const ShipList = function (vgap)
                 return;
             }
             console.log(obj);
- 
+
             // load saved app data
             const appData = {};
             for (let key in localStorage) {
@@ -2081,10 +2287,10 @@ const ShipList = function (vgap)
                     appData[key] = localStorage.getItem(key);
                 }
             }
- 
+
             // remove all app data
             self.deleteAllGames();
- 
+
             // save uploaded data
             let err;
             $.each(obj, (key, val) =>
@@ -2096,14 +2302,14 @@ const ShipList = function (vgap)
                 localStorage.setItem(key, val);
                 return true;
             });
- 
+
             // revert if an error occurred
- 
+
             if (err) {
                 self.deleteAllGames();
                 self.enabled = true;
                 $.each(appData, (key, val) => { localStorage.setItem(key, val); });
- 
+
                 new ShipListInfoDialog({
                     data: {
                         title: 'Ship List: Invalid Game Data',
@@ -2120,13 +2326,13 @@ const ShipList = function (vgap)
                 */
                 return;
             }
- 
+
             self.enabled = true;
             self.showShips();
         };
         read.readAsText(file);
     };
- 
+
     /**
      * Start looping through turns
      * @param turn
@@ -2136,7 +2342,7 @@ const ShipList = function (vgap)
     {
         if (!turn) turn = this.lastTurn + 1;
         if (turn < 1 || turn > vgap.nowTurn) return this;
- 
+
         if (turn == vgap.nowTurn) {
             vgap.loadNow();
         } else {
@@ -2144,10 +2350,10 @@ const ShipList = function (vgap)
             console.log('Ship List: [' + vgap.game.turn + '] (initLoop) Looping from turn ' + turn + ' to ' + vgap.nowTurn + '.');
             vgap.loadHistory(turn);
         }
- 
+
         return this;
     };
- 
+
     /**
      * Empty ship list and update from given turn
      * @param turn  int
@@ -2156,17 +2362,17 @@ const ShipList = function (vgap)
     this.rebuildShips = function (turn)
     {
         console.log('Ship List: [' + vgap.game.turn + '] (rebuildShips) Updating from turn ' + turn + '.');
- 
+
         if (!turn) turn = vgap.game.turn;
- 
+
         if (turn > vgap.nowTurn || turn < 1) return this;
- 
+
         this.doReset = true;
         this.initLoop(turn);
- 
+
         return this;
     };
- 
+
     /**
      * Reset game defaults
      * @returns {ShipList}
@@ -2175,13 +2381,14 @@ const ShipList = function (vgap)
     {
         console.log('Ship List: [' + vgap.game.turn + '] (reInitialize) Reinitializing.');
         this.ships = [];
+        this.planets = [];
         this.firstTurn = vgap.game.turn;
         this.lastTurn = vgap.game.turn - 1;
         this.maxShipId = vgap.settings.shiplimit;
         if (this.settings.debugMode) console.log(this);
         return this;
     };
- 
+
     /**
      * Empty ship list and update from current turn
      * @returns {ShipList}
@@ -2189,17 +2396,19 @@ const ShipList = function (vgap)
     this.resetShips = function ()
     {
         console.log('Ship List: [' + vgap.game.turn + '] (resetShips) Updating from current turn.');
- 
+
         this.ships = [];
+        this.planets = [];
         this.firstTurn = vgap.game.turn;
         this.lastTurn = vgap.game.turn - 1;
- 
+
         this.updateShips();
- 
+        this.updatePlanets();
+
         vgap.showDashboard();
         return this;
     };
- 
+
     /**
      * Save a ship (ship form)
      * @param ship        {*} ship
@@ -2209,24 +2418,48 @@ const ShipList = function (vgap)
     this.saveShip = function (ship, update)
     {
         const shipIds = this.ships.map((ship) => { return ship.id; });
- 
+
         const shipIdx = shipIds.indexOf(ship.id);
- 
+
         if (shipIdx != -1 && update)
             this.ships.splice(shipIdx, 1);
- 
+
         this.ships.push(ship);
- 
+
         this.ships.sort((a, b) => { return (a.id - b.id); });
- 
+
         this.save();
- 
+
+        return this;
+    };
+
+    /**
+     * Save a planet (planet form)
+     * @param planet        {*} planet
+     * @param update        boolean
+     * @returns {ShipList}
+     */
+    this.savePlanet = function (planet, update)
+    {
+        const planetIds = this.planets.map((planet) => { return planet.id; });
+    
+        const planetIdx = planetIds.indexOf(planet.id);
+    
+         if (planetIdx != -1 && update)
+            this.planets.splice(planetIdx, 1);
+    
+        this.planets.push(planet);
+    
+        this.planets.sort((a, b) => { return (a.id - b.id); });
+    
+         this.save();
+    
         return this;
     };
 }; // end ShipList
- 
+
 /** VIEW COMPONENTS */
- 
+
 /**
  * Ship List CSS
  * @constructor
@@ -2237,7 +2470,7 @@ const ShipListCss = Ractive.extend({
         const red = hexToR(color);
         const green = hexToG(color);
         const blue = hexToB(color);
- 
+
         return "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
     },
     cutHex (h) { return (h.charAt(0) == "#") ? h.substring(1, 7) : h },
@@ -2309,7 +2542,7 @@ const ShipListCss = Ractive.extend({
         '</style>'
     ].join('')
 });
- 
+
 /**
  * Info Dialog
  * @constructor
@@ -2340,7 +2573,7 @@ const ShipListInfoDialog = Ractive.extend({
         '</section>'
     ].join('')
 });
- 
+
 //noinspection JSUnusedLocalSymbols
 /**
  * Menu
@@ -2377,7 +2610,7 @@ const ShipListMenu = Ractive.extend({
         '</ul>'
     ].join('')
 });
- 
+
 /**
  * Modal Dialog
  * @constructor
@@ -2409,7 +2642,7 @@ const ShipListModalDialog = Ractive.extend({
         '</section>'
     ].join('')
 });
- 
+
 /** Fleets Pane
  * @constructor
  */
@@ -2421,7 +2654,7 @@ const ShipListFleetsPane = Ractive.extend({
             $('#ShipTable').tablesorter();
             $('#dashPane').jScrollPane({hideFocus: true});
             $('#newShipForm *').off('focus');
- 
+
         },
         render () {
             if (!this.get('showFleet1')) this.set('showFleet1', [1]);
@@ -2439,12 +2672,12 @@ const ShipListFleetsPane = Ractive.extend({
     parseFleets () {
         let fleets = [[], []];
         let ships = this.get('app').ships;
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             let fleetIdxs = [];
             if (this.get('showFleet1').indexOf(ships[i].ownerid) != -1) fleetIdxs.push(0);
             if (this.get('showFleet2').indexOf(ships[i].ownerid) != -1) fleetIdxs.push(1);
- 
+
             for (let j = fleetIdxs.length - 1; j >= 0; j--) {
                 fleets[fleetIdxs[j]][ships[i].hullid] = {
                     name: this.get('vgap').getHull(ships[i].hullid).name,
@@ -2454,10 +2687,10 @@ const ShipListFleetsPane = Ractive.extend({
                 };
             }
         }
- 
+
         fleets[0].sort(this.sortFleet);
         fleets[1].sort(this.sortFleet);
- 
+
         this.set('fleets', fleets);
     },
     sortFleet (a, b) {
@@ -2514,7 +2747,7 @@ const ShipListFleetsPane = Ractive.extend({
         '</div>'
     ].join('')
 });
- 
+
 /** Overview Screen
  * @constructor
  */
@@ -2528,28 +2761,28 @@ const ShipListOverviewPane = Ractive.extend({
         render ()
         {
             const players = this.get('vgap').players;
- 
+
             for (let i = players.length - 1; i >= 0; i--) {
                 let freightersKnown = 0;
                 let warshipsKnown = 0;
- 
+
                 for (let j = this.get('app').ships.length - 1; j >= 0; j--) {
                     let ship = this.get('app').ships[j];
- 
+
                     if (ship.ownerid != players[i].id) continue;
- 
+
                     //support for sphere add-on
                     if (ship.id < 0) continue;
- 
+
                     let hull = this.get('vgap').getHull(ship.hullid);
- 
+
                     if ((hull.beams == 0 || (ship.beamid == 0 && ship.ownerid == vgap.player.id)) && (hull.launchers == 0 || (ship.torpedoid == 0 && ship.ownerid == vgap.player.id)) && hull.fighterbays == 0) {
                         freightersKnown++;
                     } else {
                         warshipsKnown++;
                     }
                 }
- 
+
                 this.set('vgap.players[' + i + '].freightersKnown', freightersKnown);
                 this.set('vgap.players[' + i + '].warshipsKnown', warshipsKnown);
             }
@@ -2584,7 +2817,7 @@ const ShipListOverviewPane = Ractive.extend({
         '</div>'
     ].join('')
 });
- 
+
 /** @constructor */
 const ShipListSelectionPaneAllied = Ractive.extend({
     isolated: false,
@@ -2633,7 +2866,7 @@ const ShipListSelectionPaneAllied = Ractive.extend({
         '</div></form>'
     ].join('')
 });
- 
+
 /**
  * @constructor
  */
@@ -2670,7 +2903,7 @@ const ShipListSelectionPaneComplete = Ractive.extend({
         '</form>'
     ].join('')
 });
- 
+
 /** @constructor */
 const ShipListSelectionPaneSingle = Ractive.extend({
     isolated: false,
@@ -2722,7 +2955,7 @@ const ShipListSelectionPaneSingle = Ractive.extend({
         '</form>'
     ].join('')
 });
- 
+
 //noinspection JSUnusedGlobalSymbols
 /** @constructor */
 const ShipListSettingsPane = Ractive.extend({
@@ -2760,7 +2993,7 @@ const ShipListSettingsPane = Ractive.extend({
         sendPlanetsMessage ()
         {
             $('#sendPlanetsMessage').prop('checked', false);
- 
+
             new ShipListModalDialog({
                 data: {
                     checked: this.get('app').settings.updates2[1] ? this.get('app').settings.updates2[1][1] : false,
@@ -2799,7 +3032,7 @@ const ShipListSettingsPane = Ractive.extend({
         sendShipsMessage ()
         {
             $('#sendShipsMessage').prop('checked', false);
- 
+
             new ShipListModalDialog({
                 data: {
                     checked: this.get('app').settings.updates[1] ? this.get('app').settings.updates[1][1] : false,
@@ -2882,7 +3115,7 @@ const ShipListSettingsPane = Ractive.extend({
         '</table></div>'
     ].join('')
 });
- 
+
 /** Storage Pane
  * @constructor
  */
@@ -2903,7 +3136,7 @@ const ShipListStoragePane = Ractive.extend({
         render () {
             let games = [];
             let totalSize = 0;
- 
+
             for (let key in localStorage) {
                 let prefix = this.get('app.storagePrefix');
                 let re = new RegExp(prefix + '(\\d+)\\.(\\d+)\\.data');
@@ -2915,7 +3148,7 @@ const ShipListStoragePane = Ractive.extend({
                     let gameSize = gameData.length * 2;
                     gameData = JSON.parse(gameData);
                     totalSize += gameSize;
- 
+
                     games.push(
                         Object.assign(gameData, {
                             gameId: gameId,
@@ -2925,11 +3158,11 @@ const ShipListStoragePane = Ractive.extend({
                     );
                 }
             }
- 
+
             games.push({
                 gameName: 'All Games', playerName: 'All Players', gameSize: (totalSize / 1024).toFixed(2)
             })
- 
+
             this.set('games', games);
         },
         export () {
@@ -2975,9 +3208,9 @@ const ShipListStoragePane = Ractive.extend({
         '</table>',
         '</div>'
     ].join('')
- 
+
 });
- 
+
 /** Warning pane */
 const ShipListWarningPane = Ractive.extend({
     isolated: false,
@@ -3039,14 +3272,14 @@ const ShipListWarningPane = Ractive.extend({
         '{{/app.hideWarningPane}}'
     ].join('')
 });
- 
+
 const Templater = function ()
 {
     this.get = function (template, data)
     {
         return Mustache.render(this.templates[template], data, this.partials);
     }
- 
+
     this.templates = {
         checkBox: '<input id="{{id}}" type="checkbox"{{#checked}} checked{{/checked}} {{#click}} onclick="{{click}}"{{/click}}/>'
         ,
@@ -3080,13 +3313,13 @@ const Templater = function ()
             '</div>'
         ].join('')
     };
- 
+
     this.partials = {
         checkBox: this.templates.checkBox,
         selectBox: this.templates.selectBox
     };
 };
- 
+
 /**
  * @param {vgaPlanets}      vgap
  * @param {*}                settings
@@ -3098,20 +3331,20 @@ const DrawHelper = function (vgap, settings)
     this.drawRadius = 10;
     this.shipsDrawn = [];
     this.togglesShown = false;
- 
+
     this.settings = settings;
- 
+
     this.init = function ()
     {
         this.playerToggles = [];
         this.playerColors = ["#ffff00", "#0000ff", "#00ff00", "#ff0000", "#ffff00", "#ff00ff", "#0000ff", "#ff9900", "#00ff99", "#9900ff", "#cccc00", "#00cccc", "#cc00cc", "#ff9999", "#99ff99", "#9999ff", "#cc0044", "#44cc00", "#0044cc", "#999900", "#009999", "#990099", "#ee3300", "#00ee33", "#3300ee", "#ee0033", "#33ee00", "#0033ee", "#bb4444", "#44bb44", "#4444bb"];
- 
+
         for (let i = 0; i <= vgap.players.length; i++) {
             this.playerToggles[i] = false;
         }
- 
+
         // load colors from diplomacy and configuration settings
- 
+
         for (let i = vgap.players.length - 1; i >= 0; i--) {
             let color = this.playerColors[i + 1];
             let id = vgap.players[i].id;
@@ -3123,12 +3356,12 @@ const DrawHelper = function (vgap, settings)
             }
             this.playerColors[i + 1] = color;
         }
- 
+
         this.playerColors.splice(vgap.players.length + 1);
- 
+
         return this;
     }
- 
+
     this.addMapTool = function ()
     {
         if (vgap.isMobileVersion()) {
@@ -3136,10 +3369,10 @@ const DrawHelper = function (vgap, settings)
         } else {
             vgap.map.addMapTool('Ship List', 'ShowMinerals', this.showSelectionPane.bind(this));
         }
- 
+
         return this;
     }
- 
+
     /**
      * Draw last location of ships
      * @param {[]}  ships
@@ -3147,42 +3380,42 @@ const DrawHelper = function (vgap, settings)
      */
     this.drawShips = function (ships)
     {
- 
+
         let doDraw = false;
- 
+
         for (let i = 0; i <= vgap.players.length; i++) {
             if (this.playerToggles[i]) {
                 doDraw = true;
                 break;
             }
         }
- 
+
         if (!doDraw) return this;
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             const ship = ships[i];
- 
+
             if (vgap.game.turn < ship.infoturn) continue;
- 
+
             if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
                 this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
             }
         }
- 
+
         // mark visible ships in time machine
         if (vgap.game.turn < vgap.nowTurn) {
             for (let i = vgap.ships.length - 1; i >= 0; i--) {
                 const ship = vgap.ships[i];
- 
+
                 if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
                     this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
                 }
             }
         }
- 
+
         return this;
     };
- 
+
     /**
      * Draw ship circle on map
      * @param x            int
@@ -3205,13 +3438,13 @@ const DrawHelper = function (vgap, settings)
         ctx.stroke();
         return this;
     };
- 
+
     /** hide ship scan pane */
     this.hideScan = function ()
     {
         vgap.list.hide();
     };
- 
+
     /**
      * Select player ships on map
      * @param {number} id
@@ -3227,7 +3460,7 @@ const DrawHelper = function (vgap, settings)
         this.playerToggles[id] = true;
         return this;
     };
- 
+
     /**
      * Get ships in radius
      * @param {[]}              ships
@@ -3239,17 +3472,17 @@ const DrawHelper = function (vgap, settings)
     this.shipsAt = function (ships, x, y, includeVisible)
     {
         let at = [];
- 
+
         for (let i = 0; i < ships.length; i++) {
             let ship = ships[i];
- 
+
             if ((this.playerToggles[0] || this.playerToggles[ship.ownerid]) && (!ship.visible || includeVisible) && (Math.dist(x, y, ship.x, ship.y) <= this.drawRadius)) {
                 at.push(ship);
             }
         }
         return at;
     };
- 
+
     /** Show ships from previous turns in pane (hover) */
     this.shipScan = function (ship)
     {
@@ -3257,23 +3490,23 @@ const DrawHelper = function (vgap, settings)
         const note = vgap.getNote(ship.id, 2);
         const shortBeamNames = ['?', 'Las', 'X-Ray', 'Pla', 'Bla', 'Posi', 'Dis', 'HB', 'PH', 'HD', 'HP'];
         const shortTorpNames = ['?', 'Mk1', 'Prot', 'Mk2', 'GaB', 'Mk3', 'Mk4', 'Mk5', 'Mk6', 'Mk7', 'Mk8', 'QT'];
- 
+
         if (vgap.isMobileVersion()) {
             const hull = vgap.getHull(ship.hullid);
             const player = vgap.getPlayer(ship.ownerid);
             const race = vgap.getRace(player.raceid);
- 
+
             let cls = "";
             if (ship.ownerid == vgap.player.id) cls = "MyItem";
             else if (vgap.allied(ship.ownerid)) cls = "AllyItem";
             else if (ship.ownerid != vgap.player.id) cls = "EnemyItem";
- 
+
             let html = "<div class='ItemSelection ShipSeen " + cls + "' data-id='" + ship.id + "'>";
             html += "<img src='" + hullImg(ship.hullid) + "'/>";
- 
+
             html += "<div class='ItemTitle'><div class='sval warp'>" + ( ship.warp == -1 ? '?' : ship.warp ) + "</div>" + Math.abs(ship.id) + ": " + ship.name + "</div>";
             html += "<div class='ItemTitle'>" + hull.name + "</div>";
- 
+
             html += "<div><strong>Seen: Turn " + ship.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
             html += "<hr/><div>" + race.shortname + "<br/>(" + player.username + ")</div>";
             if (ship.heading > 0)
@@ -3296,16 +3529,16 @@ const DrawHelper = function (vgap, settings)
             }
             html += "<div class='lval mass'>" + ship.mass + " kt" +
                     (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
- 
+
             if (note != null) html += "<hr/><div class='GoodTextNote'>" + note.body.replace(/\n/g, "<br/>") + "</div>";
- 
+
             html += "</div>";
- 
+
             return html;
         } else {
             const hullName = vgap.getHull(ship.hullid).name;
             const name = vgap.players[ship.ownerid].fullname;
- 
+
             return [
                 '<div class="ItemSelectionBox">',
                 '<span>', ship.id, ': ', ship.name, '</span>',
@@ -3324,26 +3557,26 @@ const DrawHelper = function (vgap, settings)
             ].join('');
         }
     };
- 
+
     /** Show player toggles */
     this.showMapTool = function ()
     {
         const map = vgap.map;
- 
+
         $("#playerToggles").remove();
         let playerToggles = $([
             '<div id="playerToggles"',
             (this.settings.showVerticalButtons ? '' : ' class="hori"'),
             '></div>'].join(''))
             .appendTo('#MapControls');
- 
+
         map.addMapTool("Close Ship Tool", "hideToggles", this.toggleMapTool.bind(this), "#playerToggles");
- 
+
         map.addMapTool('All Ships', 'player0 capitalize' + (this.playerToggles[0] ? ' active' : ''), (function ()
         {
             this.togglePlayer(0)
         }).bind(this), "#playerToggles");
- 
+
         for (let i = 1; i < this.playerToggles.length; i++) {
             let name = '';
             for (let j = 0; j < vgap.players.length; j++) {
@@ -3357,9 +3590,9 @@ const DrawHelper = function (vgap, settings)
                 this.togglePlayer(i);
             }).bind(this), "#playerToggles");
         }
- 
+
     };
- 
+
     /**
      * Show planet pane when hovering over ship location
      * @param ship
@@ -3370,18 +3603,18 @@ const DrawHelper = function (vgap, settings)
         if (vgap.isMobileVersion()) {
             vgap.list.empty();
             vgap.list.show();
- 
+
             const pane = $('<div class="childpane"></div>').appendTo(vgap.list);
             let planet = vgap.planetAt(ship.x, ship.y);
             const titleBar = $("<div id='ScanTitle'></div>").appendTo(pane);
- 
+
             if (planet) {
                 titleBar.html('<div>' + Math.abs(planet.id) + ': ' + planet.name + '</div>');
             } else {
                 let dist = 1000;
                 let planetB;
                 let distB = 1000;
- 
+
                 for (let i = 0; i < vgap.planets.length; i++) {
                     planetB = vgap.planets[i];
                     distB = Math.dist(planetB.x, planetB.y, ship.x, ship.y);
@@ -3390,16 +3623,16 @@ const DrawHelper = function (vgap, settings)
                         planet = planetB;
                     }
                 }
- 
+
                 if (dist <= 3) {
                     titleBar.html('<div>' + Math.abs(planet.id) + ': ' + planet.name + '<span>(Warp Well)</span></div>');
                 } else {
                     titleBar.html('<div>' + Math.abs(planet.id) + ': ' + planet.name + '<span>(' + dist.toFixed(1) + ' ly away)</span></div>');
                 }
             }
- 
+
             pane.append(shtml.planetScan(planet, true));
- 
+
             const starBase = vgap.getStarbase(planet.id);
             if (starBase != null) pane.append(shtml.starbaseScan(starBase));
         } else {
@@ -3407,13 +3640,13 @@ const DrawHelper = function (vgap, settings)
         }
         return this;
     };
- 
+
     /** show player selection pane for old client */
     this.showSelectionPane = function ()
     {
         // empty left content
         vgap.lc.empty();
- 
+
         let pane = $([
             '<div id="#shipListContainer">',
             '<div class="TitleBar">',
@@ -3421,7 +3654,7 @@ const DrawHelper = function (vgap, settings)
             '<div class="CloseLeftScreen" onclick="vgap.closeLeft();vgap.lc.empty();"></div>',
             '</div></div>',
         ].join('')).appendTo(vgap.lc);
- 
+
         for (let i = 1; i < this.playerToggles.length; i++) {
             let name = '';
             let race = '';
@@ -3432,7 +3665,7 @@ const DrawHelper = function (vgap, settings)
                     break;
                 }
             }
- 
+
             let row = $([
                 '<div>',
                 '<label class="capitalize" style="cursor:pointer">',
@@ -3440,16 +3673,16 @@ const DrawHelper = function (vgap, settings)
                 ' ', name, ' (', race, ')</label>',
                 '</div>'
             ].join('')).appendTo(pane);
- 
+
             row.click(_ =>
             {
                 this.togglePlayer(i);
             });
         }
- 
+
         vgap.openLeft();
     };
- 
+
     /** toggles player buttons */
     this.toggleMapTool = function ()
     {
@@ -3457,18 +3690,18 @@ const DrawHelper = function (vgap, settings)
         else this.showMapTool();
         this.togglesShown = !this.togglesShown;
     };
- 
+
     /**
      * Toggle player ships on starmap
      * @param id        int player id
      */
     this.togglePlayer = function (id)
     {
- 
+
         if (id < 0 || id > vgap.players.length) return;
- 
+
         this.playerToggles[id] = !this.playerToggles[id];
- 
+
         if (id == 0) { // all
             for (let i = this.playerToggles.length - 1; i >= 1; i--) {
                 this.playerToggles[i] = this.playerToggles[id];
@@ -3481,50 +3714,50 @@ const DrawHelper = function (vgap, settings)
                 }
             }
         }
- 
+
         if (vgap.isMobileVersion()) this.showMapTool();
         vgap.map.draw();
     };
- 
+
 };
- 
+
 /** make instance */
 const shipList = new ShipList(vgap);
- 
+
 /** register the app */
 vgap.registerPlugin(shipList, "shipList");
- 
+
 /** OVERLOADED nu.js FUNCTIONS */
- 
+
 /** Check for mobile version */
 vgaPlanets.prototype.isMobileVersion = function ()
 {
     return (this.version >= 4.0);
 };
- 
+
 /** Overload to clear player toggles */
 let fn1 = vgapMap.prototype.clearTools;
- 
+
 vgapMap.prototype.clearTools = function (result)
 {
- 
+
     /** @type {ShipList} */
     const app = vgap.plugins.shipList;
- 
+
     for (let i = 0; i < app.drawer.playerToggles.length; i++) {
         app.drawer.playerToggles[i] = false;
     }
     app.drawer.togglesShown = false;
     $("#playerToggles").remove();
- 
+
     // call nu.js clearTools
     /** @type Function */
     fn1.apply(this, arguments);
- 
+
 };
- 
+
 /** Overload shipScan to show ship list info on hover */
- 
+
 if (vgap.isMobileVersion) {
     sharedContent.prototype.shipScan = function (ship, showdamage)
     {
@@ -3532,22 +3765,22 @@ if (vgap.isMobileVersion) {
         const player = vgap.getPlayer(ship.ownerid);
         const race = vgap.getRace(player.raceid);
         const note = vgap.getNote(ship.id, 2);
- 
+
         /** @add */
         const shortBeamNames = ['?', 'Las', 'X-Ray', 'Pla', 'Bla', 'Posi', 'Dis', 'HB', 'PH', 'HD', 'HP'];
         const shortTorpNames = ['?', 'Mk1', 'Prot', 'Mk2', 'GaB', 'Mk3', 'Mk4', 'Mk5', 'Mk6', 'Mk7', 'Mk8', 'QT'];
- 
+
         let listShip = {};
         const listShips = vgap.plugins.shipList.ships;
- 
+
         const shipIds = listShips.map(function (ship)
         {
             return ship.id;
         });
- 
+
         const shipIdx = shipIds.indexOf(ship.id);
         /** end */
- 
+
         let cls = "";
         if (ship.ownerid == vgap.player.id)
             cls = "MyItem";
@@ -3555,19 +3788,19 @@ if (vgap.isMobileVersion) {
             cls = "AllyItem";
         else if (ship.ownerid != vgap.player.id)
             cls = "EnemyItem";
- 
+
         let html = "<div class='ItemSelection " + cls + "' data-id='" + ship.id + "'>";
         html += "<img " + (ship.iscloaked ? "class='imgcloaked'" : "") + " src='" + ship.img + "'/>";
- 
+
         let cloaked = "";
         if (ship.iscloaked)
             cloaked = "<div class='sval cloak' style='margin-right:3px;'></div>"
- 
+
         html += "<div class='ItemTitle'><div class='sval warp'>" + ship.warp + "</div>" + cloaked + Math.abs(ship.id) + ": " + ship.name + "</div>";
- 
+
         //if (ship.iscloaked)
         //    html += "<div class='sval cloak' style='margin-right: 50px;'></div>"
- 
+
         //html += "<span class='" + cls + "'>" + hull.name + "</span>";
         let heading = ship.heading;
         if (heading == -1)
@@ -3613,7 +3846,7 @@ if (vgap.isMobileVersion) {
             if (cargoType == "nativeclans")
                 cargoName = "native clans";
             html += "<div class='lval " + cargoType + "'><b>" + cargoName + "</b>" + ship.clans + "</div>";
- 
+
             if (hull.fighterbays > 0) {
                 const fighters = Math.floor((ship.clans / hull.cargo) * 10 * hull.fighterbays) + 10;
                 html += "<div class='lval fighters'>" + fighters + "</div>";
@@ -3629,7 +3862,7 @@ if (vgap.isMobileVersion) {
                 html += "<div class='lval neu'>" + ship.neutronium + "</div>";
             if (vgap.gameUsesSupplies())
                 html += "<div class='lval supplies' " + (ship.supplies == 0 ? "style='display:none;'" : "") + ">" + ship.supplies + "</div>";
- 
+
             html += "<div class='lval mc' " + (ship.megacredits == 0 ? "style='display:none;'" : "") + ">" + ship.megacredits + "</div>";
             html += "<div class='lval dur' " + (ship.duranium == 0 ? "style='display:none;'" : "") + ">" + ship.duranium + "</div>";
             html += "<div class='lval tri' " + (ship.tritanium == 0 ? "style='display:none;'" : "") + ">" + ship.tritanium + "</div>";
@@ -3647,28 +3880,28 @@ if (vgap.isMobileVersion) {
                 html += "<div class='lval torpedo'>" + ship.ammo + ' ' + shortTorpNames[ship.torpedoid] + "</div>";
             if (hull.fighterbays > 0)
                 html += "<div class='lval fighters'>" + ship.ammo + "</div>";
- 
+
         }
- 
+
         if (vgap.editmode)
             html += "<hr/><div>" + race.shortname + "<br/>(" + player.username + ")</div>";
         if (tower != null)
             html += "<div style='color:#990099;margin-top:10px;'>" + nu.t.towedbyship + " s" + tower.id + "</div>";
         if (note != null)
             html += "<hr/><div class='GoodTextNote'>" + note.body.replace(/\n/g, "<br/>") + "</div>";
- 
+
         html += "</div>";
- 
+
         return html;
     };
 } else {
     /** @todo add non-mobile functionality */
- 
+
     vgaPlanets.prototype.shipScan = function (ship)
     {
- 
+
         const hull = vgap.getHull(ship.hullid);
- 
+
         let html = "<div class='ItemSelection' data-id='" + ship.id + "'>";
         html += "<img src='" + ship.img + "'/>";
         let cls = "";
@@ -3676,7 +3909,7 @@ if (vgap.isMobileVersion) {
             cls = "AllyText";
         else if (ship.ownerid != vgap.player.id)
             cls = "BadText";
- 
+
         html += "<span class='" + cls + "'>" + Math.abs(ship.id) + ": " + ship.name + "</span>";
         html += "<span class='" + cls + "'>" + hull.name + "</span>";
         let heading = ship.heading;
@@ -3695,24 +3928,24 @@ if (vgap.isMobileVersion) {
         if (ship.ownerid != vgap.player.id)
             html += "<span class='" + cls + "'>" + vgap.raceName(ship.ownerid) + "</span>";
         html += "</div>";
- 
+
         return html;
     };
 }
- 
+
 /**
  * Overload to change ship heading when waypoint changes
  */
- 
+
 let fn2 = vgapMap.prototype.shipSelectorClick;
- 
+
 vgapMap.prototype.shipSelectorClick = function (shift)
 {
     /** @type {Function} */
     fn2.apply(this, arguments);
- 
+
     const ship = this.activeShip;
- 
+
     if (!shift || (ship.x == ship.targetx && ship.y == ship.targety) || vgap.isHyping(ship)) {
         ship.heading = Math.round((
                                   90 - Math.atan2(ship.targety - ship.y, ship.targetx - ship.x)
@@ -3720,55 +3953,55 @@ vgapMap.prototype.shipSelectorClick = function (shift)
         );
     }
 };
- 
+
 /**
  * Overload functions to show ships seen in previous turns
  * showScan for mobile, showInfo for non-mobile
  */
 let fn3 = sharedContent.prototype.showScan;
- 
+
 sharedContent.prototype.showScan = function (x, y, target, lock)
 {
     /** @type {ShipList} */
     const app = vgap.plugins.shipList;
     let ships;
- 
+
     /** @type {Function} */
     fn3.apply(this, arguments);
- 
+
     const pane = vgap.list.first();
     ships = app.drawer.shipsAt(app.ships, x, y, false);
- 
+
     for (let i = ships.length - 1; i >= 0; i--) {
         $(app.drawer.shipScan(ships[i])).appendTo(pane);
     }
- 
+
     ships = app.drawer.shipsAt(app.ships, x, y, true);
- 
+
     for (let i = ships.length - 1; i >= 0; i--) {
         const ship = ships[i];
- 
+
         if (!ship.history || !app.settings.showLocationHistory ||
             app.drawer.shipsDrawn.indexOf(ship.id) != -1
         ) continue;
- 
+
         let x1 = ship.x;
         let y1 = ship.y;
         let opacity = 1;
         const ctx = vgap.map.ctx;
- 
+
         for (let i = 0; i < ship.history.length; i++) {
             let loc = ship.history[i];
             let x2 = loc.x;
             let y2 = loc.y;
- 
+
             // skip if first history turn or same coords
             if (i == 0 || (x1 == x2 && y1 == y2))
                 continue;
- 
+
             opacity *= 0.75;
             if (opacity < 0.25) opacity = 0.25;
- 
+
             ctx.segmentedLine(vgap.map.screenX(x1), vgap.map.screenY(y1),
                 vgap.map.screenX(x2), vgap.map.screenY(y2), {
                     rgba: [200, 220, 240, opacity]
@@ -3776,7 +4009,7 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
             /*
                         opacity *= 0.75;
                         if (opacity < 0.25) opacity = 0.25;
- 
+
                         ctx.strokeStyle = colorToRGBA("#ADD8E6", opacity);
                         ctx.lineWidth = 1;
                         ctx.beginPath();
@@ -3785,9 +4018,9 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
                         ctx.closePath();
                         ctx.stroke();
             */
- 
+
             let x3 = x2, y3 = y2;
- 
+
             let j = i + 1;
             while (x3 == x2 && y3 == y2 && j < ship.history.length) {
                 x3 = ship.history[j].x;
@@ -3800,65 +4033,65 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
                 x3 = -x1;
                 y3 = y1;
             }
- 
+
             const srcAngle = ( Math.atan2(y1 - y2, x1 - x2) + 2 * Math.PI ) % (2 * Math.PI);
             const dstAngle = ( Math.atan2(y3 - y2, x3 - x2) + 2 * Math.PI ) % (2 * Math.PI);
             const angle = (srcAngle + dstAngle + 2 * Math.PI ) % (2 * Math.PI)
- 
+
             vgap.map.drawOffsetText(x2 + Math.round(Math.cos(angle) * 10), Math.round(y2 + Math.sin(angle) * 10), 'T' + loc.turn, 0, 0);
- 
+
             // last different waypoint reached - stop looping
             if (x3 == x2 && y3 == y2 && j == ship.history.length - 1)
                 break;
- 
+
             x1 = x2;
             y1 = y2;
         }
- 
+
         app.drawer.shipsDrawn.push(ship.id);
     }
 };
- 
+
 if (!vgap.isMobileVersion()) {
     let fn4 = vgapMap.prototype.showInfo;
- 
+
     vgapMap.prototype.showInfo = function (x, y)
     {
         /** @type {ShipList} */
         const app = vgap.plugins.shipList;
         let ships;
- 
+
         /** @type {Function} */
         fn4.apply(this, arguments);
- 
+
         const pane = $('#PlanetsLoc').find(':first :last');
         ships = app.drawer.shipsAt(app.ships, vgap.map.x, vgap.map.y, false);
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             $(app.drawer.shipScan(ships[i])).insertBefore(pane);
         }
- 
+
         ships = app.drawer.shipsAt(app.ships, vgap.map.x, vgap.map.y, true);
- 
+
         for (let i = ships.length - 1; i >= 0; i--) {
             const ship = ships[i];
- 
+
             if (!ship.history || !app.settings.showLocationHistory ||
                 app.drawer.shipsDrawn.indexOf(ship.id) != -1
             ) continue;
- 
+
             let x1 = ship.x;
             let y1 = ship.y;
             let opacity = 1;
             const ctx = vgap.map.ctx;
- 
+
             for (let i = 0; i < ship.history.length; i++) {
                 let loc = ship.history[i];
                 let x2 = loc.x;
                 let y2 = loc.y;
                 opacity *= 0.75;
                 if (opacity < 0.25) opacity = 0.25;
- 
+
                 ctx.strokeStyle = colorToRGBA("#ADD8E6", opacity);
                 ctx.lineWidth = 1;
                 ctx.beginPath();
@@ -3871,26 +4104,26 @@ if (!vgap.isMobileVersion()) {
                 x1 = x2;
                 y1 = y2;
             }
- 
+
             app.drawer.shipsDrawn.push(ship.id);
         }
     };
 }
- 
+
 /** Get intercept missions before successful save */
 let fn5 = vgaPlanets.prototype.save;
- 
+
 vgaPlanets.prototype.save = function ()
 {
     const app = vgap.plugins.shipList;
- 
+
     // clear list
     app.intercepts = [];
- 
+
     // loop through own ships with mission intercept / cloak & intercept
     for (let i = vgap.ships.length - 1; i >= 0; i--) {
         let ship = vgap.ships[i];
- 
+
         if (ship.id > 0 && //support for sphere add-on - thanks to Maberi for pointing this out
             ship.ownerid == vgap.player.id &&
             (ship.mission == 7 || ship.mission == 20) &&
@@ -3904,65 +4137,65 @@ vgaPlanets.prototype.save = function ()
             );
         }
     }
- 
+
     if (app.intercepts.length)
         app.save();
- 
+
     /** @type {Function} */
     fn5.apply(this, arguments);
 }
- 
+
 let fn6 = vgapDashboard.prototype.showActivity;
- 
+
 vgapDashboard.prototype.showActivity = function ()
 {
     /** @type {Function} */
     fn6.apply(this, arguments);
- 
+
     // hide Ship List messages from game feed
- 
+
     const messages = $('#egameactivity').find('.egamefeedline');
- 
+
     messages.each(function ()
     {
         const message = $(this).find('.eexcerpt').text();
- 
+
         if (message && message.match(/\s+Ship Data on .+ from .+\s/)) {
             $(this).css('display', 'none');
         }
     });
 }
- 
+
 /** Prime the VCR player with combat data */
 vcrPlayer.prototype.runReport = function (report)
 {
- 
+
     let left = new combatObject();
     let right = new combatObject();
- 
+
     left.setObject(report.left);
     right.setObject(report.right);
- 
+
     this.init(left, right, report.battletype, report.seed);
     this.finished = function ()
     {
     };
     this.run(-1);
- 
+
 };
- 
+
 /** Get relationFrom for ship */
 vgaPlanets.prototype.getRelationFromForShip = function (ownerId)
 {
     const relation = this.getRelation(ownerId);
- 
+
     if (relation) {
         return relation.relationfrom;
     } else {
         return -1;
     }
 };
- 
+
 /** Missing function in non-mobile */
 if (!vgap.isMobileVersion()) {
     //noinspection OverlyComplexFunctionJS
@@ -3986,7 +4219,7 @@ if (!vgap.isMobileVersion()) {
         ctx.fillText(text, this.screenX(x) + dx, this.screenY(y) + dy);
     };
 }
- 
+
 /**
  * uppercase first letter of every word
  * @returns {string}
@@ -3999,7 +4232,7 @@ String.prototype.ucWords = function ()
             return s.toUpperCase();
         });
 };
- 
+
 /**
  * get scoreboard info for player
  * @param id
@@ -4015,7 +4248,7 @@ vgaPlanets.prototype.getPlayerScore = function (id, type)
     }
     return 0;
 };
- 
+
 /**
  *
  * @param x
@@ -4033,12 +4266,12 @@ CanvasRenderingContext2D.prototype.segmentedLine = function (x, y, x2, y2, setti
     const dx = (x2 - x), dy = (y2 - y);
     const len = Math.sqrt(dx * dx + dy * dy);
     const rot = Math.atan2(dy, dx);
- 
+
     this.save();
     this.translate(x + .5, y + .5);
     this.moveTo(0, 0);
     this.rotate(rot);
- 
+
     let i = 0;
     let seglength = intervals[0];
     const segments = [];
@@ -4049,22 +4282,22 @@ CanvasRenderingContext2D.prototype.segmentedLine = function (x, y, x2, y2, setti
         segments.push(intervals[1]);
         i += intervals[0]++ + intervals[1]++;
     }
- 
+
     const dc = segments.length;
     let di = 0, draw = true;
     x = 0;
- 
+
     while (len > x) {
         x += segments[di++ % dc];
         if (x > len) x = len;
         draw ? this.lineTo(x, 0) : this.moveTo(x, 0);
- 
+
         draw = !draw;
     }
     this.stroke();
     this.restore();
 }
- 
+
 Ractive.partials = {
     checkBox: '<input name="{{name}}" type="checkbox" checked="{{checked}}" on-change="toggle"/>',
     checkDataAlert: [
@@ -4114,3 +4347,11 @@ Ractive.partials = {
         '</select>'
     ].join('')
 };
+
+function omit(obj, ...props) {
+    const result = { ...obj };
+    props.forEach(function(prop) {
+      delete result[prop];
+    });
+    return result;
+  }
