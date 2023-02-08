@@ -3996,84 +3996,89 @@ if (vgap.isMobileVersion) {
         if (tempAtTop)
             offset = "top:-25px;right:5px;";
 
-        if (planet.temp >=0 && !showTitle)
-            html += shtml.getTempIcon(planet, "position:relative;" + offset);
+        if(planetIdx != -1) {
+            listPlanet = listPlanets[planetIdx];
+        } else {
+            listPlanet = planet;
+        }
+        if (listPlanet.temp >=0 && !showTitle)
+                html += shtml.getTempIcon(planet, "position:relative;" + offset);
 
-        html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
+            html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
 
-        //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
+            //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
+        
+        var cols = listPlanet.clans;
+            if (!smallscan)
+                cols *= 100;
+        html += "<div class='lval clans' " + (listPlanet.clans <= 0 ? "style='opacity:0.2;'" : "") + ">" + addCommas(cols) + "</div>";
+        html += "<div class='lval mines surveyOnly'>" + gsv(listPlanet.mines) + "</div>";
+        html += "<div class='lval factories surveyOnly'>" + gsv(listPlanet.factories) + "</div>";
+        html += "<div class='lval defense surveyOnly'>" + gsv(listPlanet.defense) + "</div>";
+            //html += "<hr class='surveyOnly'/><div class='lval fcv surveyOnly'>" + planet.friendlycode + "</div><hr class='surveyOnly'/>";
 
-        var cols = planet.clans;
-        if (!smallscan)
-            cols *= 100;
-        html += "<div class='lval clans' " + (planet.clans <= 0 ? "style='opacity:0.2;'" : "") + ">" + addCommas(cols) + "</div>";
-        html += "<div class='lval mines surveyOnly'>" + gsv(planet.mines) + "</div>";
-        html += "<div class='lval factories surveyOnly'>" + gsv(planet.factories) + "</div>";
-        html += "<div class='lval defense surveyOnly'>" + gsv(planet.defense) + "</div>";
-        //html += "<hr class='surveyOnly'/><div class='lval fcv surveyOnly'>" + planet.friendlycode + "</div><hr class='surveyOnly'/>";
-
-        if (planet.infoturn > 0 || vgap.editmode) {
-            var neu = planet.groundneutronium;
-            var dur = planet.groundduranium;
-            var tri = planet.groundtritanium;
-            var mol = planet.groundmolybdenum;
-            /*if (planet.groundneutronium < 0 && planet.totalneutronium > 0) {
-                neu = planet.totalneutronium;
-                dur = planet.totalduranium;
-                tri = planet.totaltritanium;
-                mol = planet.totalmolybdenum;
-            }
-            */
-            if (vgap.gameUsesSupplies()) {
-                html += "<hr/><div class='lval mc'>" + gsv(planet.megacredits) + "</div>";
-                html += "<div class='lval supplies'>" + gsv(planet.supplies) + "</div>";
-            }
-            else {
-                html += "<div class='lval'>&nbsp;</div>";
-                html += "<hr/><div class='lval mc'>" + gsv(planet.megacredits) + "</div>";
-            }
+        if (listPlanet.infoturn > 0 || vgap.editmode) {
+            var neu = listPlanet.groundneutronium;
+            var dur = listPlanet.groundduranium;
+            var tri = listPlanet.groundtritanium;
+            var mol = listPlanet.groundmolybdenum;
+                /*if (planet.groundneutronium < 0 && planet.totalneutronium > 0) {
+                    neu = planet.totalneutronium;
+                    dur = planet.totalduranium;
+                    tri = planet.totaltritanium;
+                    mol = planet.totalmolybdenum;
+                }
+                */
+                if (vgap.gameUsesSupplies()) {
+                html += "<hr/><div class='lval mc'>" + gsv(listPlanet.megacredits) + "</div>";
+                html += "<div class='lval supplies'>" + gsv(listPlanet.supplies) + "</div>";
+                }
+                else {
+                    html += "<div class='lval'>&nbsp;</div>";
+                html += "<hr/><div class='lval mc'>" + gsv(listPlanet.megacredits) + "</div>";
+                }
 
             var densneu = "";
             var densdur = "";
             var denstri = "";
             var densmol = "";
-            if (planet.densityneutronium > 0 && !smallscan) {
-                densneu = " (" + planet.densityneutronium + "%)";
-                densdur = " (" + planet.densityduranium + "%)";
-                denstri = " (" + planet.densitytritanium + "%)";
-                densmol = " (" + planet.densitymolybdenum + "%)";
+            if (listPlanet.densityneutronium > 0 && !smallscan) {
+                densneu = " (" + listPlanet.densityneutronium + "%)";
+                densdur = " (" + listPlanet.densityduranium + "%)";
+                denstri = " (" + listPlanet.densitytritanium + "%)";
+                densmol = " (" + listPlanet.densitymolybdenum + "%)";
             }
 
             if (vgap.gameUsesFuel())
-                html += "<div class='lval neu ItemSpace'>" + gsv(planet.neutronium) + "<span style='color:" + vgap.densityToColor(planet.densityneutronium) + ";'>" + gsv(neu) + densneu + "</span></div>";
+                html += "<div class='lval neu ItemSpace'>" + gsv(listPlanet.neutronium) + "<span style='color:" + vgap.densityToColor(listPlanet.densityneutronium) + ";'>" + gsv(neu) + densneu + "</span></div>";
 
-            html += "<div class='lval dur'>" + gsv(planet.duranium) + "<span style='color:" + vgap.densityToColor(planet.densityduranium) + ";'>" + gsv(dur) + densdur + "</span></div> ";
-            html += "<div class='lval tri'>" + gsv(planet.tritanium) + "<span style='color:" + vgap.densityToColor(planet.densitytritanium) + ";'>" + gsv(tri) + denstri + "</span></div>";
-            html += "<div class='lval mol'>" + gsv(planet.molybdenum) + "<span style='color:" + vgap.densityToColor(planet.densitymolybdenum) + ";'>" + gsv(mol) + densmol + "</span></div>";
-        }
+            html += "<div class='lval dur'>" + gsv(listPlanet.duranium) + "<span style='color:" + vgap.densityToColor(listPlanet.densityduranium) + ";'>" + gsv(dur) + densdur + "</span></div> ";
+            html += "<div class='lval tri'>" + gsv(listPlanet.tritanium) + "<span style='color:" + vgap.densityToColor(listPlanet.densitytritanium) + ";'>" + gsv(tri) + denstri + "</span></div>";
+            html += "<div class='lval mol'>" + gsv(listPlanet.molybdenum) + "<span style='color:" + vgap.densityToColor(listPlanet.densitymolybdenum) + ";'>" + gsv(mol) + densmol + "</span></div>";
+            }
 
-        if (planet.nativeclans > 0)
-            html += "<hr/><span class='nativetype'>" + planet.nativeracename + " " + planet.nativegovernmentname + "</span><div class='lval natives'>" + addCommas(planet.nativeclans * 100) + "</div><div class='lval surveyOnly " + vgap.getHappyClass(planet.nativehappypoints) + "'>" + planet.nativehappypoints + "</div>";
+        if (listPlanet.nativeclans > 0)
+            html += "<hr/><span class='nativetype'>" + listPlanet.nativeracename + " " + listPlanet.nativegovernmentname + "</span><div class='lval natives'>" + addCommas(listPlanet.nativeclans * 100) + "</div><div class='lval surveyOnly " + vgap.getHappyClass(planet.nativehappypoints) + "'>" + planet.nativehappypoints + "</div>";
 
 
-        if (planet.ownerid == 0) {
-            //var pName = "Planet";
-            //if (planet.debrisdisk > 0)
-            //    pName += "oid";
-            //if (planet.infoturn == 0)
-            //    html += "<hr/><div>Unknown " + pName + "</div>";
-            //else
-            //    html += "<hr/><div>Unowned " + pName + "</div>";
-        }
-        else if (planet.ownerid != vgap.player.id)
-            html += "<hr/><div>" + race.adjective + " (" + player.username + ")</div>";
+        if (listPlanet.ownerid == 0) {
+                //var pName = "Planet";
+                //if (planet.debrisdisk > 0)
+                //    pName += "oid";
+                //if (planet.infoturn == 0)
+                //    html += "<hr/><div>Unknown " + pName + "</div>";
+                //else
+                //    html += "<hr/><div>Unowned " + pName + "</div>";
+            }
+        else if (listPlanet.ownerid != vgap.player.id)
+                html += "<hr/><div>" + race.adjective + " (" + player.username + ")</div>";
 
-        if (note != null)
-            html += "<hr/><div class='GoodTextNote'>" + note.body.replace(/\n/g, "<br/>") + "</div>";
+            if (note != null)
+                html += "<hr/><div class='GoodTextNote'>" + note.body.replace(/\n/g, "<br/>") + "</div>";
 
-        html += "</div>";
+            html += "</div>";
 
-        return html;    
+            return html;    
     };
 }; /*else {
     /** @todo add non-mobile functionality *
