@@ -752,6 +752,32 @@ const ShipList = function (vgap)
 
             let planet = {
                 id: vgapPlanet.id,
+                clans: vgapPlanet.clans,
+                climate: vgapPlanet.climate,
+                defense: vgapPlanet.defense,
+                densityduranium: vgapPlanet.densityduranium,
+                densitymolybdenum: vgapPlanet.densitymolybdenum,
+                densityneutronium: vgapPlanet.densityneutronium,
+                densitytritanium: vgapPlanet.densitytritanium,
+                duranium: vgapPlanet.duranium,
+                factories: vgapPlanet.factories,
+                groundduranium: vgapPlanet.groundduranium,
+                groundmolybdenum: vgapPlanet.groundmolybdenum,
+                groundneutronium: vgapPlanet.groundneutronium,
+                groundtritanium: vgapPlanet.groundtritanium,
+                megacredits: vgapPlanet.megacredits,
+                mines: vgapPlanet.mines,
+                molybdenum: vgapPlanet.molybdenum,
+                nativeclans: vgapPlanet.nativeclans,
+                nativegovernment: vgapPlanet.nativegovernment,
+                nativetype: vgapPlanet.nativetype,
+                nativegovernmentname: vgapPlanet.nativegovernmentname,
+                nativeracename: vgapPlanet.nativeracename,
+                neutronium: vgapPlanet.neutronium,
+                ownerid: vgapPlanet.ownerid,
+                supplies: vgapPlanet.supplies,
+                temp: vgapPlanet.temp,
+                tritanium: vgapPlanet.tritanium,
                 infoturn: vgapPlanet.infoturn,
                 name: vgapPlanet.name,
                 visible: true,
@@ -791,7 +817,7 @@ const ShipList = function (vgap)
                     temp: vgapPlanet.temp,
                     tritanium: vgapPlanet.tritanium
                 });
-                this.planets.push(planet);
+                this.planets.push(planet); 
             } else {
                 if (vgapPlanet.clans) planet.clans = vgapPlanet.clans;
                 if (vgapPlanet.climate) planet.climate = vgapPlanet.climate;
@@ -4049,7 +4075,7 @@ if (vgap.isMobileVersion) {
 
         return html;    
     };
-} /*else {
+}; /*else {
     /** @todo add non-mobile functionality *
 
     vgaPlanets.prototype.shipScan = function (ship)
