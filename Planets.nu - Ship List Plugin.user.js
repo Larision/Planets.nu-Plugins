@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.12a
+// @version       1.3.12b
 // @date          2020-07-15
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -114,7 +114,7 @@ const ShipList = function (vgap)
 
     /** PROPERTIES */
 
-    this.version = '1.3.12a';
+    this.version = '1.3.12b';
 
     // views
     this.view = 1;
