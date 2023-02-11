@@ -18,6 +18,7 @@
 
 /*
      Changelog:
+     1.3.12b    Bug fix: hover shows sent planet data
      1.3.12a    1st release planets data
      1.3.12     Feature: track robbed ships
      1.3.11     Bug fix: auto-sending messages
