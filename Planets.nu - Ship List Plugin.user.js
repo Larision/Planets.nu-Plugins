@@ -755,6 +755,7 @@ const ShipList = function (vgap)
                 id: vgapPlanet.id,
                 clans: vgapPlanet.clans,
                 climate: vgapPlanet.climate,
+                debrisdisk: vgapPlanet.debrisdisk,
                 defense: vgapPlanet.defense,
                 densityduranium: vgapPlanet.densityduranium,
                 densitymolybdenum: vgapPlanet.densitymolybdenum,
@@ -762,10 +763,12 @@ const ShipList = function (vgap)
                 densitytritanium: vgapPlanet.densitytritanium,
                 duranium: vgapPlanet.duranium,
                 factories: vgapPlanet.factories,
+                friendlycode: vgapPlanet.friendlycode,
                 groundduranium: vgapPlanet.groundduranium,
                 groundmolybdenum: vgapPlanet.groundmolybdenum,
                 groundneutronium: vgapPlanet.groundneutronium,
                 groundtritanium: vgapPlanet.groundtritanium,
+                img: vgapPlanet.img,
                 megacredits: vgapPlanet.megacredits,
                 mines: vgapPlanet.mines,
                 molybdenum: vgapPlanet.molybdenum,
@@ -793,6 +796,7 @@ const ShipList = function (vgap)
                 $.extend(planet, {
                     clans: vgapPlanet.clans,
                     climate: vgapPlanet.climate,
+                    debrisdisk: vgapPlanet.debrisdisk,
                     defense: vgapPlanet.defense,
                     densityduranium: vgapPlanet.densityduranium,
                     densitymolybdenum: vgapPlanet.densitymolybdenum,
@@ -800,10 +804,12 @@ const ShipList = function (vgap)
                     densitytritanium: vgapPlanet.densitytritanium,
                     duranium: vgapPlanet.duranium,
                     factories: vgapPlanet.factories,
+                    friendlycode: vgapPlanet.friendlycode,
                     groundduranium: vgapPlanet.groundduranium,
                     groundmolybdenum: vgapPlanet.groundmolybdenum,
                     groundneutronium: vgapPlanet.groundneutronium,
                     groundtritanium: vgapPlanet.groundtritanium,
+                    img: vgapPlanet.img,
                     megacredits: vgapPlanet.megacredits,
                     mines: vgapPlanet.mines,
                     molybdenum: vgapPlanet.molybdenum,
@@ -822,6 +828,7 @@ const ShipList = function (vgap)
             } else {
                 if (vgapPlanet.clans) planet.clans = vgapPlanet.clans;
                 if (vgapPlanet.climate) planet.climate = vgapPlanet.climate;
+                if (vgapPlanet.debrisdisk) planet.debrisdisk = vgapPlanet.debrisdisk;
                 if (vgapPlanet.defense) planet.defense = vgapPlanet.defense;
                 if (vgapPlanet.densityduranium) planet.densityduranium = vgapPlanet.densityduranium;
                 if (vgapPlanet.densitymolybdenum) planet.densitymolybdenum = vgapPlanet.densitymolybdenum;
@@ -829,10 +836,12 @@ const ShipList = function (vgap)
                 if (vgapPlanet.densitytritanium) planet.densitytritanium = vgapPlanet.densitytritanium;
                 if (vgapPlanet.duranium) planet.duranium = vgapPlanet.duranium;
                 if (vgapPlanet.factories) planet.factories = vgapPlanet.factories;
+                if (vgapPlanet.friendlycode) planet.friendlycode = vgapPlanet.friendlycode;
                 if (vgapPlanet.groundduranium) planet.groundduranium = vgapPlanet.groundduranium;
                 if (vgapPlanet.groundmolybdenum) planet.groundmolybdenum = vgapPlanet.groundmolybdenum;
                 if (vgapPlanet.groundneutronium) planet.groundneutronium = vgapPlanet.groundneutronium;
                 if (vgapPlanet.groundtritanium) planet.groundtritanium = vgapPlanet.groundtritanium;
+                if (vgapPlanet.img) planet.img = vgapPlanet.img;
                 if (vgapPlanet.megacredits) planet.megacredits = vgapPlanet.megacredits;
                 if (vgapPlanet.mines) planet.mines = vgapPlanet.mines;
                 if (vgapPlanet.molybdenum) planet.molybdenum = vgapPlanet.molybdenum;
@@ -1340,6 +1349,7 @@ const ShipList = function (vgap)
 
                     if (planet.infoturn >= listPlanet.infoturn) {
                         planet.clans = planet.clans != -1 ? planet.clans : listPlanet.clans;
+                        planet.debrisdisk = planet.debrisdisk ? planet.debrisdisk : listPlanet.debrisdisk;
                         planet.defense = planet.defense != -1 ? planet.defense : listPlanet.defense;
                         planet.densityduranium = planet.densityduranium != -1 ? planet.densityduranium : listPlanet.densityduranium;
                         planet.densitymolybdenum = planet.densitymolybdenum != -1 ? planet.densitymolybdenum : listPlanet.densitymolybdenum;
@@ -1347,10 +1357,12 @@ const ShipList = function (vgap)
                         planet.densitytritanium = planet.densitytritanium != -1 ? planet.densitytritanium : listPlanet.densitytritanium;
                         planet.duranium = planet.duranium != -1 ? planet.duranium : listPlanet.duranium;
                         planet.factories = planet.factories != -1 ? planet.factories : listPlanet.factories;
+                        planet.friendlycode = planet.friendlycode != '???' ? planet.friendlycode : listPlanet.friendlycode;
                         planet.groundduranium = planet.groundduranium != -1 ? planet.groundduranium : listPlanet.groundduranium;
                         planet.groundmolybdenum = planet.groundmolybdenum != -1 ? planet.groundmolybdenum : listPlanet.groundmolybdenum;
                         planet.groundneutronium = planet.groundneutronium != -1 ? planet.groundneutronium : listPlanet.groundneutronium;
                         planet.groundtritanium = planet.groundtritanium != -1 ? planet.groundtritanium : listPlanet.groundtritanium;
+                        planet.img = planet.img ? planet.img : listPlanet.img;
                         planet.megacredits = planet.megacredits != -1 ? planet.megacredits : listPlanet.megacredits;
                         planet.mines = planet.mines != -1 ? planet.mines : listPlanet.mines;
                         planet.molybdenum = planet.molybdenum != -1 ? planet.molybdenum : listPlanet.molybdenum;
@@ -1365,6 +1377,7 @@ const ShipList = function (vgap)
                         planet.visible = planet.infoturn > listPlanet.infoturn ? false : listPlanet.visible;
                     } else {
                         planet.clans = listPlanet.clans != -1 ? listPlanet.clans : planet.clans;
+                        planet.debrisdisk = listPlanet.debrisdisk ? listPlanet.debrisdisk : planet.debrisdisk;
                         planet.defense = listPlanet.defense != -1 ? listPlanet.defense : planet.defense;
                         planet.densityduranium = listPlanet.densityduranium != -1 ? listPlanet.densityduranium : planet.densityduranium;
                         planet.densitymolybdenum = listPlanet.densitymolybdenum != -1 ? listPlanet.densitymolybdenum : planet.densitymolybdenum;
@@ -1372,10 +1385,12 @@ const ShipList = function (vgap)
                         planet.densitytritanium = listPlanet.densitytritanium != -1 ? listPlanet.densitytritanium : planet.densitytritanium;
                         planet.duranium = listPlanet.duranium != -1 ? listPlanet.duranium : planet.duranium;
                         planet.factories = listPlanet.factories != -1 ? listPlanet.factories : planet.factories;
+                        planet.friendlycode = listPlanet.friendlycode != '???' ? listPlanet.friendlycode : planet.friendlycode;
                         planet.groundduranium = listPlanet.groundduranium != -1 ? listPlanet.groundduranium : planet.groundduranium;
                         planet.groundmolybdenum = listPlanet.groundmolybdenum != -1 ? listPlanet.groundmolybdenum : planet.groundmolybdenum;
                         planet.groundneutronium = listPlanet.groundneutronium != -1 ? listPlanet.groundneutronium : planet.groundneutronium;
                         planet.groundtritanium = listPlanet.groundtritanium != -1 ? listPlanet.groundtritanium : planet.groundtritanium;
+                        planet.img = listPlanet.img ? listPlanet.img : planet.img;
                         planet.megacredits = listPlanet.megacredits != -1 ? listPlanet.megacredits : planet.megacredits;
                         planet.mines = listPlanet.mines != -1 ? listPlanet.mines : planet.mines;
                         planet.molybdenum = listPlanet.molybdenum != -1 ? listPlanet.molybdenum : planet.molybdenum;
@@ -3991,17 +4006,18 @@ if (vgap.isMobileVersion) {
         $("#ScanTitle").addClass(cls);
 
         var html = "<div class='ItemSelection " + cls + "'>";
-        if (showTitle)
-            html += "<div class='ItemTitle'>" + shtml.getTempIcon(planet) + planet.id + ": " + planet.name + "</div>";
-
-        var offset = "top:45px;right:10px;";
-        if (tempAtTop)
-            offset = "top:-25px;right:5px;";
+        
         if (planet.ownerid != vgap.player.id && !vgap.fullallied(planet.ownerid) && !vgap.editmode) {
             if (planetIdx != -1) {
                 listPlanet = listPlanets[planetIdx];
+                if (showTitle)
+                    html += "<div class='ItemTitle'>" + shtml.getTempIcon(listPlanet) + listPlanet.id + ": " + listPlanet.name + "</div>";
+
+                var offset = "top:45px;right:10px;";
+                if (tempAtTop)
+                    offset = "top:-25px;right:5px;";
                 if (listPlanet.temp >=0 && !showTitle)
-                    html += shtml.getTempIcon(planet, "position:relative;" + offset);
+                    html += shtml.getTempIcon(listPlanet, "position:relative;" + offset);
 
                 html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
 
@@ -4077,10 +4093,14 @@ if (vgap.isMobileVersion) {
                 html += "</div>";
             }
         } else {
-        
+                if (showTitle)
+                    html += "<div class='ItemTitle'>" + shtml.getTempIcon(planet) + planet.id + ": " + planet.name + "</div>";
+
+                var offset = "top:45px;right:10px;";
+                if (tempAtTop)
+                    offset = "top:-25px;right:5px;";
                 if (planet.temp >=0 && !showTitle)
                     html += shtml.getTempIcon(planet, "position:relative;" + offset);
-
                 html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
 
                 //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
@@ -4195,7 +4215,15 @@ if (vgap.isMobileVersion) {
         return html;
     };
 }*/
+sharedContent.prototype.getTempIcon = function (planet, css) {
+    if (planet.debrisdisk > 0 && !vgap.showdebrisdisktemps)
+        return "";
 
+    if (!css)
+        css = "";
+
+    return `<div class='sval ${planet.climate}' style='${css}'>${gsv(planet.temp)}</div>`
+};
 /**
  * Overload to change ship heading when waypoint changes
  */
