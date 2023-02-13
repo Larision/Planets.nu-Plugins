@@ -794,35 +794,7 @@ const ShipList = function (vgap)
             if (planetIdx == -1) {
                 // add missing properties
                 $.extend(planet, {
-                    clans: vgapPlanet.clans,
-                    climate: vgapPlanet.climate,
-                    debrisdisk: vgapPlanet.debrisdisk,
-                    defense: vgapPlanet.defense,
-                    densityduranium: vgapPlanet.densityduranium,
-                    densitymolybdenum: vgapPlanet.densitymolybdenum,
-                    densityneutronium: vgapPlanet.densityneutronium,
-                    densitytritanium: vgapPlanet.densitytritanium,
-                    duranium: vgapPlanet.duranium,
-                    factories: vgapPlanet.factories,
-                    friendlycode: vgapPlanet.friendlycode,
-                    groundduranium: vgapPlanet.groundduranium,
-                    groundmolybdenum: vgapPlanet.groundmolybdenum,
-                    groundneutronium: vgapPlanet.groundneutronium,
-                    groundtritanium: vgapPlanet.groundtritanium,
-                    img: vgapPlanet.img,
-                    megacredits: vgapPlanet.megacredits,
-                    mines: vgapPlanet.mines,
-                    molybdenum: vgapPlanet.molybdenum,
-                    nativeclans: vgapPlanet.nativeclans,
-                    nativegovernment: vgapPlanet.nativegovernment,
-                    nativetype: vgapPlanet.nativetype,
-                    nativegovernmentname: vgapPlanet.nativegovernmentname,
-                    nativeracename: vgapPlanet.nativeracename,
-                    neutronium: vgapPlanet.neutronium,
-                    ownerid: vgapPlanet.ownerid,
-                    supplies: vgapPlanet.supplies,
-                    temp: vgapPlanet.temp,
-                    tritanium: vgapPlanet.tritanium
+                    friendlycode: '???'
                 });
                 this.planets.push(planet); 
             } else {
