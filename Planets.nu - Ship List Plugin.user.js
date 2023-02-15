@@ -1317,25 +1317,25 @@ const ShipList = function (vgap)
 
                     if (planet.infoturn >= listPlanet.infoturn) {
                         planet.clans = planet.clans != -1 ? planet.clans : listPlanet.clans;
-                        planet.defense = planet.defense != -1 ? planet.defense : listPlanet.defense;
+                        //planet.defense = planet.defense != -1 ? planet.defense : listPlanet.defense;
                         planet.densityduranium = planet.densityduranium != -1 ? planet.densityduranium : listPlanet.densityduranium;
                         planet.densitymolybdenum = planet.densitymolybdenum != -1 ? planet.densitymolybdenum : listPlanet.densitymolybdenum;
                         planet.densityneutronium = planet.densityneutronium != -1 ? planet.densityneutronium : listPlanet.densityneutronium;
                         planet.densitytritanium = planet.densitytritanium != -1 ? planet.densitytritanium : listPlanet.densitytritanium;
                         planet.duranium = planet.duranium != -1 ? planet.duranium : listPlanet.duranium;
-                        planet.factories = planet.factories != -1 ? planet.factories : listPlanet.factories;
+                        //planet.factories = planet.factories != -1 ? planet.factories : listPlanet.factories;
                         planet.friendlycode = planet.friendlycode != '???' ? planet.friendlycode : listPlanet.friendlycode;
                         planet.groundduranium = planet.groundduranium != -1 ? planet.groundduranium : listPlanet.groundduranium;
                         planet.groundmolybdenum = planet.groundmolybdenum != -1 ? planet.groundmolybdenum : listPlanet.groundmolybdenum;
                         planet.groundneutronium = planet.groundneutronium != -1 ? planet.groundneutronium : listPlanet.groundneutronium;
                         planet.groundtritanium = planet.groundtritanium != -1 ? planet.groundtritanium : listPlanet.groundtritanium;
-                        planet.img = planet.img ? planet.img : listPlanet.img;
+                        planet.img = listPlanet.img;
                         planet.megacredits = planet.megacredits != -1 ? planet.megacredits : listPlanet.megacredits;
-                        planet.mines = planet.mines != -1 ? planet.mines : listPlanet.mines;
+                        //planet.mines = planet.mines != -1 ? planet.mines : listPlanet.mines;
                         planet.molybdenum = planet.molybdenum != -1 ? planet.molybdenum : listPlanet.molybdenum;
                         planet.nativeclans = planet.nativeclans != -1 ? planet.nativeclans : listPlanet.nativeclans;
-                        planet.nativegovernment = planet.nativegovernment ? planet.nativegovernment : listPlanet.nativegovernment;
-                        planet.nativetype = planet.nativetype ? planet.nativetype : listPlanet.nativetype;
+                        //planet.nativegovernment = planet.nativegovernment ? planet.nativegovernment : listPlanet.nativegovernment;
+                        //planet.nativetype = planet.nativetype ? planet.nativetype : listPlanet.nativetype;
                         planet.neutronium = planet.neutronium != -1 ? planet.neutronium : listPlanet.neutronium;
                         planet.supplies = planet.supplies != -1 ? planet.supplies : listPlanet.supplies;
                         planet.temp = planet.temp != -1 ? planet.temp : listPlanet.temp;
@@ -1344,25 +1344,25 @@ const ShipList = function (vgap)
                         planet.visible = planet.infoturn > listPlanet.infoturn ? false : listPlanet.visible;
                     } else {
                         planet.clans = listPlanet.clans != -1 ? listPlanet.clans : planet.clans;
-                        planet.defense = listPlanet.defense != -1 ? listPlanet.defense : planet.defense;
+                        //planet.defense = listPlanet.defense != -1 ? listPlanet.defense : planet.defense;
                         planet.densityduranium = listPlanet.densityduranium != -1 ? listPlanet.densityduranium : planet.densityduranium;
                         planet.densitymolybdenum = listPlanet.densitymolybdenum != -1 ? listPlanet.densitymolybdenum : planet.densitymolybdenum;
                         planet.densityneutronium = listPlanet.densityneutronium != -1 ? listPlanet.densityneutronium : planet.densityneutronium;
                         planet.densitytritanium = listPlanet.densitytritanium != -1 ? listPlanet.densitytritanium : planet.densitytritanium;
                         planet.duranium = listPlanet.duranium != -1 ? listPlanet.duranium : planet.duranium;
-                        planet.factories = listPlanet.factories != -1 ? listPlanet.factories : planet.factories;
+                        //planet.factories = listPlanet.factories != -1 ? listPlanet.factories : planet.factories;
                         planet.friendlycode = listPlanet.friendlycode != '???' ? listPlanet.friendlycode : planet.friendlycode;
                         planet.groundduranium = listPlanet.groundduranium != -1 ? listPlanet.groundduranium : planet.groundduranium;
                         planet.groundmolybdenum = listPlanet.groundmolybdenum != -1 ? listPlanet.groundmolybdenum : planet.groundmolybdenum;
                         planet.groundneutronium = listPlanet.groundneutronium != -1 ? listPlanet.groundneutronium : planet.groundneutronium;
                         planet.groundtritanium = listPlanet.groundtritanium != -1 ? listPlanet.groundtritanium : planet.groundtritanium;
-                        planet.img = listPlanet.img ? listPlanet.img : planet.img;
+                        planet.img = listPlanet.img;
                         planet.megacredits = listPlanet.megacredits != -1 ? listPlanet.megacredits : planet.megacredits;
-                        planet.mines = listPlanet.mines != -1 ? listPlanet.mines : planet.mines;
+                        //planet.mines = listPlanet.mines != -1 ? listPlanet.mines : planet.mines;
                         planet.molybdenum = listPlanet.molybdenum != -1 ? listPlanet.molybdenum : planet.molybdenum;
                         planet.nativeclans = listPlanet.nativeclans != -1 ? listPlanet.nativeclans : planet.nativeclans;
-                        planet.nativegovernment = listPlanet.nativegovernment ? listPlanet.nativegovernment : planet.nativegovernment;
-                        planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
+                        //planet.nativegovernment = listPlanet.nativegovernment ? listPlanet.nativegovernment : planet.nativegovernment;
+                        //planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
                         planet.neutronium = listPlanet.neutronium != -1 ? listPlanet.neutronium : planet.neutronium;
                         planet.supplies = listPlanet.supplies != -1 ? listPlanet.supplies : planet.supplies;
                         planet.temp = listPlanet.temp != -1 ? listPlanet.temp : planet.temp;
@@ -1370,12 +1370,11 @@ const ShipList = function (vgap)
                         planet.name = listPlanet.name;
                         planet.ownerid = listPlanet.ownerid;
                         planet.visible = listPlanet.visible;
-                        planet.x = listPlanet.x;
-                        planet.y = listPlanet.y;
+                        //planet.x = listPlanet.x;
+                        //planet.y = listPlanet.y;
                     };
                 };
-                if (planet.infoturn > vgap.planets[i].infoturn)
-                    vgap.planets[i] = planets[i];
+                
 
                     /** @todo update ship notes from history if addShipHistory is true */
                 
