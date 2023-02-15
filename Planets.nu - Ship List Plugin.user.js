@@ -1607,7 +1607,11 @@ const ShipList = function (vgap)
 
         if (type == 'ships') {
             for (let i = this.ships.length - 1; i >= 0; i--) {
-                if (this.ships[i].ownerid == on) ships.push(this.ships[i]);
+                if (this.ships[i].ownerid == on) {
+                    const cut = this.ships[i];
+                    const recut = omit(cut, 'history');
+                    ships.push(recut);
+                }
             }
 
             json.ships = ships;
