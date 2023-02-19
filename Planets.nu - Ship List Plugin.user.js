@@ -751,6 +751,7 @@ const ShipList = function (vgap)
                 id: vgapPlanet.id,
                 name: vgapPlanet.name,
                 climate: vgapPlanet.climate,
+                ownerid: vgapPlanet.ownerid,
             };
 
             let planetIdx = planetIds.indexOf(vgapPlanet.id);
@@ -814,7 +815,7 @@ const ShipList = function (vgap)
                 if (vgapPlanet.nativeracename != "none") planet.nativeracename = vgapPlanet.nativeracename;
                 if (vgapPlanet.nativetype) planet.nativetype = vgapPlanet.nativetype;
                 if (vgapPlanet.neutronium != -1) planet.neutronium = vgapPlanet.neutronium;
-                if (vgapPlanet.ownerid) planet.ownerid = vgapPlanet.ownerid;
+                if (vgapPlanet.ownerid != 0) planet.ownerid = vgapPlanet.ownerid;
                 if (vgapPlanet.supplies != -1) planet.supplies = vgapPlanet.supplies;
                 if (vgapPlanet.tritanium != -1) planet.tritanium = vgapPlanet.tritanium;
 
@@ -3958,19 +3959,22 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     });
     const planetIdx = planetIds.indexOf(planet.id);
 
+    listPlanet = listPlanets[planetIdx];
     if (planet.ownerid == vgap.player.id)
+        listPlanet = planet;
+
+    if (listPlanet.ownerid == vgap.player.id)
         cls = "MyItem";
-    else if (planet.ownerid == 0 && planet.infoturn != 0) 
+    else if (listPlanet.ownerid == 0 && listPlanet.infoturn != 0) 
         cls = "UnknownItem";       
-    else if (vgap.allied(planet.ownerid) && planet.ownerid != vgap.player.id)
+    else if (vgap.allied(listPlanet.ownerid) && listPlanet.ownerid != vgap.player.id)
         cls = "AllyItem";
-    else if (planet.ownerid != vgap.player.id && planet.ownerid > 0)
+    else if (listPlanet.ownerid != vgap.player.id && listPlanet.ownerid > 0)
         cls = "EnemyItem";
     $("#ScanTitle").addClass(cls);
 
     var html = "<div class='ItemSelection " + cls + "'>";
     
-    listPlanet = listPlanets[planetIdx];
     if (showTitle)
         html += "<div class='ItemTitle'>" + shtml.getTempIcon(listPlanet) + listPlanet.id + ": " + listPlanet.name + "</div>";
 
