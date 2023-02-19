@@ -3984,7 +3984,8 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
 
     //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
-    
+    if (planet.ownerid == vgap.player.id)
+        listPlanet = planet;
     let cols = listPlanet.clans;
     if (!smallscan)
         cols *= 100;
