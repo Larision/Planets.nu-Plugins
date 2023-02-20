@@ -3996,7 +3996,9 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
         listPlanet = planet;
     
     const ago = vgap.game.turn - listPlanet.infoturn;
-    html += "<div><strong>Info: Turn " + listPlanet.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
+    if (planet.ownerid != vgap.player.id && listPlanet.infoturn > 0)
+        html += "<div><strong>Info: Turn " + listPlanet.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
+
     let cols = listPlanet.clans;
     if (!smallscan)
         cols *= 100;
