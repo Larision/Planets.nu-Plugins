@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.12b
+// @version       1.3.12c
 // @date          2020-07-15
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -18,6 +18,7 @@
 
 /*
      Changelog:
+     1.3.12c    Planetary data sent working
      1.3.12b    Bug fix: hover shows sent planet data
      1.3.12a    1st release planets data
      1.3.12     Feature: track robbed ships
@@ -114,7 +115,7 @@ const ShipList = function (vgap)
 
     /** PROPERTIES */
 
-    this.version = '1.3.12b';
+    this.version = '1.3.12c';
 
     // views
     this.view = 1;
@@ -1602,8 +1603,8 @@ const ShipList = function (vgap)
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 if (this.ships[i].ownerid == on) {
                     const cut = this.ships[i];
-                    const recut = omit(cut, 'history');
-                    ships.push(recut);
+                    //const recut = omit(cut, 'history');
+                    ships.push(cut);
                 }
             }
 
@@ -3959,9 +3960,12 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     });
     const planetIdx = planetIds.indexOf(planet.id);
 
-    listPlanet = listPlanets[planetIdx];
-    if (planet.ownerid == vgap.player.id)
+    
+    if ((planet.ownerid == vgap.player.id) || (planetIdx == -1)) {
         listPlanet = planet;
+    } else {
+        listPlanet = listPlanets[planetIdx];
+    };
 
     if (listPlanet.ownerid == vgap.player.id)
         cls = "MyItem";
@@ -3990,6 +3994,9 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
     if (planet.ownerid == vgap.player.id)
         listPlanet = planet;
+    
+    const ago = vgap.game.turn - listPlanet.infoturn;
+    html += "<div><strong>Info: Turn " + listPlanet.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
     let cols = listPlanet.clans;
     if (!smallscan)
         cols *= 100;
