@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.12c
+// @version       1.3.12d
 // @date          2020-07-15
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -18,6 +18,7 @@
 
 /*
      Changelog:
+     1.3.12d    Bug fix: infoturn planets
      1.3.12c    Planetary data sent working
      1.3.12b    Bug fix: hover shows sent planet data
      1.3.12a    1st release planets data
@@ -115,7 +116,7 @@ const ShipList = function (vgap)
 
     /** PROPERTIES */
 
-    this.version = '1.3.12c';
+    this.version = '1.3.12d';
 
     // views
     this.view = 1;
@@ -299,7 +300,6 @@ const ShipList = function (vgap)
                         console.log('Ship List: [' + vgap.game.turn + '] (processload) Turn ' + vgap.game.turn + '. Turn for update required: ' + (app.lastTurn + 1) + ', skipping.');
                     } else {
                         app.updateShips();
-                        app.updatePlanets();
 
                         if (vgap.game.turn == app.nowTurn)
                             app
@@ -384,7 +384,7 @@ const ShipList = function (vgap)
      */
     this.updateShips = function ()
     {
-        console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Ships.');
+        console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Ships & Planets.');
 
         try {
             this.updateShipsFromIntercepts();
@@ -446,26 +446,13 @@ const ShipList = function (vgap)
             this.updateShipsFromVgap();
         } catch (e) { console.error(e); }
 
-        this.ships.sort((a, b) => { return (a.id - b.id); });
-        this.lastTurn = vgap.game.turn;
-        this.save();
-        return this;
-    };
-
-    /**
-     * Update the planet list with data from current turn
-     * @returns {ShipList}
-     */
-    this.updatePlanets = function ()
-    {
-        console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Planets.');
-
         // visible planets
         try {
             this.updatePlanetsFromVgap();
         } catch (e) { console.error(e); }
 
         this.planets.sort((a, b) => { return (a.id - b.id); });
+        this.ships.sort((a, b) => { return (a.id - b.id); });
         this.lastTurn = vgap.game.turn;
         this.save();
         return this;
@@ -751,8 +738,7 @@ const ShipList = function (vgap)
             let planet = {
                 id: vgapPlanet.id,
                 name: vgapPlanet.name,
-                climate: vgapPlanet.climate,
-                ownerid: vgapPlanet.ownerid,
+                img: vgapPlanet.img
             };
 
             let planetIdx = planetIds.indexOf(vgapPlanet.id);
@@ -761,8 +747,8 @@ const ShipList = function (vgap)
                 // add missing properties
                 $.extend(planet, {
                     clans: vgapPlanet.clans,
-                    defense: vgapPlanet.defense,
-                    infoturn: vgapPlanet.infoturn,      
+                    climate: vgapPlanet.climate,
+                    defense: vgapPlanet.defense,     
                     temp: vgapPlanet.temp,                    
                     densityduranium: vgapPlanet.densityduranium,
                     densitymolybdenum: vgapPlanet.densitymolybdenum,
@@ -775,6 +761,7 @@ const ShipList = function (vgap)
                     groundmolybdenum: vgapPlanet.groundmolybdenum,
                     groundneutronium: vgapPlanet.groundneutronium,
                     groundtritanium: vgapPlanet.groundtritanium,
+                    infoturn: vgapPlanet.infoturn,
                     img: vgapPlanet.img,
                     megacredits: vgapPlanet.megacredits,
                     mines: vgapPlanet.mines,
@@ -791,9 +778,11 @@ const ShipList = function (vgap)
                 });
                 this.planets.push(planet); 
             } else {
+                let oldPlanet = this.planets[planetIdx];
+
                 if (vgapPlanet.clans != -1) planet.clans = vgapPlanet.clans;
+                if (vgapPlanet.temp != -1) planet.climate = vgapPlanet.climate;
                 if (vgapPlanet.defense != -1) planet.defense = vgapPlanet.defense;
-                if (vgapPlanet.infoturn) planet.infoturn = vgapPlanet.infoturn;
                 if (vgapPlanet.temp != -1) planet.temp = vgapPlanet.temp;
                 if (vgapPlanet.densityduranium != -1) planet.densityduranium = vgapPlanet.densityduranium;
                 if (vgapPlanet.densitymolybdenum != -1) planet.densitymolybdenum = vgapPlanet.densitymolybdenum;
@@ -806,7 +795,6 @@ const ShipList = function (vgap)
                 if (vgapPlanet.groundmolybdenum != -1) planet.groundmolybdenum = vgapPlanet.groundmolybdenum;
                 if (vgapPlanet.groundneutronium != -1) planet.groundneutronium = vgapPlanet.groundneutronium;
                 if (vgapPlanet.groundtritanium != -1) planet.groundtritanium = vgapPlanet.groundtritanium;
-                if (vgapPlanet.img) planet.img = vgapPlanet.img;
                 if (vgapPlanet.megacredits != -1) planet.megacredits = vgapPlanet.megacredits;
                 if (vgapPlanet.mines != -1) planet.mines = vgapPlanet.mines;
                 if (vgapPlanet.molybdenum != -1) planet.molybdenum = vgapPlanet.molybdenum;
@@ -819,8 +807,8 @@ const ShipList = function (vgap)
                 if (vgapPlanet.ownerid != 0) planet.ownerid = vgapPlanet.ownerid;
                 if (vgapPlanet.supplies != -1) planet.supplies = vgapPlanet.supplies;
                 if (vgapPlanet.tritanium != -1) planet.tritanium = vgapPlanet.tritanium;
+                if (vgapPlanet.infoturn > oldPlanet.infoturn) planet.infoturn = vgapPlanet.infoturn;
 
-                let oldPlanet = this.planets[planetIdx];
                 $.extend(true, oldPlanet, planet);
             }
         }
@@ -1242,6 +1230,7 @@ const ShipList = function (vgap)
                 // nasty stuff - what to merge?
                 if (shipIdx != -1) {
                     let listShip = this.ships[shipIdx];
+                    ship.history = [];
 
                     if (ship.infoturn >= listShip.infoturn) {
                         // ammo could be 0 after vcr, so keep new value
@@ -1313,20 +1302,18 @@ const ShipList = function (vgap)
 
                     if (planet.infoturn >= listPlanet.infoturn) {
                         planet.clans = planet.clans != -1 ? planet.clans : listPlanet.clans;
-                        //planet.defense = planet.defense != -1 ? planet.defense : listPlanet.defense;
+                        planet.climate = planet.temp != -1 ? planet.climate : listPlanet.climate;
                         planet.densityduranium = planet.densityduranium != -1 ? planet.densityduranium : listPlanet.densityduranium;
                         planet.densitymolybdenum = planet.densitymolybdenum != -1 ? planet.densitymolybdenum : listPlanet.densitymolybdenum;
                         planet.densityneutronium = planet.densityneutronium != -1 ? planet.densityneutronium : listPlanet.densityneutronium;
                         planet.densitytritanium = planet.densitytritanium != -1 ? planet.densitytritanium : listPlanet.densitytritanium;
                         planet.duranium = planet.duranium != -1 ? planet.duranium : listPlanet.duranium;
-                        //planet.factories = planet.factories != -1 ? planet.factories : listPlanet.factories;
                         planet.friendlycode = planet.friendlycode != "???" ? planet.friendlycode : listPlanet.friendlycode;
                         planet.groundduranium = planet.groundduranium != -1 ? planet.groundduranium : listPlanet.groundduranium;
                         planet.groundmolybdenum = planet.groundmolybdenum != -1 ? planet.groundmolybdenum : listPlanet.groundmolybdenum;
                         planet.groundneutronium = planet.groundneutronium != -1 ? planet.groundneutronium : listPlanet.groundneutronium;
                         planet.groundtritanium = planet.groundtritanium != -1 ? planet.groundtritanium : listPlanet.groundtritanium;
                         planet.megacredits = planet.megacredits != -1 ? planet.megacredits : listPlanet.megacredits;
-                        //planet.mines = planet.mines != -1 ? planet.mines : listPlanet.mines;
                         planet.molybdenum = planet.molybdenum != -1 ? planet.molybdenum : listPlanet.molybdenum;
                         planet.nativeclans = planet.nativeclans != -1 ? planet.nativeclans : listPlanet.nativeclans;
                         planet.nativegovernment = planet.nativegovernment ? planet.nativegovernment : listPlanet.nativegovernment;
@@ -1340,33 +1327,35 @@ const ShipList = function (vgap)
                         planet.tritanium = planet.tritanium != -1 ? planet.tritanium : listPlanet.tritanium;
                     } else {
                         planet.clans = listPlanet.clans != -1 ? listPlanet.clans : planet.clans;
-                        //planet.defense = listPlanet.defense != -1 ? listPlanet.defense : planet.defense;
-                        planet.densityduranium = listPlanet.densityduranium != -1 ? listPlanet.densityduranium : planet.densityduranium;
-                        planet.densitymolybdenum = listPlanet.densitymolybdenum != -1 ? listPlanet.densitymolybdenum : planet.densitymolybdenum;
-                        planet.densityneutronium = listPlanet.densityneutronium != -1 ? listPlanet.densityneutronium : planet.densityneutronium;
-                        planet.densitytritanium = listPlanet.densitytritanium != -1 ? listPlanet.densitytritanium : planet.densitytritanium;
-                        planet.duranium = listPlanet.duranium != -1 ? listPlanet.duranium : planet.duranium;
-                        //planet.factories = listPlanet.factories != -1 ? listPlanet.factories : planet.factories;
-                        planet.friendlycode = listPlanet.friendlycode != "???" ? listPlanet.friendlycode : planet.friendlycode;
-                        planet.groundduranium = listPlanet.groundduranium != -1 ? listPlanet.groundduranium : planet.groundduranium;
-                        planet.groundmolybdenum = listPlanet.groundmolybdenum != -1 ? listPlanet.groundmolybdenum : planet.groundmolybdenum;
-                        planet.groundneutronium = listPlanet.groundneutronium != -1 ? listPlanet.groundneutronium : planet.groundneutronium;
-                        planet.groundtritanium = listPlanet.groundtritanium != -1 ? listPlanet.groundtritanium : planet.groundtritanium;
-                        planet.megacredits = listPlanet.megacredits != -1 ? listPlanet.megacredits : planet.megacredits;
-                        //planet.mines = listPlanet.mines != -1 ? listPlanet.mines : planet.mines;
-                        planet.molybdenum = listPlanet.molybdenum != -1 ? listPlanet.molybdenum : planet.molybdenum;
+                        planet.climate = listPlanet.climate;
+                        planet.densityduranium = listPlanet.densityduranium;
+                        planet.densitymolybdenum = listPlanet.densitymolybdenum;
+                        planet.densityneutronium = listPlanet.densityneutronium;
+                        planet.densitytritanium = listPlanet.densitytritanium;
+                        planet.duranium = listPlanet.duranium;
+                        planet.friendlycode = listPlanet.friendlycode;
+                        planet.groundduranium = listPlanet.groundduranium;
+                        planet.groundmolybdenum = listPlanet.groundmolybdenum;
+                        planet.groundneutronium = listPlanet.groundneutronium;
+                        planet.groundtritanium = listPlanet.groundtritanium;
+                        planet.infoturn = listPlanet.infoturn;
+                        planet.megacredits = listPlanet.megacredits;
+                        planet.molybdenum = listPlanet.molybdenum;
                         planet.nativeclans = listPlanet.nativeclans != -1 ? listPlanet.nativeclans : planet.nativeclans;
                         planet.nativegovernment = listPlanet.nativegovernment ? listPlanet.nativegovernment : planet.nativegovernment;
                         planet.nativegovernmentname = listPlanet.nativegovernmentname != "?" ? listPlanet.nativegovernmentname : planet.nativegovernmentname;
                         planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
                         planet.nativeracename = listPlanet.nativeracename != "none" ? listPlanet.nativeracename : planet.nativeracename;
                         planet.ownerid = listPlanet.ownerid ? listPlanet.ownerid : planet.ownerid;
-                        planet.neutronium = listPlanet.neutronium != -1 ? listPlanet.neutronium : planet.neutronium;
-                        planet.supplies = listPlanet.supplies != -1 ? listPlanet.supplies : planet.supplies;
-                        planet.temp = listPlanet.temp != -1 ? listPlanet.temp : planet.temp;
-                        planet.tritanium = listPlanet.tritanium != -1 ? listPlanet.tritanium : planet.tritanium;
-                        planet.name = listPlanet.name;
+                        planet.neutronium = listPlanet.neutronium;
+                        planet.supplies = listPlanet.supplies;
+                        planet.temp = listPlanet.temp;
+                        planet.tritanium = listPlanet.tritanium;
                     };
+                    planet.defense = listPlanet.defense;
+                    planet.factories = listPlanet.factories;
+                    planet.img = listPlanet.img;
+                    planet.mines = listPlanet.mines;
                 };
                 
 
@@ -1603,8 +1592,8 @@ const ShipList = function (vgap)
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 if (this.ships[i].ownerid == on) {
                     const cut = this.ships[i];
-                    //const recut = omit(cut, 'history');
-                    ships.push(cut);
+                    const recut = omit(cut, 'history');
+                    ships.push(recut);
                 }
             }
 
@@ -2412,7 +2401,6 @@ const ShipList = function (vgap)
         this.lastTurn = vgap.game.turn - 1;
 
         this.updateShips();
-        this.updatePlanets();
 
         vgap.showDashboard();
         return this;
@@ -3960,24 +3948,23 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     });
     const planetIdx = planetIds.indexOf(planet.id);
 
-    
+    if (planet.ownerid == vgap.player.id)
+        cls = "MyItem";
+    else if (planet.ownerid == 0 && planet.infoturn != 0) 
+        cls = "UnknownItem";       
+    else if (vgap.allied(planet.ownerid) && planet.ownerid != vgap.player.id)
+        cls = "AllyItem";
+    else if (planet.ownerid != vgap.player.id && planet.ownerid > 0)
+        cls = "EnemyItem";
+    $("#ScanTitle").addClass(cls);
+
+    var html = "<div class='ItemSelection " + cls + "'>";
+
     if ((planet.ownerid == vgap.player.id) || (planetIdx == -1)) {
         listPlanet = planet;
     } else {
         listPlanet = listPlanets[planetIdx];
     };
-
-    if (listPlanet.ownerid == vgap.player.id)
-        cls = "MyItem";
-    else if (listPlanet.ownerid == 0 && listPlanet.infoturn != 0) 
-        cls = "UnknownItem";       
-    else if (vgap.allied(listPlanet.ownerid) && listPlanet.ownerid != vgap.player.id)
-        cls = "AllyItem";
-    else if (listPlanet.ownerid != vgap.player.id && listPlanet.ownerid > 0)
-        cls = "EnemyItem";
-    $("#ScanTitle").addClass(cls);
-
-    var html = "<div class='ItemSelection " + cls + "'>";
     
     if (showTitle)
         html += "<div class='ItemTitle'>" + shtml.getTempIcon(listPlanet) + listPlanet.id + ": " + listPlanet.name + "</div>";
@@ -3989,14 +3976,12 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     if (listPlanet.temp >=0 && !showTitle)
         html += shtml.getTempIcon(listPlanet, "position:relative;" + offset);
 
-    html += "<img src='" + planet.img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
+    html += "<img src='" + vgap.planets[planetIdx].img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
 
     //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
-    if (planet.ownerid == vgap.player.id)
-        listPlanet = planet;
     
     const ago = vgap.game.turn - listPlanet.infoturn;
-    if (planet.ownerid != vgap.player.id && listPlanet.infoturn > 0)
+    if (listPlanet.ownerid != vgap.player.id && listPlanet.infoturn > 0)
         html += "<div><strong>Info: Turn " + listPlanet.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
 
     let cols = listPlanet.clans;
