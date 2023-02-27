@@ -2,16 +2,16 @@
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
 // @version       1.3.12d
-// @date          2020-07-15
+// @date          2023-02-27
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
 // @homepage      https://planets.nu/
 // @license       GPL
-// @include       https://planets.nu/*
-// @include       https://play.planets.nu/*
-// @include       http://play.planets.nu/*
-// @include       https://test.planets.nu/*
-// @include       https://mobile.planets.nu/*
+// @match       https://planets.nu/*
+// @match       https://play.planets.nu/*
+// @match       http://play.planets.nu/*
+// @match       https://test.planets.nu/*
+// @match       https://mobile.planets.nu/*
 // @resource      userscript https://greasyfork.org/en/scripts/405728-planets-nu-ship-list-plugin
 // @require       https://cdn.jsdelivr.net/npm/ractive
 // ==/UserScript==
@@ -1346,7 +1346,7 @@ const ShipList = function (vgap)
                         planet.nativegovernmentname = listPlanet.nativegovernmentname != "?" ? listPlanet.nativegovernmentname : planet.nativegovernmentname;
                         planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
                         planet.nativeracename = listPlanet.nativeracename != "none" ? listPlanet.nativeracename : planet.nativeracename;
-                        planet.ownerid = listPlanet.ownerid ? listPlanet.ownerid : planet.ownerid;
+                        planet.ownerid = listPlanet.ownerid != 0 ? listPlanet.ownerid : planet.ownerid;
                         planet.neutronium = listPlanet.neutronium;
                         planet.supplies = listPlanet.supplies;
                         planet.temp = listPlanet.temp;
