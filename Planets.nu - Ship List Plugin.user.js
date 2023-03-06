@@ -1300,7 +1300,7 @@ const ShipList = function (vgap)
                 if (planetIdx != -1) {
                     let listPlanet = this.planets[planetIdx];
 
-                    if (planet.infoturn >= listPlanet.infoturn) {
+                    if (planet.infoturn > listPlanet.infoturn) {
                         planet.clans = planet.clans != -1 ? planet.clans : listPlanet.clans;
                         planet.climate = planet.temp != -1 ? planet.climate : listPlanet.climate;
                         planet.densityduranium = planet.densityduranium != -1 ? planet.densityduranium : listPlanet.densityduranium;
@@ -1327,30 +1327,29 @@ const ShipList = function (vgap)
                         planet.tritanium = planet.tritanium != -1 ? planet.tritanium : listPlanet.tritanium;
                     } else {
                         planet.clans = listPlanet.clans != -1 ? listPlanet.clans : planet.clans;
-                        planet.climate = listPlanet.climate;
-                        planet.densityduranium = listPlanet.densityduranium;
-                        planet.densitymolybdenum = listPlanet.densitymolybdenum;
-                        planet.densityneutronium = listPlanet.densityneutronium;
-                        planet.densitytritanium = listPlanet.densitytritanium;
-                        planet.duranium = listPlanet.duranium;
-                        planet.friendlycode = listPlanet.friendlycode;
-                        planet.groundduranium = listPlanet.groundduranium;
-                        planet.groundmolybdenum = listPlanet.groundmolybdenum;
-                        planet.groundneutronium = listPlanet.groundneutronium;
-                        planet.groundtritanium = listPlanet.groundtritanium;
-                        planet.infoturn = listPlanet.infoturn;
-                        planet.megacredits = listPlanet.megacredits;
-                        planet.molybdenum = listPlanet.molybdenum;
+                        planet.climate = listPlanet.temp != -1 ? listPlanet.climate : planet.climate;
+                        planet.densityduranium = listPlanet.densityduranium != -1 ? listPlanet.densityduranium : planet.densityduranium;
+                        planet.densitymolybdenum = listPlanet.densitymolybdenum != -1 ? listPlanet.densitymolybdenum : planet.densitymolybdenum;
+                        planet.densityneutronium = listPlanet.densityneutronium != -1 ? listPlanet.densityneutronium : planet.densityneutronium;
+                        planet.densitytritanium = listPlanet.densitytritanium != -1 ? listPlanet.densitytritanium : planet.densitytritanium;
+                        planet.duranium = listPlanet.duranium != -1 ? listPlanet.duranium : planet.duranium;
+                        planet.friendlycode = listPlanet.friendlycode != "???" ? listPlanet.friendlycode : planet.friendlycode;
+                        planet.groundduranium = listPlanet.groundduranium != -1 ? listPlanet.groundduranium : planet.groundduranium;
+                        planet.groundmolybdenum = listPlanet.groundmolybdenum != -1 ? listPlanet.groundmolybdenum : planet.groundmolybdenum;
+                        planet.groundneutronium = listPlanet.groundneutronium != -1 ? listPlanet.groundneutronium : planet.groundneutronium;
+                        planet.groundtritanium = listPlanet.groundtritanium != -1 ? listPlanet.groundtritanium : planet.groundtritanium;
+                        planet.megacredits = listPlanet.megacredits != -1 ? listPlanet.megacredits : planet.megacredits;
+                        planet.molybdenum = listPlanet.molybdenum != -1 ? listPlanet.molybdenum : planet.molybdenum;
                         planet.nativeclans = listPlanet.nativeclans != -1 ? listPlanet.nativeclans : planet.nativeclans;
                         planet.nativegovernment = listPlanet.nativegovernment ? listPlanet.nativegovernment : planet.nativegovernment;
                         planet.nativegovernmentname = listPlanet.nativegovernmentname != "?" ? listPlanet.nativegovernmentname : planet.nativegovernmentname;
                         planet.nativetype = listPlanet.nativetype ? listPlanet.nativetype : planet.nativetype;
                         planet.nativeracename = listPlanet.nativeracename != "none" ? listPlanet.nativeracename : planet.nativeracename;
                         planet.ownerid = listPlanet.ownerid != 0 ? listPlanet.ownerid : planet.ownerid;
-                        planet.neutronium = listPlanet.neutronium;
-                        planet.supplies = listPlanet.supplies;
-                        planet.temp = listPlanet.temp;
-                        planet.tritanium = listPlanet.tritanium;
+                        planet.neutronium = listPlanet.neutronium != -1 ? listPlanet.neutronium : planet.neutronium;
+                        planet.supplies = listPlanet.supplies != -1 ? listPlanet.supplies : planet.supplies;
+                        planet.temp = listPlanet.temp != -1 ? listPlanet.temp : planet.temp;
+                        planet.tritanium = listPlanet.tritanium != -1 ? listPlanet.tritanium : planet.tritanium;
                     };
                     planet.defense = listPlanet.defense;
                     planet.factories = listPlanet.factories;
