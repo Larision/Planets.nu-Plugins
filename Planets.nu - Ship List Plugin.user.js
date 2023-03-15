@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.12d
+// @version       1.3.13
 // @date          2023-02-27
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -18,6 +18,7 @@
 
 /*
      Changelog:
+     1.3.13     Feature: show accelerated pods info
      1.3.12d    Bug fix: infoturn planets
      1.3.12c    Planetary data sent working
      1.3.12b    Bug fix: hover shows sent planet data
@@ -116,7 +117,7 @@ const ShipList = function (vgap)
 
     /** PROPERTIES */
 
-    this.version = '1.3.12d';
+    this.version = '1.3.13';
 
     // views
     this.view = 1;
@@ -670,6 +671,7 @@ const ShipList = function (vgap)
             };
 
             let shipIdx = shipIds.indexOf(vgapShip.id);
+            let oldShip = this.ships[shipIdx];
 
             if (shipIdx == -1) {
                 // add missing properties
@@ -699,10 +701,17 @@ const ShipList = function (vgap)
                 if (vgapShip.torpedoid) ship.torpedoid = vgapShip.torpedoid;
                 if (vgapShip.torps) ship.torps = vgapShip.torps;
 
-                let oldShip = this.ships[shipIdx];
                 this.updateShipHistory(oldShip, ship);
                 $.extend(true, oldShip, ship);
                 if (this.settings.addShipHistory) this.updateShipNote(oldShip);
+            };
+
+            if (vgapShip.id >= 1000) {
+                // add neutronium property
+                $.extend(ship, {
+                    neutronium: vgapShip.neutronium
+                });
+                $.extend(true, oldShip, ship);
             }
         }
 
@@ -3828,11 +3837,19 @@ if (vgap.isMobileVersion) {
                 }
                 html += "<div class='lval mass'>" + ship.mass + " kt" +
                         (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
+                // señala si va acelerado.
+                if (ship.id >= 1000 && ship.neutronium == 2) {
+                    html += "<div class='lval acelerado'><strong>ACCELERATED</strong></div>";
+                }
             } else {
                 if (ship.heading > 0)
                     html += "<div class='lval heading'>" + ship.heading + "</div>";
                 html += "<div class='lval mass'>" + ship.mass + " kt" + "</div>";
                 html += "<hr/><div>Threat: " + vgap.getThreatLevel(hull) + "</div>";
+                // señala si va acelerado.
+                if (ship.id >= 1000 && ship.neutronium == 2) {
+                    html += "<div class='lval acelerado'><strong>ACCELERATED</strong></div>";
+                }
             }
             /** end */
         }
@@ -3876,7 +3893,10 @@ if (vgap.isMobileVersion) {
                 html += "<div class='lval torpedo'>" + ship.ammo + ' ' + shortTorpNames[ship.torpedoid] + "</div>";
             if (hull.fighterbays > 0)
                 html += "<div class='lval fighters'>" + ship.ammo + "</div>";
-
+            // señala si va acelerado.
+            if (ship.id >= 1000 && ship.neutronium == 2) {
+                html += "<div class='lval acelerado'><strong>ACCELERATED</strong></div>";
+            }
         }
 
         if (vgap.editmode)
