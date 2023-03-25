@@ -1,9 +1,13 @@
-# Planets.nu-ShipList-plugin re-imagined by Space Pirate Harlock from Kedallion plugin.
+# Some modifications or adds in planets plugins.
 
-Trying fix what stopped work with game updates and finish planet intel share improvement.
+1 -Planets.nu-ShipList-plugin - re-imagined by Space Pirate Harlock from Kedallion plugin.
 
-Thanks to Kedallion and Space Pirate Harlock for his work.
+  Trying fix what stopped work with game updates and finish planet intel share improvement.
 
-Kedallion plugin - https://greasyfork.org/en/scripts/5994-planets-nu-enemy-ship-list-plugin
+  Thanks to Kedallion and Space Pirate Harlock for his work.
 
-Space Pirate Harlock plugin - https://greasyfork.org/en/scripts/405728-planets-nu-ship-list-plugin
+  Kedallion plugin - https://greasyfork.org/en/scripts/5994-planets-nu-enemy-ship-list-plugin
+
+  Space Pirate Harlock plugin - https://greasyfork.org/en/scripts/405728-planets-nu-ship-list-plugin
+
+2 - Plugins modifications - new plugin with fixes or new ideas
