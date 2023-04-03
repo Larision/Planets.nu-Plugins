@@ -10,4 +10,4 @@
 
   Space Pirate Harlock plugin - https://greasyfork.org/en/scripts/405728-planets-nu-ship-list-plugin
 
-2 - Plugins modifications - new plugin with fixes or new ideas
+2 - Pods fix - fixed accelerated pods waypoints
