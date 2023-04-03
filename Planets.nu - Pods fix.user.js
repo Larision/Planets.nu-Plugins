@@ -2,13 +2,14 @@
 // @name        Pods fix
 // @author      Frankie Garcia
 // @license     Lesser Gnu Public License, version 3
-// @homepage    https://github.com/Larision
-// @downloadURL https://github.com/Larision/Planets.nu-ShipList-plugin/blob/main/Planets.nu - Plugins modifications.user.js
+// @homepage    https://greasyfork.org/es/users/473836-karkass
+// @downloadURL https://greasyfork.org/scripts/463180-pods-fix/code/Pods%20fix.user.js
 // @description For planets.nu -- Some experimental and fixes
 // @match       http://planets.nu/*
 // @match       https://planets.nu/*
 // @match       http://*.planets.nu/*
 // @match       https://*.planets.nu/*
+// @namespace   https://larision.sytes.net
 // @version     0.1
 // @grant       none
 // ==/UserScript==
