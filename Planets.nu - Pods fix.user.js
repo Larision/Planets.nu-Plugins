@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Plugins modifications
+// @name        Pods fix
 // @author      Frankie Garcia
 // @license     Lesser Gnu Public License, version 3
 // @homepage    https://github.com/Larision
