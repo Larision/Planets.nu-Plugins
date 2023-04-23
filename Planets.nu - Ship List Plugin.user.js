@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - Ship List Plugin
 // @namespace     vgap.plugins.shipList
-// @version       1.3.13
+// @version       1.3.14
 // @date          2023-02-27
 // @author        Space Pirate Harlock
 // @description   Planets.NU add-on to automatically keep track of other players' fleets.
@@ -18,6 +18,7 @@
 
 /*
      Changelog:
+     1.3.14     Feature: show minehit damages in ships
      1.3.13     Feature: show accelerated pods info
      1.3.12d    Bug fix: infoturn planets
      1.3.12c    Planetary data sent working
@@ -117,7 +118,7 @@ const ShipList = function (vgap)
 
     /** PROPERTIES */
 
-    this.version = '1.3.13';
+    this.version = '1.3.14';
 
     // views
     this.view = 1;
@@ -441,12 +442,17 @@ const ShipList = function (vgap)
         try {
             this.updateShipsFromMinehitReports();
         } catch (e) { console.error(e); }
-
+        
         // visible ships
         try {
             this.updateShipsFromVgap();
         } catch (e) { console.error(e); }
 
+        // Minehits damage
+        try {
+            this.updateShipsDamageFromMinehitReports();
+        } catch (e) { console.error(e); }
+        
         // visible planets
         try {
             this.updatePlanetsFromVgap();
@@ -525,7 +531,7 @@ const ShipList = function (vgap)
 
             if (shipIdx != -1 &&
                 // Lizards
-                ( vgap.players[this.ships[shipIdx].ownerid].raceid != 2 ||
+                ( vgap.players[this.ships[shipIdx].ownerid -1].raceid != 2 ||
                   ships[i][1] >= 150 )
             ) this.ships.splice(shipIdx, 1);
         }
@@ -534,9 +540,53 @@ const ShipList = function (vgap)
     };
 
     /**
-     * Checks for ships destroyed by mine hits
+     * Checks for ships hitted by mine hits
      * @returns {ShipList}
      */
+    this.updateShipsDamageFromMinehitReports = function ()
+    {
+        let ships = [];
+        let shipIds = this.ships.map((ship) => { return ship.id; });
+
+        for (let i = vgap.messages.length - 1; i >= 0; i--) {
+            const message = vgap.messages[i];
+
+            // critical messages
+            if (message.messagetype != 16) continue;
+
+            const match = message.body.match(/ ID#(\d+) has struck a mine!<br\/>Damage is at: (\d+)<br\/>\( \d+, \d+ \)/);
+            const matchweb =message.body.match(/ ID#(\d+) has struck a WEB mine!<br\/>Damage is at: (\d+)<br\/>We are stuck in the web! We are burning fuel to keep our shields up!<br\/>\( (\d+), (\d+) \)/);
+
+            if (match && (match[2] <= 149)) {
+                ships.push([parseInt(match[1]), parseInt(match[2])]);
+            }
+            if (matchweb && (matchweb[2] <= 149)) {
+                ships.push([parseInt(matchweb[1]), parseInt(matchweb[2])]);
+            }
+        }
+
+        for (let i = ships.length - 1; i >= 0; i--) {
+            let shipIdx = shipIds.indexOf(ships[i][0]);
+
+            if (shipIdx != -1) {
+                // Lizards
+                if (vgap.players[this.ships[shipIdx].ownerid -1].raceid == 2) {
+                    this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
+                    continue;
+                }
+                // Non Lizards
+                if (ships[i][1] <= 99) {
+                    this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
+                }
+                if (this.settings.debugMode) {
+                    console.log('Ship List: [' + vgap.game.turn + '] (updateShipsFromMinehits) Updating Ship.');
+                    console.log(this.ships[shipIdx]);
+                }
+            }
+
+        }
+        return this;
+    };
 
     this.updateShipsFromTowCaptureReports = function ()
     {
@@ -696,10 +746,14 @@ const ShipList = function (vgap)
                 if (vgapShip.beamid) ship.beamid = vgapShip.beamid;
                 if (vgapShip.beams) ship.beams = vgapShip.beams;
                 if (vgapShip.crew != -1) ship.crew = vgapShip.crew;
-                if (vgapShip.damage != -1) ship.damage = vgapShip.damage;
                 if (vgapShip.engineid) ship.engineid = vgapShip.engineid;
                 if (vgapShip.torpedoid) ship.torpedoid = vgapShip.torpedoid;
                 if (vgapShip.torps) ship.torps = vgapShip.torps;
+                if (vgap.getRelationFromForShip(ship.ownerid) >= 3 || ship.ownerid == vgap.player.id) {
+                    ship.damage = vgapShip.damage;
+                } else {
+                    ship.damage = oldShip.damage != -1 ? oldShip.damage : vgapShip.damage;
+                }
 
                 this.updateShipHistory(oldShip, ship);
                 $.extend(true, oldShip, ship);
