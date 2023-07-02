@@ -18,7 +18,7 @@
 
 /*
      Changelog:
-     1.3.14     Feature: show minehit damages in ships
+     1.3.14     Feature: show minehit and glory device damages in enemy ships
      1.3.13     Feature: show accelerated pods info
      1.3.12d    Bug fix: infoturn planets
      1.3.12c    Planetary data sent working
@@ -452,6 +452,11 @@ const ShipList = function (vgap)
         try {
             this.updateShipsDamageFromMinehitReports();
         } catch (e) { console.error(e); }
+
+        //Glory Device damage
+        try {
+            this.updateShipsDamageFromGloryDeviceReports();
+        } catch (e) { console.error(e); }
         
         // visible planets
         try {
@@ -587,6 +592,51 @@ const ShipList = function (vgap)
         }
         return this;
     };
+
+    /**
+     * Checks for ships hitted by glory device
+     * @returns {ShipList}
+     */
+
+    this.updateShipsDamageFromGloryDeviceReports = function ()
+    {
+        let ships = [];
+        let shipIds = this.ships.map((ship) => { return ship.id; });
+
+        for (let i = vgap.messages.length - 1; i >= 0; i--) {
+            const message = vgap.messages[i];
+
+            // ship messages
+            if (message.messagetype != 9) continue;
+
+            const match = message.body.match(/Enemy Distress Call - Glory device! We have been hit by Level 6 shockwave!<br\/>AT: \( \d+ , \d+ \)<br\/>Damage is at (\d+)%/);
+            var numeros = message.body.match(/\d+/gm);
+            var id = message.headline.match(/\d+/);
+            if (match && (numeros[3] <= 149)) {
+                ships.push([parseInt(id[0]), parseInt(numeros[3])]);
+            }
+        }
+
+        for (let i = ships.length - 1; i >= 0; i--) {
+            let shipIdx = shipIds.indexOf(ships[i][0]);
+
+            if (shipIdx != -1) {
+                // Lizards
+                if (vgap.players[this.ships[shipIdx].ownerid -1].raceid == 2) {
+                    this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
+                    continue;
+                }
+                // Non Lizards
+                if (ships[i][1] <= 99) {
+                    this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
+                }
+                if (this.settings.debugMode) {
+                    console.log('Ship List: [' + vgap.game.turn + '] (updateShipsFromGloryDeviceHits) Updating Ship.');
+                    console.log(this.ships[shipIdx]);
+                }
+            }
+        }
+    }
 
     this.updateShipsFromTowCaptureReports = function ()
     {
