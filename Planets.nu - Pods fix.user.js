@@ -20,7 +20,7 @@
             Show real waypoints of accelerated pods
     */
 
-var name = "Plugins modifications";
+var name = "Pods fix";
 var version = "0.1";
 
 // shorterDistOKForHyp intended for use during replay, when shorter distance is OK for the waypoint
@@ -40,6 +40,8 @@ vgaPlanets.prototype.loadWaypoints = function (shorterDistOKForHyp) {
                     color = sets.allyshipto;
                 if (relation && relation.color && relation.color != "")
                     color = "#" + relation.color;
+                if (vgap.sh.isPod(ship))
+                    color = colorToRGBA(color, 0.2);
 
                 var speedfactor = 1;
                 if (vgap.sh.isPod(ship) && ship.neutronium == 2)
@@ -49,8 +51,8 @@ vgaPlanets.prototype.loadWaypoints = function (shorterDistOKForHyp) {
 
                 var x2 = ship.x + Math.round(Math.sin(Math.toRad(ship.heading)) * speed);
                 var y2 = ship.y + Math.round(Math.cos(Math.toRad(ship.heading)) * speed);
-                ship.targetx = x2;
-                ship.targety = y2;
+                //ship.targetx = x2;
+                //ship.targety = y2;
 
 
                 //color = colorToRGBA(color, 0.3);
