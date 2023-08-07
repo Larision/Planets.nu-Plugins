@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name        Pods fix
+// @name        Planets.nu - Pods fix
 // @author      Frankie Garcia
 // @license     Lesser Gnu Public License, version 3
 // @homepage    https://greasyfork.org/es/users/473836-karkass
