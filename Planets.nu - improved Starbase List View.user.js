@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name           Planets.nu - improved Starbase List View
-// @description    Miscellaneous Improvements to the Starbase List View
-// @match        https://planets.nu/home
-// @match        https://play.planets.nu/*
-// @match        https://planets.nu/*
-// @match	       https://test.planets.nu/*
+// @name            Planets.nu - improved Starbase List View
+// @description     Miscellaneous Improvements to the Starbase List View
+// @match           http://*.planets.nu/*
+// @match           https://*.planets.nu/*
+// @match           http://planets.nu/*
+// @match           https://planets.nu/*
 // @version 0.1
 // ==/UserScript==
 // 0.1 - Include starbases misions
@@ -116,6 +116,17 @@ function wrapper () { // wrapper for injection
             else
                 select = function(id) { return function() { vgap.map.selectStarbase(id); }; };
             $(html).click(select(planet.id)).appendTo("#StarbaseRows");
+            /* var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
+
+            //Añadir la función de clic a las celdas de las filas cuando view == 0
+            if (view == 0) {
+                rowHtml.find("td:not(:has(select))").click(select(planet.id));
+            } else {
+                rowHtml.click(function() {
+                    vgap.map.selectStarbase(planet.id);
+                });
+            }
+            rowHtml.appendTo("#StarbaseRows"); */
         }
 
         //this.content.fadeIn();

@@ -5,9 +5,9 @@
 // @date          2020-05-08
 // @author        robodoc
 // @match         http://*.planets.nu/*
-// @match       https://*.planets.nu/*
-// @match       http://planets.nu/*
-// @match       https://planets.nu/*
+// @match         https://*.planets.nu/*
+// @match         http://planets.nu/*
+// @match         https://planets.nu/*
 // @exclude       http://help.planets.nu/*
 // @exclude       https://help.planets.nu/*
 // @exclude       http://profile*.planets.nu/*
