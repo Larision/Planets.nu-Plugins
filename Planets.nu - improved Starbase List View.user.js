@@ -1,5 +1,8 @@
 // ==UserScript==
 // @name            Planets.nu - improved Starbase List View
+// @author          Frankie Garcia
+// @license         Lesser Gnu Public License, version 3
+// @homepage        https://greasyfork.org/es/users/473836-karkass
 // @description     Miscellaneous Improvements to the Starbase List View
 // @match           http://*.planets.nu/*
 // @match           https://*.planets.nu/*
@@ -9,9 +12,14 @@
 // ==/UserScript==
 // 0.1 - Include starbases misions
 
-function wrapper () { // wrapper for injection
-    oldShowStarbases =  vgapDashboard.prototype.showStarbases;
+function wrapper() { // wrapper for injection
+    oldShowStarbases = vgapDashboard.prototype.showStarbases;
 
+    /**
+     * Displays the starbases in the dashboard.
+     *
+     * @param {number} view - the view mode (0: Status, 1: Resource View, 2: Notes View)
+     */
     vgapDashboard.prototype.showStarbases = function (view) {
         vgap.playSound("button");
         vgap.closeSecond();
@@ -25,9 +33,9 @@ function wrapper () { // wrapper for injection
             view = 0;
 
         var filterMenu = $("<ul class='FilterMenu'></ul>").appendTo(this.content);
-        $("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">Status</li>").tclick(function() { vgap.dash.showStarbases(0); }).appendTo(filterMenu);
-        $("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Resource View</li>").tclick(function() { vgap.dash.showStarbases(1); }).appendTo(filterMenu);
-        $("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function() { vgap.dash.showStarbases(2); }).appendTo(filterMenu);
+        $("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">Status</li>").tclick(function () { vgap.dash.showStarbases(0); }).appendTo(filterMenu);
+        $("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Resource View</li>").tclick(function () { vgap.dash.showStarbases(1); }).appendTo(filterMenu);
+        $("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () { vgap.dash.showStarbases(2); }).appendTo(filterMenu);
 
 
         //loop through all planets and show the ones owned by this player
@@ -55,6 +63,7 @@ function wrapper () { // wrapper for injection
             var starbase = vgap.mystarbases[i];
             var planet = vgap.getPlanet(starbase.planetid);
             var base = vgap.getStarbase(planet.id) != null ? "X" : "";
+            var mission_list = returnSBMissionArray_SB(starbase);
             html = "<tr class='RowSelect'><td><img class='TinyIcon' src='" + starbase.img + "'/></td><td>" + planet.id + "</td><td>" + planet.name + "</td>";
             if (vgap.editmode)
                 html += "<td>" + planet.ownerid + "</td>";
@@ -63,24 +72,23 @@ function wrapper () { // wrapper for injection
             if (view == 0) {
                 html += "<td>" + starbase.defense + "</td><td>" + starbase.fighters + "</td><td>" + starbase.damage + "</td><td>" + starbase.hulltechlevel + "</td><td>" + starbase.enginetechlevel + "</td><td>" + starbase.beamtechlevel + "</td><td>" + starbase.torptechlevel + "</td><td>" + planet.friendlycode + "</td>";
                 // dtolman - improved ship list view plugin adapted code
-                var mission_list = returnSBMissionArray(starbase);
-                html += "<td><select id='Dropdown" + i + "' onChange='setSBMission(this)'>";
-                for (var k = 0; k < 15; k++) {
-                    if (starbase.mission == k)
-                        html += "<option value='" + k + "' selected=>" + mission_list[k] + "</option>"
+                html += "<td><select id='Dropdown" + i + "' onChange='setSBMission_SB(this)'>";
+                for (var k = 0; k < mission_list.length; k++) {
+                    if (starbase.mission == mission_list[k].id)
+                        html += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
                     else
-                        html += "<option value='" + k + "'>" + mission_list[k] + "</option>"
+                        html += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                 }
                 html += "</select></td>";
                 //-------------------MCtoDevelop-----------------------
-				var dev = planet.developmentlevel;
-				var moneyneed = 100000*2*(2**(dev-1));
-				if (planet.megacredits > moneyneed) {
-					html += "<td style='color:green' title='Can raise Dev level'>" + planet.megacredits + "</td>";
-				} else {
-					html += "<td>" + planet.megacredits + "</td>";
-				}
-				//-------------------MCtoDevelop-----------------------
+                var dev = planet.developmentlevel;
+                var moneyneed = 100000 * 2 * (2 ** (dev - 1));
+                if (planet.megacredits > moneyneed) {
+                    html += "<td style='color:green' title='Can raise Dev level'>" + planet.megacredits + "</td>";
+                } else {
+                    html += "<td>" + planet.megacredits + "</td>";
+                }
+                //-------------------MCtoDevelop-----------------------
                 if (starbase.isbuilding) {
                     html += "<td>" + vgap.getHull(starbase.buildhullid).name + "</td><td>" + (starbase.buildengineid ? vgap.getEngine(starbase.buildengineid).name : "") + "</td>";
                     if (starbase.buildbeamcount > 0 && starbase.buildbeamid > 0)
@@ -110,23 +118,18 @@ function wrapper () { // wrapper for injection
                 }
             }
             html += "</tr>";
-            var select;
-            if (view == 0)
-                select = function(id) { return function() {}; };
-            else
-                select = function(id) { return function() { vgap.map.selectStarbase(id); }; };
-            $(html).click(select(planet.id)).appendTo("#StarbaseRows");
-            /* var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
 
-            //Añadir la función de clic a las celdas de las filas cuando view == 0
+            var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
+            var select = function (id) { return function () { vgap.map.selectStarbase(id); }; };
+
+            //Añadir la función de clic a las celdas que no sean menu desplegable de las filas cuando view == 0
             if (view == 0) {
                 rowHtml.find("td:not(:has(select))").click(select(planet.id));
             } else {
-                rowHtml.click(function() {
-                    vgap.map.selectStarbase(planet.id);
-                });
+                rowHtml.click(select(planet.id));
             }
-            rowHtml.appendTo("#StarbaseRows"); */
+            rowHtml.appendTo("#StarbaseRows");
+
         }
 
         //this.content.fadeIn();
@@ -138,62 +141,97 @@ function wrapper () { // wrapper for injection
 
     };
 
-    function isHomeSector() {
-        return vgap.game.gametype === 100;
-    };
+    returnSBMissionArray_SB = function (starbase) {
+        var missions = [
+            { id: 0, name: "Nothing" },
+            { id: 1, name: "Refuel" },
+            { id: 2, name: "Max Defense" },
+            { id: 3, name: "Load Torps" },
+            { id: 4, name: "Unload Freigthers" },
+            { id: 5, name: "Repair Base" },
+            { id: 6, name: "Force Surrender" }
+        ];
 
-    // List of SB missions
-    returnSBMissionArray = function (starbase) {
-        var missions = new Array();
+        var planet = vgap.getPlanet(starbase.planetid);
 
-        // Codigo para saber si planetoide esta dentro de tradenetwork
-        var sb_planet = vgap.getPlanet(starbase.planetid);
-
-        missions.push("Nothing");
-        missions.push("Refuel");
-        missions.push("Max Defense");
-        missions.push("Load Torps");
-        missions.push("Unload Freigthers");
-        missions.push("Repair Base");
-        missions.push("Force Surrender");
-        if (isHomeSector() && (vgap.tradeStationNearby(sb_planet))) {
-            missions.push("Send MC");
-            missions.push("Receive MC");
-            missions.push("Send Dur");
-            missions.push("Receive Dur");
-            missions.push("Send Tri");
-            missions.push("Receive Tri");
-            missions.push("Send Mol");
-            missions.push("Receive Mol");
-        } else {
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
-            missions.push("Invalid");
+        if (vgap.advActive(38) || vgap.tradeStationNearby(planet)) {
+            missions.push(
+                { id: 7, name: "Send MC" },
+                { id: 8, name: "Receive MC" }
+            );
         }
+
+        if (vgap.tradeStationNearby(planet)) {
+            missions.push(
+                { id: 16, name: "Send Dur" },
+                { id: 17, name: "Receive Dur" },
+                { id: 18, name: "Send Tri" },
+                { id: 19, name: "Receive Tri" },
+                { id: 20, name: "Send Mol" },
+                { id: 21, name: "Receive Mol" }
+            );
+
+            if (vgap.gameUsesSupplies()) {
+                missions.push(
+                    { id: 22, name: "Send Supplies" },
+                    { id: 23, name: "Receive Supplies" }
+                );
+            }
+        }
+
+        if (vgap.advActive(39)) {
+            missions.push({ id: 9, name: "Lay Mines" });
+        }
+
+        if (vgap.advActive(39) && vgap.player.raceid == 7) {
+            missions.push({ id: 10, name: "Lay Web Mines" });
+        }
+
+        if (vgap.advActive(40) || vgap.advActive(41)) {
+            missions.push({ id: 11, name: "Mine Sweep" });
+        }
+
+        if (vgap.advActive(57) && vgap.pl.isOwnedByEmpire(planet)) {
+            missions.push(
+                { id: 12, name: "Enviar Figthers", desc: nu.t.sendfightersdef },
+                { id: 13, name: "Recibir Figthers", desc: nu.t.recfightersdef }
+            );
+        }
+
+        if (vgap.isHomeSector()) {
+            let homeworldFound = false;
+
+            for (let i = 0; i < vgap.myplanets.length; i++) {
+                if (vgap.myplanets[i].flag == 1) {
+                    homeworldFound = true;
+                }
+            }
+
+            if (!homeworldFound) {
+                missions.push({ id: 15, name: "Hacer Homeworld", desc: "Make this starbase and planet your Homeworld." });
+            } else {
+                let section = vgap.getArray(vgap.homesector.sections, 18);
+
+                if (section && section.isunlocked && !vgap.getCommandCenter()) {
+                    missions.push({ id: 14, name: "Upgrade", desc: "Make this starbase and planet your Central Command Center." });
+                }
+            }
+        }
+
         return missions;
     };
-
-    setSBMission = function(ms__ms) {
-        var ms_length = ms__ms.id.length;
-        var ms_ID = ms__ms.id.substring(8,ms_length);
-        var starbase = vgap.mystarbases[ms_ID];
+    setSBMission = function (selectElement) {
+        var selectedIndex = selectElement.selectedIndex;
+        var starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
+        var starbase = vgap.mystarbases[starbaseIndex];
         var mission_list = returnSBMissionArray(starbase);
-        if (mission_list[ms__ms.value] == "Invalid") 
-            alert ("Invalid Mission Selected");
-        else
-            vgap.mystarbases[ms_ID].mission = ms__ms.value;
-
-        vgap.dash.showStarbases(0);
-
-        if (vgaPlanets.prototype.version < 3)
-            vgap.map.updateZoom();
-        //        vgap.map.draw();
+        starbase.mission = mission_list[selectedIndex].id;
+        vgap.getPlanet(starbase.planetid).changed = 1;
+        vgap.save();
+        vgap.map.draw();
     };
+
+
 
 
 } //Wrapper for injection

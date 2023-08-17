@@ -228,37 +228,37 @@ function wrapper() { // wrapper for injection
                         }
 
                         if (hyp > 0) switch (hyp) {
-                                case 1: temphtml += "<td style='color:yellow' title='FC is HYP and destination less than 20 LY'>";
-                                    show = 1;
-                                    break;
-                                case 2: temphtml += "<td style='color:red' title='Warning: Check Friendly Code and Destination Distance'>";
-                                    show = 1;
-                                    break;
-                                case 3: temphtml += "<td style='color:green' title='No HYP problems seen'>";
-                                    break;
-                                case 4: temphtml += "<td style='color:lightblue' title='Ship not set to HYP'>";
-                                    break;
-                                case 5: temphtml += "<td style='color:aqua' title='Ship set to HYP, no destination set'>";
-                                    break;
-                                case 6: temphtml += "<td style='color:orange' title='Ship set to HYP with valid destination, but not enough fuel'>";
-                                    show = 1;
-                                    break;
-                                default: temphtml += "<td>";
-                            }
+                            case 1: temphtml += "<td style='color:yellow' title='FC is HYP and destination less than 20 LY'>";
+                                show = 1;
+                                break;
+                            case 2: temphtml += "<td style='color:red' title='Warning: Check Friendly Code and Destination Distance'>";
+                                show = 1;
+                                break;
+                            case 3: temphtml += "<td style='color:green' title='No HYP problems seen'>";
+                                break;
+                            case 4: temphtml += "<td style='color:lightblue' title='Ship not set to HYP'>";
+                                break;
+                            case 5: temphtml += "<td style='color:aqua' title='Ship set to HYP, no destination set'>";
+                                break;
+                            case 6: temphtml += "<td style='color:orange' title='Ship set to HYP with valid destination, but not enough fuel'>";
+                                show = 1;
+                                break;
+                            default: temphtml += "<td>";
+                        }
                         else if (cloak > 0) switch (cloak) {
-                                case 1: temphtml += "<td style='color:yellow' title='Ship is cloaked now. No cloak mission set for next turn'>";
-                                    break;
-                                case 2: temphtml += "<td style='color:red' title='Ship is uncloaked now. No cloak mission set for next turn'>";
-                                    break;
-                                case 3: temphtml += "<td style='color:green' title='Ship is cloaked now. Cloak mission is set for next turn'>";
-                                    break;
-                                case 4: temphtml += "<td style='color:lightblue' title='Ship is uncloaked now. Cloak mission set for next turn'>";
-                                    break;
-                                case 5: temphtml += "<td style='color:orange' title='Ship is set to cloak, and PE is set'>";
-                                    show = 1;
-                                    break;
-                                default: temphtml += "<td>";
-                            }
+                            case 1: temphtml += "<td style='color:yellow' title='Ship is cloaked now. No cloak mission set for next turn'>";
+                                break;
+                            case 2: temphtml += "<td style='color:red' title='Ship is uncloaked now. No cloak mission set for next turn'>";
+                                break;
+                            case 3: temphtml += "<td style='color:green' title='Ship is cloaked now. Cloak mission is set for next turn'>";
+                                break;
+                            case 4: temphtml += "<td style='color:lightblue' title='Ship is uncloaked now. Cloak mission set for next turn'>";
+                                break;
+                            case 5: temphtml += "<td style='color:orange' title='Ship is set to cloak, and PE is set'>";
+                                show = 1;
+                                break;
+                            default: temphtml += "<td>";
+                        }
                         else temphtml += "<td>";
 
 

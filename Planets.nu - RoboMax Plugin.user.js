@@ -18,19 +18,19 @@
 // ==/UserScript==
 
 
-function wrapper1 () { // wrapper for injection
+function wrapper1() { // wrapper for injection
 
 	if (vgap.version < 3.0) {
-		console.log("RoboMax Plugin requires at least NU version 3.0. Plugin disabled." );
+		console.log("RoboMax Plugin requires at least NU version 3.0. Plugin disabled.");
 		return;
 	}
 
 	var plugin_version = "0.9.3";
-	console.log("RoboMax plugin version: v" + plugin_version );
+	console.log("RoboMax plugin version: v" + plugin_version);
 
 	var roboMaxPlugin = {
 
-		processload: function() {
+		processload: function () {
 			//console.log("ProcessLoad: roboMaxPlugin plugin called.");
 			var plg = vgap.plugins["roboMaxPlugin"];
 
@@ -46,7 +46,7 @@ function wrapper1 () { // wrapper for injection
 			//console.log("END roboMaxPlugin PROCESS LOAD");
 		},
 
-		loaddashboard: function() {
+		loaddashboard: function () {
 			//console.log("LoadDashboard: roboMaxPlugin plugin called.");
 
 			// Add RoboMax Button
@@ -58,13 +58,13 @@ function wrapper1 () { // wrapper for injection
 		/*
 		 * showdashboard: executed when switching from starmap to dashboard
 		 */
-		showdashboard: function() {
+		showdashboard: function () {
 		},
 
 		/*
 		 * showsummary: executed when returning to the main screen of the dashboard
 		 */
-		showsummary: function() {
+		showsummary: function () {
 			//console.log("ShowSummary: roboMaxPlugin plugin called.");
 
 			//insert Icon for RoboMax on Home Screen
@@ -73,14 +73,14 @@ function wrapper1 () { // wrapper for injection
 			var node;
 			// if (vgap.plugins["plsCheckPlugin"].mobile_version) {
 			if (vgap.plugins["roboMaxPlugin"].checkIfMobileVersion) {
-			  // console.log("ShowSummary for mobile ");
-			  var summary_list = document.getElementById("TurnSummary");
-			  node = document.createElement("span");
+				// console.log("ShowSummary for mobile ");
+				var summary_list = document.getElementById("TurnSummary");
+				node = document.createElement("span");
 			}
 			else {
-			  // console.log("ShowSummary for non-mobile");
-			  var summary_list = document.getElementById("TurnSummary").childNodes[0];
-			  node = document.createElement("li");
+				// console.log("ShowSummary for non-mobile");
+				var summary_list = document.getElementById("TurnSummary").childNodes[0];
+				node = document.createElement("li");
 			}
 
 			if (true) {
@@ -88,7 +88,7 @@ function wrapper1 () { // wrapper for injection
 				//node.setAttribute("style", "color:#FFF000");
 				node.setAttribute("style", "color:#85bb65");
 				node.innerHTML = "<div class=\"iconholder\"><img src=\"https://planets.nu/img/icons/blacksquares/planets.png\"/></div>" + "RoboMax";
-				node.onclick = function() {vgap.plugins["roboMaxPlugin"].displayRoboMax();};
+				node.onclick = function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(); };
 
 				var starbase_entry = summary_list.children[4];
 				summary_list.insertBefore(node, starbase_entry);
@@ -100,51 +100,52 @@ function wrapper1 () { // wrapper for injection
 		 * loadmap: executed after the first turn has been loaded to create the map
 		 * as far as I can tell not executed again when using time machine
 		 */
-		loadmap: function() {
+		loadmap: function () {
 			//console.log("LoadMap: roboMaxPlugin plugin called.");
 		},
 
 		/*
 		 * showmap: executed when switching from dashboard to starmap
 		 */
-		showmap: function() {
+		showmap: function () {
 			//console.log("ShowMap: roboMaxPlugin plugin called.");
 		},
 
 		/*
 		 * draw: executed on any click or drag on the starmap
 		 */
-		draw: function() {
+		draw: function () {
 			//console.log("Draw: roboMaxPlugin plugin called.");
 		},
 
 		/*
 		 * loadplanet: executed a planet is selected on dashboard or starmap
 		 */
-		loadplanet: function() {
+		loadplanet: function () {
 			//console.log("LoadPlanet: roboMaxPlugin plugin called.");
 		},
 
 		/*
 		 * loadstarbase: executed a starbase is selected on dashboard or starmap
 		 */
-		loadstarbase: function() {
+		loadstarbase: function () {
 			//console.log("LoadStarbase: roboMaxPlugin plugin called.");
 		},
 
 		/*
 		 * loadship: executed a ship is selected on dashboard or starmap
 		 */
-		loadship: function() {
+		loadship: function () {
 			//console.log("LoadShip: roboMaxPlugin plugin called.");
 		},
 
 		// Variables
 
 		setColonistTaxes: true,
-        noTaxWithBadClimate: false,
-//		setNativeTaxes: true,
+		noTaxWithBadClimate: false,
+		// setNativeTaxes: true,
 		buildFactoriesAndMines: true,
+		destroyBuildings: true,
 		fcrandomize: true,
 		unloadMegacredits: false,
 		unloadCargo: false,
@@ -155,15 +156,15 @@ function wrapper1 () { // wrapper for injection
 
 		// Main Display Function
 
-		displayRoboMax: function(view) {
+		displayRoboMax: function (view) {
 
 			vgap.playSound("button");
 			vgap.closeSecond();
 			var plg = vgap.plugins["roboMaxPlugin"];
 			vgap.dash.content.empty();
-			
+
 			//check homesector
-			if (isHomeSector()) {
+			if (vgap.isHomeSector()) {
 				plg.homeSector = true;
 			} else {
 				plg.homeSector = false;
@@ -174,9 +175,9 @@ function wrapper1 () { // wrapper for injection
 			if (!view) view = 0;
 			//console.log("Entered displayRoboMax");
 			var filterMenu = $("<ul class='FilterMenu'></ul>").appendTo(vgap.dash.content);
-				$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">RoboMax Command Center</li>").tclick(function() { vgap.plugins["roboMaxPlugin"].displayRoboMax(0); }).appendTo(filterMenu);
-				// $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Planet Needs and Surpluses</li>").tclick(function() { vgap.plugins["roboMaxPlugin"].displayRoboMax(3); }).appendTo(filterMenu);
-				$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">RoboMax Help</li>").tclick(function() { vgap.plugins["roboMaxPlugin"].displayRoboMax(2); }).appendTo(filterMenu);
+			$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">RoboMax Command Center</li>").tclick(function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(0); }).appendTo(filterMenu);
+			// $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Planet Needs and Surpluses</li>").tclick(function() { vgap.plugins["roboMaxPlugin"].displayRoboMax(3); }).appendTo(filterMenu);
+			$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">RoboMax Help</li>").tclick(function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(2); }).appendTo(filterMenu);
 
 			html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 70) + "px;'>";
 
@@ -203,15 +204,23 @@ function wrapper1 () { // wrapper for injection
 					} else {
 						html += "<li><input type='checkbox' name='ULCargoCheck' id='UnloadCargoCheck' value ='c' />Automatically unload cargo</li>";
 					}
-					if (plg.buildFactoriesAndMines == true) {
-						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' checked />Build factories and mines</li>";
-					} else {
-						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' />Build factories and mines</li>";
-					}
 					if (plg.buildDefenses == true) {
 						html += "<li><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' checked />Automatically build defense posts where needed</li>";
 					} else {
 						html += "<li><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' />Automatically build defense posts where needed</li>";
+					}
+					if (plg.buildFactoriesAndMines == true) {
+						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' checked />Build factories and mines</li>";
+						html += "<ul id='decreaseBuildings'>"; // opciones anidadas para factories y mines
+						if (plg.destroyBuildings == true) {
+							html += "<li><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' checked />Decrease Mines and Factories to Target</li>";
+						} else {
+							html += "<li><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' />Decrease Mines and Factories to Target</li>";
+						}
+						html += "</ul>"; // fin opciones anidadas
+						html += "</li>"; // cierra list item
+					} else {
+						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' />Build factories and mines</li>";
 					}
 					if (plg.setColonistTaxes == true) {
 						html += "<li><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' checked />Set Colonist taxes</li>";
@@ -226,24 +235,18 @@ function wrapper1 () { // wrapper for injection
 					} else {
 						html += "<li><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' />Set Colonist taxes</li>";
 					}
-					// Agrega casilla No tax con clima adverso
-//Anidado                    if (plg.noTaxWithBadClimate == true) {
-//Anidado						html += "<li><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' checked />No tax Colonist with bad climate</li>";
-//Anidado					} else {
-//Anidado						html += "<li><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' />No tax Colonist with bad climate</li>";
-//Anidado					}
-//					if (plg.setNativeTaxes == true) {
-//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' checked />Set Native taxes</li>";
-//					} else {
-//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' />Set Native taxes</li>";
-//					}
+					//					if (plg.setNativeTaxes == true) {
+					//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' checked />Set Native taxes</li>";
+					//					} else {
+					//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' />Set Native taxes</li>";
+					//					}
 					if (plg.fcrandomize == true) {
 						html += "<li><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' checked />Manage planetary friendly codes</li>";
 					} else {
 						html += "<li><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' />Manage planetary friendly codes</li>";
 					}
 					// Agrega casilla de Home Sector a settings
-					if (plg.homeSector == true) {
+					if (vgap.isHomeSector()) {
 						html += "<li><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</li>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
 						if (plg.growthPriority == true) {
@@ -258,8 +261,6 @@ function wrapper1 () { // wrapper for injection
 						}
 						html += "</ul>"; //Fin de opciones anidadas
 						html += "</li>"; //cierra home sector list item
-//					} else {
-//						html += "<li><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' '/>Home Sector Settings</li>";
 					}
 					html += "</td></table>";
 
@@ -282,7 +283,7 @@ function wrapper1 () { // wrapper for injection
 				this.pane = $(html).appendTo(vgap.dash.content);
 
 				// $('#ManagePlanetsCheck').click(function () {
-					// console.log("Manage planet building and taxing CLICKED");
+				// console.log("Manage planet building and taxing CLICKED");
 				// });
 
 				$('#UnloadMegacreditsCheck').click(function () {
@@ -317,7 +318,7 @@ function wrapper1 () { // wrapper for injection
 				});
 
 				// Cambia settings al clickar
-                $('#noTaxWithBadClimateCheck').click(function () {
+				$('#noTaxWithBadClimateCheck').click(function () {
 					console.log("noTaxWithBadClimateCheck CLICKED");
 					if (plg.noTaxWithBadClimate == true)
 						plg.noTaxWithBadClimate = false;
@@ -326,22 +327,26 @@ function wrapper1 () { // wrapper for injection
 					console.log("noTaxWithBadClimate is now: " + plg.noTaxWithBadClimate);
 				});
 
-//				$('#setNativeTaxesCheck').click(function () {
-//					console.log("setNativeTaxesCheck CLICKED");
-//					if (plg.setNativeTaxes == true)
-//						plg.setNativeTaxes = false;
-//					else
-//						plg.setNativeTaxes = true;
-//					console.log("setNativeTaxes is now: " + plg.setNativeTaxes);
-//				});
-
 				$('#buildFactoriesCheck').click(function () {
+					const targetBuildingsDestroy = document.getElementById('decreaseBuildings');
 					console.log("buildFactoriesCheck CLICKED");
-					if (plg.buildFactoriesAndMines == true)
+					if (plg.buildFactoriesAndMines == true) {
 						plg.buildFactoriesAndMines = false;
-					else
+						targetBuildingsDestroy.style.display = 'none'; // oculta anidada
+					} else {
 						plg.buildFactoriesAndMines = true;
-					console.log("buildFactoriesAndMines is now: " + plg.setTaxes);
+						targetBuildingsDestroy.style.display = 'block';
+					}
+					console.log("buildFactoriesAndMines is now: " + plg.buildFactoriesAndMines);
+				});
+
+				$('#destroyBuildingsCheck').click(function () {
+					console.log("destroyBuildingsCheck CLICKED");
+					if (plg.destroyBuildings == true)
+						plg.destroyBuildings = false;
+					else
+						plg.destroyBuildings = true;
+					console.log("destroyBuildings is now: " + plg.destroyBuildings);
 				});
 
 				$('#ManagePlanetFCsCheck').click(function () {
@@ -383,28 +388,28 @@ function wrapper1 () { // wrapper for injection
 					console.log("Build defense posts: " + plg.buildDefenses);
 				});
 
-				$('.BuildButton').click(function() {
-                    console.log("Build Button Pressed :)");
+				$('.BuildButton').click(function () {
+					console.log("Build Button Pressed :)");
 					plg.runRoboMax();
 				});
 
-				$('body').delegate('.RoboMaxRun','click',function() {
+				$('body').delegate('.RoboMaxRun', 'click', function () {
 					console.log("RoboMaxRun CLICKED!!!");
 					if (plg.roboFinished) return; // skip if we've already run roboMax
 					acknowledgement = "By your command";
 					// for (var i=0; i < acknowledgement.length; i++) {
 					//   setTimeout(function(){plg.roboStatusUpdate(0,acknowledgement.substring(0,i));},200);
 					// }
-					plg.roboStatusUpdate(0,"By your command");
-					setTimeout(function(){plg.roboStatusUpdate(0,"RoboMax is running...");},600);
+					plg.roboStatusUpdate(0, "By your command");
+					setTimeout(function () { plg.roboStatusUpdate(0, "RoboMax is running..."); }, 600);
 					//plg.roboStatusUpdate(0,"RoboMax is running...");
-					setTimeout(function(){plg.runRoboMax();},200);
+					setTimeout(function () { plg.runRoboMax(); }, 200);
 					var identifier = "#RoboMaxRun";
 					//console.log("SELECTOR: " + identifier);
 					plg.roboFinished = true;
 				});
 
-        		$("#ResetTurnButton").tclick(function () { vgap.resetTurn(); });
+				$("#ResetTurnButton").tclick(function () { vgap.resetTurn(); });
 
 				// Opciones de home sector
 				$('#GrowthPriorityCheck').click(function () {
@@ -454,22 +459,22 @@ function wrapper1 () { // wrapper for injection
 				this.pane = $(html).appendTo(vgap.dash.content);
 			}
 
-		this.pane.jScrollPane();
+			this.pane.jScrollPane();
 
 		},
 
 
 
-// ****************************************************************************
+		// ****************************************************************************
 
-		roboStatusUpdate: function(col,msg) {
+		roboStatusUpdate: function (col, msg) {
 			// Updates the status message
 			var plg = vgap.plugins["roboMaxPlugin"];
 			if (col == 0) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #680000;'><b>" + msg + "</b></td>");
 			if (col == 1) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #006400;'><b>" + msg + "</b></td>");
 		},
 
-		runRoboMax: function() {
+		runRoboMax: function () {
 			// This function runs when the button is clicked
 			var plg = vgap.plugins["roboMaxPlugin"];
 			console.log("");
@@ -490,7 +495,7 @@ function wrapper1 () { // wrapper for injection
 			// Assign taxes
 			// if (plg.setTaxes) plg.roboPlanetSetTaxes();
 			if (plg.setColonistTaxes) plg.roboPlanetSetAllColonistTaxes();
-//			if (plg.setNativeTaxes) plg.roboPlanetSetAllNativeTaxes();
+			//			if (plg.setNativeTaxes) plg.roboPlanetSetAllNativeTaxes();
 
 			// Manage planetary friendly codes, and permute ship friendly codes
 			if (plg.fcrandomize) plg.roboMaxRandomizePlanetFcodes();
@@ -500,44 +505,45 @@ function wrapper1 () { // wrapper for injection
 
 			// We're finished giving orders, so initiate save
 			vgap.save(); // Save all our changes at the end
-			plg.roboStatusUpdate(0,"Saving changes...");
+			plg.roboStatusUpdate(0, "Saving changes...");
 
 			// Check save, and end the function
-			var checkInterval = setInterval(function(){
+			var checkInterval = setInterval(function () {
 				if (vgap.saveInProgress == 2) {
 					// We are still saving, check again in a little bit
 					return;
 				} else {
 					clearInterval(checkInterval);
-					plg.roboStatusUpdate(1,"RoboMax is finished giving orders.");
+					plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
 					vgap.loadWaypoints();
+					vgap.save();
 					console.log("RoboMax is finished giving orders.");
 				}
 			}, 500);
 		},
 
-		checkIfMobileVersion: function() {
+		checkIfMobileVersion: function () {
 			// This function adapted from Kedalion's Enemy ship list plugin:
 			url = window.location.href;
 			if (vgap.version >= 4.0) {
-			  console.log("Mobile client code detected...");
-			  return true;
+				console.log("Mobile client code detected...");
+				return true;
 			}
 			else {
-			  console.log("Non-mobile client code detected...");
-			  return false;
+				console.log("Non-mobile client code detected...");
+				return false;
 			}
 		},
 
-///////////////////////////////////////////////////////////////////////////////////
-//// Unload Cargo Section
-///////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////
+		//// Unload Cargo Section
+		///////////////////////////////////////////////////////////////////////////////////
 
-		roboUnloadMegacredits: function(shiptype) {
+		roboUnloadMegacredits: function (shiptype) {
 			// Unloads megacredits from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
-						console.log("Unloading megacredits from ships");
-			plg.roboStatusUpdate(0,"Unloading ship megacredits.");
+			console.log("Unloading megacredits from ships");
+			plg.roboStatusUpdate(0, "Unloading ship megacredits.");
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -558,11 +564,11 @@ function wrapper1 () { // wrapper for injection
 			//vgap.save();
 		},
 
-		roboUnloadCargo: function(shiptype) {
+		roboUnloadCargo: function (shiptype) {
 			// Unloads cargo from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
-            console.log("Unloading cargo from ships");
-			plg.roboStatusUpdate(0,"Unloading ship cargo.");
+			console.log("Unloading cargo from ships");
+			plg.roboStatusUpdate(0, "Unloading ship cargo.");
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -573,7 +579,7 @@ function wrapper1 () { // wrapper for injection
 					if (shiptype == "freighter" && !plg.roboIsFreighter(ship)) continue; // Skip ships that aren't freighters
 					if (shiptype == "alchemy" && !plg.roboIsRefinery(ship)) continue; // Skip ships that aren't alchemy/refinery
 
-          //console.log("Unloading ship",plships[j].id);
+					//console.log("Unloading ship",plships[j].id);
 					planet.clans = planet.clans + plships[j].clans;
 					plships[j].clans = 0;
 					if (!vgap.settings.nosupplies) {
@@ -598,50 +604,50 @@ function wrapper1 () { // wrapper for injection
 			//vgap.save();
 		},
 
-///////////////////////////////////////////////////////////////////////////////////
-//// Ship Information Section
-///////////////////////////////////////////////////////////////////////////////////
-		roboIsFreighter: function(ship) {
+		///////////////////////////////////////////////////////////////////////////////////
+		//// Ship Information Section
+		///////////////////////////////////////////////////////////////////////////////////
+		roboIsFreighter: function (ship) {
 			//console.log("Entered roboIsFreighter");
 			// Returns true if a ship is a freighter
 			var h = ship.hullid;
-			if (h==18 || h==17 || h==16 || h==15 || h==14) {
+			if (h == 18 || h == 17 || h == 16 || h == 15 || h == 14) {
 				return true; // Freighter
 			}
 			return false;
 		},
 
-		roboIsRefinery: function(ship) {
+		roboIsRefinery: function (ship) {
 			//console.log("Entered roboIsRefinery");
 			// Returns true if a ship is a refinery or alchemy ship
 			var h = ship.hullid;
-			if (h==105 || h==104 || h==97) {
+			if (h == 105 || h == 104 || h == 97) {
 				return true; // refinery or alchemy
 			}
 			return false;
 		},
 
 
-///////////////////////////////////////////////////////////////////////////////////
-//// Tax section
-//// 1. roboPlanetSetAllColonistTaxes
-//// 2. roboPlanetSetAllNativeTaxes
-//// 3. roboSetColonistTax
-//// 4. roboFindColonistRate
-//// 5. roboColonistHappyChange
-//// 6. roboSetNativeTax
-//// 7. roboFindNativeRate
-//// 8. roboNativeHappyChange
-//// 9. roboHISSeffect
-//// 10. getMaxNatives
-//// 11. getMaxColonists
-//// 12. roboColGrowthIsPossible
-///////////////////////////////////////////////////////////////////////////////////
-		roboPlanetSetAllColonistTaxes: function() {
+		///////////////////////////////////////////////////////////////////////////////////
+		//// Tax section
+		//// 1. roboPlanetSetAllColonistTaxes
+		//// 2. roboPlanetSetAllNativeTaxes
+		//// 3. roboSetColonistTax
+		//// 4. roboFindColonistRate
+		//// 5. roboColonistHappyChange
+		//// 6. roboSetNativeTax
+		//// 7. roboFindNativeRate
+		//// 8. roboNativeHappyChange
+		//// 9. roboHISSeffect
+		//// 10. getMaxNatives
+		//// 11. getMaxColonists
+		//// 12. roboColGrowthIsPossible
+		///////////////////////////////////////////////////////////////////////////////////
+		roboPlanetSetAllColonistTaxes: function () {
 			// Main function for setting taxes for colonists and natives
 
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0,"Setting taxes");
+			plg.roboStatusUpdate(0, "Setting taxes");
 			//var raceId = vgap.player.raceid;
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
@@ -649,7 +655,7 @@ function wrapper1 () { // wrapper for injection
 				var HISSeffect = plg.roboHISSeffect(planet);
 
 				// Tax colonists:
-				plg.roboSetColonistTax(planet,HISSeffect);
+				plg.roboSetColonistTax(planet, HISSeffect);
 
 				// Tax natives:
 				// if (planet.nativeclans > 0) {
@@ -659,34 +665,34 @@ function wrapper1 () { // wrapper for injection
 			return;
 		},
 
-/* 		roboPlanetSetAllNativeTaxes: function() {
-			// Main function for setting taxes for colonists and natives
-
-			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0,"Setting taxes");
-			//var raceId = vgap.player.raceid;
-
-			for (var i = 0; i < vgap.myplanets.length; i++) {
-				var planet = vgap.myplanets[i];
-				var HISSeffect = plg.roboHISSeffect(planet);
-
-				// Tax colonists:
-				// plg.roboSetColonistTax(planet,HISSeffect);
-
-				// Tax natives:
-				if (planet.nativeclans > 0) {
-					plg.roboSetNativeTax(planet,HISSeffect);
-				}
-			}
-			return;
-		},
- */
-		roboSetColonistTax: function(planet,HISSeffect) {
+		/* 		roboPlanetSetAllNativeTaxes: function() {
+					// Main function for setting taxes for colonists and natives
+		
+					var plg = vgap.plugins["roboMaxPlugin"];
+					plg.roboStatusUpdate(0,"Setting taxes");
+					//var raceId = vgap.player.raceid;
+		
+					for (var i = 0; i < vgap.myplanets.length; i++) {
+						var planet = vgap.myplanets[i];
+						var HISSeffect = plg.roboHISSeffect(planet);
+		
+						// Tax colonists:
+						// plg.roboSetColonistTax(planet,HISSeffect);
+		
+						// Tax natives:
+						if (planet.nativeclans > 0) {
+							plg.roboSetNativeTax(planet,HISSeffect);
+						}
+					}
+					return;
+				},
+		 */
+		roboSetColonistTax: function (planet, HISSeffect) {
 			// This function was inspired by tax management code from Dotman's
 			// Planetary Management Plugin (version 1.20).
 			var plg = vgap.plugins["roboMaxPlugin"];
 			var raceId = vgap.player.raceid;
-			console.log("Entered roboSetColonistTax: ",planet.id,HISSeffect,planet.clans);
+			console.log("Entered roboSetColonistTax: ", planet.id, HISSeffect, planet.clans);
 
 			//var rate;
 			// Use growth tax by default
@@ -694,16 +700,16 @@ function wrapper1 () { // wrapper for injection
 			var minColHappiness = 70;
 			var minColClansForTaxing = 5000; // Don't tax if less than this number, unless climate is bad.
 			var zeroTaxHappyChange = plg.roboColonistHappyChange(planet, 0);//
-			console.log("zeroTaxHappyChange is",zeroTaxHappyChange);
+			console.log("zeroTaxHappyChange is", zeroTaxHappyChange);
 			//var colonistGrowthIsPossible = true;
 
 			// Use "safe" tax if population is high and not playing Home Sector
-			if (!plg.homeSector && planet.clans > 66000) {
+			if (!vgap.isHomeSector() && planet.clans > 66000) {
 				useGrowthTaxforColonists = false;
 				minColHappiness = 70;
 				//console.log("Planet " + planet.name + ": Assigning mid tax");
 			}
-			
+
 
 			// The next several lines may only make sense in the context of the
 			// Roboplayer AI. The basic idea is to keep the cash flow going at the
@@ -715,7 +721,7 @@ function wrapper1 () { // wrapper for injection
 			if (raceId == 3 || raceId == 4 || raceId == 6 || raceId == 7 || raceId == 8) {
 
 				if (vgap.getStarbase(planet.id) != null && planet.clans > 10000 && planet.megacredits < 500) {
-					console.log("Squeezing extra money out of planet",planet.id);
+					console.log("Squeezing extra money out of planet", planet.id);
 					useGrowthTaxforColonists = false;
 					minColHappiness = 70;
 				}
@@ -738,12 +744,13 @@ function wrapper1 () { // wrapper for injection
 					minColHappiness = 40;
 				}
 				//new option no tax in bad climate
-                if (plg.noTaxWithBadClimate == true && (planet.temp < 15 || planet.temp > 84)) {
-                    planet.colonisttaxrate = 0;
-                    minColHappiness = 100;
+				if (plg.noTaxWithBadClimate == true && (planet.temp < 15 || planet.temp > 84)) {
+					planet.colonisttaxrate = 0;
+					minColHappiness = 100;
+					planet.changed = 1;
 					return;
 				}
-                //console.log("Planet " + planet.name + ": Assigning max tax");
+				//console.log("Planet " + planet.name + ": Assigning max tax");
 				if (vgap.player.raceid == 1 && (planet.temp < 15 || planet.temp > 84)) {
 					// Feds might terraform these, so don't tax so aggressively
 					minColHappiness = 70 - zeroTaxHappyChange;
@@ -756,7 +763,7 @@ function wrapper1 () { // wrapper for injection
 				}
 			}
 			// Añadido para bajar factorias y minas al target
-			if (isHomeSector()) {
+			if (plg.destroyBuildings == true) {
 				if ((planet.targetmines != 0 && planet.mines > planet.targetmines) || (planet.targetfactories != 0 && planet.factories > planet.targetfactories)) {
 					useGrowthTaxforColonists = false;
 					minColHappiness = 39;
@@ -766,16 +773,18 @@ function wrapper1 () { // wrapper for injection
 			//console.log("Planet " + planet.name + ": Taxing Colonists with " +
 			//var maxFutureHappiness = planet.colonisthappypoints + 2*HISSeffect + zeroTaxHappyChange; // Happiness next turn if no tax
 
-			if (planet.clans < minColClansForTaxing && plg.roboColGrowthIsPossible(planet)){
+			if (planet.clans < minColClansForTaxing && plg.roboColGrowthIsPossible(planet)) {
 				// Too few clans - let them grow unless climate won't allow it!
-				console.log("Planet " + planet.id + "has population too low for taxing",plg.roboColGrowthIsPossible(planet));
+				console.log("Planet " + planet.id + "has population too low for taxing", plg.roboColGrowthIsPossible(planet));
 				planet.colonisttaxrate = 0;
-				planet.colhappychange = plg.roboColonistHappyChange(planet,0);
+				planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
+				planet.changed = 1;
 				return;
 			}
 			if (planet.debrisdisk) {
 				planet.colonisttaxrate = 0;
-				planet.colhappychange = plg.roboColonistHappyChange(planet,0);
+				planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
+				planet.changed = 1;
 				return;
 			}
 
@@ -786,24 +795,26 @@ function wrapper1 () { // wrapper for injection
 				// With hissers, assume that the same number will be present next turn.
 				// Next turn's hissing will be counted so that hiss effect won't be
 				// wasted next turn.
-				if (planet.colonisthappypoints + 2*HISSeffect + zeroTaxHappyChange < 100) {
+				if (planet.colonisthappypoints + 2 * HISSeffect + zeroTaxHappyChange < 100) {
 					planet.colonisttaxrate = 0;
-					planet.colhappychange = plg.roboColonistHappyChange(planet,0);
+					planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
+					planet.changed = 1;
 					return;
 				}
 			}
 			// Tax them!
-			console.log("Taxing colonists: ",planet.id,HISSeffect,useGrowthTaxforColonists,minColHappiness);
+			console.log("Taxing colonists: ", planet.id, HISSeffect, useGrowthTaxforColonists, minColHappiness);
 			// This is the happiness when taxing begins:
-			var startingHappiness = Math.min(planet.colonisthappypoints + HISSeffect,100);
+			var startingHappiness = Math.min(planet.colonisthappypoints + HISSeffect, 100);
 			// This is the maximum change in happiness that is possible according to
 			// our tax strategy:
 			var maxColHappyChange = minColHappiness - startingHappiness;
 			planet.colonisttaxrate = plg.roboFindColonistRate(planet, maxColHappyChange);
-			planet.colhappychange = plg.roboColonistHappyChange(planet,planet.colonisttaxrate);
+			planet.colhappychange = plg.roboColonistHappyChange(planet, planet.colonisttaxrate);
+			planet.changed = 1;
 		},
 
-		roboFindColonistRate: function(planet, maxHappyChange) {
+		roboFindColonistRate: function (planet, maxHappyChange) {
 			// Find the tax rate needed to achieve a certain happiness change
 			// This function was inspired by tax management code from Dotman's
 			// Planetary Management Plugin (version 1.20). Code from the
@@ -817,52 +828,52 @@ function wrapper1 () { // wrapper for injection
 				if (vgap.advActive(2)) // Fed 2X bonus
 					colTax *= 2;
 				//console.log(planet.id,"Rate",rate,colTax, plg.roboColonistHappyChange(planet,rate));
-				if (plg.roboColonistHappyChange(planet,rate) < maxHappyChange) {
+				if (plg.roboColonistHappyChange(planet, rate) < maxHappyChange) {
 					if (colTax == 0) return 0; // Don't tax if taxing yields no money
-					return rate-1; // Otherwise, we have found our tax rate
+					return rate - 1; // Otherwise, we have found our tax rate
 				}
 
 				// Make sure that we don't tax more than we can collect:
 				//colTax = colTax * taxbonus;
 				if (colTax > 5000)
-					return rate-1;
+					return rate - 1;
 			}
-			if (plg.roboColonistHappyChange(planet,100) > maxHappyChange)
+			if (plg.roboColonistHappyChange(planet, 100) > maxHappyChange)
 				return 100
 			else
 				return 0;
 		},
 
-		roboColonistHappyChange: function(planet,r) {
+		roboColonistHappyChange: function (planet, r) {
 			// Calculate the native happiness change given a tax rate.
 			// Based on the colonistTaxChange function in the planets.nu client.
 			var change = 0;
 
-        	var player = vgap.getPlayer(planet.ownerid);
-        	var raceId = player.raceid;
-        	if (raceId == 7) //crystal
-            	change += Math.truncate((1000 - (80 * r) - Math.sqrt(planet.clans) - ((planet.mines + planet.factories) / 3) - (3 * (100 - planet.temp))) / 100);
-    		else
-            	change += Math.truncate((1000 - (80 * r) - Math.sqrt(planet.clans) - ((planet.mines + planet.factories) / 3) - (3 * Math.abs(planet.temp - 50))) / 100);
+			var player = vgap.getPlayer(planet.ownerid);
+			var raceId = player.raceid;
+			if (raceId == 7) //crystal
+				change += Math.truncate((1000 - (80 * r) - Math.sqrt(planet.clans) - ((planet.mines + planet.factories) / 3) - (3 * (100 - planet.temp))) / 100);
+			else
+				change += Math.truncate((1000 - (80 * r) - Math.sqrt(planet.clans) - ((planet.mines + planet.factories) / 3) - (3 * Math.abs(planet.temp - 50))) / 100);
 
-        	if (planet.ispleasureplanet)
-            	change += 20;
+			if (planet.ispleasureplanet)
+				change += 20;
 
 			// Suma el nivel de development de planeta en home sector
-        	if (planet.developmentlevel)
-            	change += planet.developmentlevel;
+			if (planet.developmentlevel)
+				change += planet.developmentlevel;
 
-        	return change;
+			return change;
 		},
 
-		roboSetNativeTax: function(planet,HISSeffect) {
+		roboSetNativeTax: function (planet, HISSeffect) {
 			// This function was inspired by tax management code from Dotman's
 			// Planetary Management Plugin (version 1.20).
 			var plg = vgap.plugins["roboMaxPlugin"];
-			console.log("Entered roboSetNativeTax: ",planet.id,HISSeffect,planet.nativeclans);
+			console.log("Entered roboSetNativeTax: ", planet.id, HISSeffect, planet.nativeclans);
 
 			//var rate;
-			var maxfactories = plg.roboMaxBldgs(planet,100);
+			var maxfactories = plg.roboMaxBldgs(planet, 100);
 			var useGrowthTaxforNatives = true;
 			var minNatHappiness = 70;
 			var minNatClansForTaxing = 2500; // Don't tax if less than this number
@@ -876,7 +887,7 @@ function wrapper1 () { // wrapper for injection
 				useGrowthTaxforNatives = false;
 				minNatHappiness = 70;
 			}
-			if (planet.nativeclans > 66000 && planet.nativeclans < plg.getMaxNatives(planet,false)) {
+			if (planet.nativeclans > 66000 && planet.nativeclans < plg.getMaxNatives(planet, false)) {
 				// Tax more aggressively if population is high but can still grow
 				useGrowthTaxforNatives = false;
 				minNatHappiness = 70;
@@ -889,12 +900,12 @@ function wrapper1 () { // wrapper for injection
 					useGrowthTaxforNatives = true;
 
 				// Continue to grow insectoids and avians if government is good
-				if ((planet.nativetype == 4 || planet.nativetype == 6)  && planet.nativegovernment >= 120)
+				if ((planet.nativetype == 4 || planet.nativetype == 6) && planet.nativegovernment >= 120)
 					useGrowthTaxforNatives = true;
 			}
 
 			// Safe tax if population can't grow
-			if (planet.nativeclans >= plg.getMaxNatives(planet,false)) {
+			if (planet.nativeclans >= plg.getMaxNatives(planet, false)) {
 				// No more native growth is possible, so tax even more aggressively
 				nativeGrowthIsPossible = false;
 				useGrowthTaxforNatives = false;
@@ -911,10 +922,11 @@ function wrapper1 () { // wrapper for injection
 					minColHappiness = 70 - zeroTaxHappyChange;
 				}
 			}
-			if (planet.nativeclans < minNatClansForTaxing && nativeGrowthIsPossible){
+			if (planet.nativeclans < minNatClansForTaxing && nativeGrowthIsPossible) {
 				// Don't tax at all if native population is very low and can grow
 				//console.log("Planet " + planet.name + ": Nat Tax < Min Clans, 0");
 				planet.nativetaxrate = 0;
+				planet.changed = 1;
 				return;
 			}
 			if (vgap.player.raceid == 6) {
@@ -929,6 +941,7 @@ function wrapper1 () { // wrapper for injection
 			// Don't tax amorphous natives
 			if (planet.nativetype == 5) {
 				planet.nativetaxrate = 0;
+				planet.changed = 1;
 				return;
 			}
 
@@ -942,14 +955,15 @@ function wrapper1 () { // wrapper for injection
 				// With hissers, assume that the same number will be present next turn.
 				// Next turn's hissing will be counted so that hiss effect won't be
 				// wasted next turn.
-				if (planet.nativehappypoints + 2*HISSeffect + zeroTaxHappyChange < 100) {
+				if (planet.nativehappypoints + 2 * HISSeffect + zeroTaxHappyChange < 100) {
 					planet.nativetaxrate = 0;
+					planet.changed = 1;
 					return;
 				}
 			}
 
 			// This is the happiness when taxing begins:
-			var startingNativeHappiness = Math.min(planet.nativehappypoints + HISSeffect,100);
+			var startingNativeHappiness = Math.min(planet.nativehappypoints + HISSeffect, 100);
 			// This is the maximum change in happiness that is possible according to
 			// our tax strategy:
 			var maxNatHappyChange = minNatHappiness - startingNativeHappiness;
@@ -957,13 +971,14 @@ function wrapper1 () { // wrapper for injection
 			var rate = plg.roboFindNativeRate(planet, maxNatHappyChange, false);
 
 			if (vgap.player.raceid == 6 && rate > 20)
-                rate = 20; // Cyborg can't tax natives above 20%
+				rate = 20; // Cyborg can't tax natives above 20%
 
 			planet.nativetaxrate = rate;
+			planet.changed = 1;
 
 		},
 
-		roboFindNativeRate: function(planet, maxHappyChange, calcIdealRate) {
+		roboFindNativeRate: function (planet, maxHappyChange, calcIdealRate) {
 			// This function was inspired by tax management code from Dotman's
 			// Planetary Management Plugin (version 1.20). Code from the
 			// nativeTaxAmount function in the planets.nu client was also
@@ -975,14 +990,14 @@ function wrapper1 () { // wrapper for injection
 			// regardless of the actual colonist population. Otherwise,
 			// return a rate that can be supported by the population.
 
-			console.log("roboFindNativeRate",planet.id,maxHappyChange,calcIdealRate);
+			console.log("roboFindNativeRate", planet.id, maxHappyChange, calcIdealRate);
 			var plg = vgap.plugins["roboMaxPlugin"];
 
 			for (var rate = 1; rate <= 100; rate++) {
 				// Look for the tax rate that results in maxHappyChange
 				// console.log("rate,roboNativeHappyChange:", rate, plg.roboNativeHappyChange(planet,rate))
-				if (plg.roboNativeHappyChange(planet,rate) < maxHappyChange)
-					return rate-1;
+				if (plg.roboNativeHappyChange(planet, rate) < maxHappyChange)
+					return rate - 1;
 
 				// Make sure that we don't tax more than we can collect:
 				var maxCanCollect = planet.clans;
@@ -1005,17 +1020,17 @@ function wrapper1 () { // wrapper for injection
 				//console.log("nativeTax",planet.id,nativeTax,planet.clans,plg.roboNativeHappyChange(planet,rate));
 
 				if (nativeTax > maxCanCollect && calcIdealRate == false) {
-					return rate-1;
+					return rate - 1;
 				}
 
 				// if (vgap.player.raceid != 1 && nativeTax > planet.clans) { 					return rate-1; // Can't collect more than our number of clans 				} else if (vgap.player.raceid == 1 && vgap.advActive(2) && nativeTax > 2*planet.clans) { 					console.log("Fed bonus active. ",nativeTax); 					return rate-1; // Feds with bonus 				} else if (vgap.player.raceid == 1 && nativeTax > planet.clans) { 					console.log("Fed bonus inactive. ",nativeTax); 					return rate-1; // Feds without bonus 				}
 				// if (nativeTax > 5000)
-					// return rate-1; // Can't collect more than 5000
+				// return rate-1; // Can't collect more than 5000
 			}
 			return 0;
 		},
 
-		roboNativeHappyChange: function (planet,rate) {
+		roboNativeHappyChange: function (planet, rate) {
 			// Calculate the native happiness change given a tax rate.
 			// Based on the nativeTaxChange function in the planets.nu client.
 
@@ -1040,16 +1055,16 @@ function wrapper1 () { // wrapper for injection
 				var plships = vgap.shipsAt(planet.x, planet.y);
 				for (var i = 0; i < plships.length; i++) {
 					if (plships[i].ownerid == vgap.player.id && plships[i].mission == 8) {
-						console.log("Ship", plships[i].id,"is hissing!");
+						console.log("Ship", plships[i].id, "is hissing!");
 						HISSeffect += 5;
 					}
 				}
-				console.log("HISSeffect", planet.id,HISSeffect);
+				console.log("HISSeffect", planet.id, HISSeffect);
 				return HISSeffect;
 			}
 		},
 
-		getMaxNatives: function(planet) {
+		getMaxNatives: function (planet) {
 			// This code was adapted from the nativePopGrowth function in the planets.nu client.
 			if (planet.nativetype == 9) {
 				//siliconoid like it hot
@@ -1059,7 +1074,7 @@ function wrapper1 () { // wrapper for injection
 				return nativeMax = Math.round(Math.sin(3.14 * (100 - planet.temp) / 100) * 150000);
 		},
 
-		getMaxColonists: function(planet) {
+		getMaxColonists: function (planet) {
 			/* // This code was adapted from the maxPop function in the planets.nu client.
 			var player = vgap.getPlayer(planet.ownerid);
 			var raceId = vgap.player.raceid;
@@ -1096,28 +1111,28 @@ function wrapper1 () { // wrapper for injection
 				if (vgap.getStarbase(planet.id) != null)
 					maxSupported = 500;
 			}
-            //Robot Internal temp regulation advantage
-            if (raceId == 9 && vgap.player.activeadvantages.includes(76)) {
-                maxSupported = 100000;
-            }
+			//Robot Internal temp regulation advantage
+			if (raceId == 9 && vgap.player.activeadvantages.includes(76)) {
+				maxSupported = 100000;
+			}
 			// Me ayudo en clanCapacityDetails de nu.js
 			if (planet.developmentlevel > 0) */
-				maxSupported = vgap.pl.clanCapacityDetails(planet).totalCapacity;
+			maxSupported = vgap.pl.clanCapacityDetails(planet).totalCapacity;
 
 			//if (!getGrowth)
-				return maxSupported;
+			return maxSupported;
 
 			// NOTE: This next part doesn't make much sense. Delete it????
 
 			//determine how much we are overpopulated
 			// var overPopulation = Math.ceil((planet.clans - maxSupported) * (climateDeathRate / 100));
 			// if (overPopulation > 0) {
-				// //recalculate maxsupported/overpopulation
-				// maxSupported = maxSupported + Math.round(planet.supplies * 10 / 40);
-				// overPopulation = Math.ceil((planet.clans - maxSupported) * (climateDeathRate / 100));
+			// //recalculate maxsupported/overpopulation
+			// maxSupported = maxSupported + Math.round(planet.supplies * 10 / 40);
+			// overPopulation = Math.ceil((planet.clans - maxSupported) * (climateDeathRate / 100));
 
-				// //update population
-				// colGrowth = -1 * Math.max(0, overPopulation);
+			// //update population
+			// colGrowth = -1 * Math.max(0, overPopulation);
 			// }
 			// return colGrowth;
 		},
@@ -1132,43 +1147,43 @@ function wrapper1 () { // wrapper for injection
 				return false; // planetoids do not have an atmosphere
 			}
 
-            //crystals like it hot
-            if (vgap.player.raceid == 7) {
-                if (planet.temp > 0 && planet.clans < colMax) {
+			//crystals like it hot
+			if (vgap.player.raceid == 7) {
+				if (planet.temp > 0 && planet.clans < colMax) {
 					return true;
 				} else {
 					return false;
 				}
-            }
-            //robot with internal temp regulation advantage
-            if (vgap.player.raceid == 9 && vgap.player.activeadvantages.includes(76)) {
-                if (planet.clans < colMax) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+			}
+			//robot with internal temp regulation advantage
+			if (vgap.player.raceid == 9 && vgap.player.activeadvantages.includes(76)) {
+				if (planet.clans < colMax) {
+					return true;
+				} else {
+					return false;
+				}
+			}
 
-            if (planet.temp >= 15 && planet.temp <= 84 && planet.clans < colMax) {
+			if (planet.temp >= 15 && planet.temp <= 84 && planet.clans < colMax) {
 				return true;
 			} else {
 				return false;
 			}
-        },
+		},
 
-///////////////////////////////////////////////////////////////////////////////////
-////  Diplomacy Section
-///////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////
+		////  Diplomacy Section
+		///////////////////////////////////////////////////////////////////////////////////
 
 		roboIsEnemy: function (playerID) {
-            //console.log("Determining if player",playerID,"is an enemy");
+			//console.log("Determining if player",playerID,"is an enemy");
 			// Returns true if playerID is of an enemy
 
 			if (playerID == 0) return false; // Entity is unowned
 			if (playerID == vgap.player.id) return false; // We are not our enemy
 
 			var relation = vgap.getRelation(playerID);
-			if (relation == null) console.log("No diplomatic relation found for player",playerID);
+			if (relation == null) console.log("No diplomatic relation found for player", playerID);
 
 			// "None"
 			if (relation.relationto == 0) return true;
@@ -1187,19 +1202,19 @@ function wrapper1 () { // wrapper for injection
 			else return null;
 		},
 
-///////////////////////////////////////////////////////////////////////////////////
-////  Planetary Structures Section
-////  1. roboBuildFactories
-////  2. roboBuildMines
-////  3. roboBuildDefenses
-////  4. roboEnemyThreatsNearby
-////  5. roboMaxBldgs
-///////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////
+		////  Planetary Structures Section
+		////  1. roboBuildFactories
+		////  2. roboBuildMines
+		////  3. roboBuildDefenses
+		////  4. roboEnemyThreatsNearby
+		////  5. roboMaxBldgs
+		///////////////////////////////////////////////////////////////////////////////////
 
-		roboBuildFactories: function() {
+		roboBuildFactories: function () {
 			// Builds Factories
 			var plg = vgap.plugins["roboMaxPlugin"];
-            console.log("Constructing factories at planets");
+			console.log("Constructing factories at planets");
 
 			// Use vgap.settings.nosupplies to determine if the nosupplies option is set
 
@@ -1207,7 +1222,7 @@ function wrapper1 () { // wrapper for injection
 				var planet = vgap.myplanets[i];
 				//console.log(".Constructing factories for planet",planet.id);
 
-                var numbuildtemp = 999; // Always build as many factories as possible
+				var numbuildtemp = 999; // Always build as many factories as possible
 
 				// number we can build is limited by supplies and megacredits
 				if (!vgap.settings.nosupplies && planet.supplies < numbuildtemp)
@@ -1224,20 +1239,20 @@ function wrapper1 () { // wrapper for injection
 				if ((planet.megacredits + available_supplies) < (numbuildtemp * 4))
 					numbuildtemp = Math.floor((planet.megacredits + available_supplies) / 4);
 				// number we can build is limited by population
-				var maxbld = plg.roboMaxBldgs(planet,100);
+				var maxbld = plg.roboMaxBldgs(planet, 100);
 				//if (planet.factories > maxbld) numbuildtemp = 0;
 				//if (numbuildtemp + planet.factories > maxbld) numbuildtemp = maxbld - planet.factories;
 
-                //Si hay targetfactories el juego las construye automaticamente.
-                if (planet.targetfactories > 0) {
-                    numbuildtemp = 0;
+				//Si hay targetfactories el juego las construye automaticamente.
+				if (planet.targetfactories > 0) {
+					numbuildtemp = 0;
 					continue;
-                }
+				}
 
-                if (planet.factories >= maxbld) {
-				  numbuildtemp = 0;
+				if (planet.factories >= maxbld) {
+					numbuildtemp = 0;
 				} else if (numbuildtemp + planet.factories > maxbld) {
-				  numbuildtemp = maxbld - planet.factories;
+					numbuildtemp = maxbld - planet.factories;
 				}
 				if (numbuildtemp <= 0) numbuildtemp = 0;
 
@@ -1265,10 +1280,10 @@ function wrapper1 () { // wrapper for injection
 			}
 		},
 
-		roboBuildMines: function() {
+		roboBuildMines: function () {
 			// Builds Mines
 			var plg = vgap.plugins["roboMaxPlugin"];
-            console.log("Constructing Mines at planets");
+			console.log("Constructing Mines at planets");
 
 			// Effect of race ability on mining rate
 			var miningrate = 1;
@@ -1282,10 +1297,10 @@ function wrapper1 () { // wrapper for injection
 				//console.log(".Constructing mines for planet",planet.id);
 
 				//Si hay targetmines el juego las construye automaticamente.
-                if (planet.targetmines > 0) {
-                    numbuildtemp = 0;
+				if (planet.targetmines > 0) {
+					numbuildtemp = 0;
 					continue;
-                }
+				}
 
 				// Other factors affecting mining rate:
 				var mineRateFactor = 1;
@@ -1329,11 +1344,11 @@ function wrapper1 () { // wrapper for injection
 				if ((planet.megacredits + available_supplies) < (numbuildtemp * 5))
 					numbuildtemp = Math.floor((planet.megacredits + available_supplies) / 5);
 				// number we can build is limited by population
-				var maxbld = plg.roboMaxBldgs(planet,200);
+				var maxbld = plg.roboMaxBldgs(planet, 200);
 				//if (planet.mines > maxbld) numbuildtemp = 0;
 				//if (numbuildtemp + planet.mines > maxbld) numbuildtemp = maxbld - planet.mines;
 
-                if (planet.mines >= maxbld) {
+				if (planet.mines >= maxbld) {
 					numbuildtemp = 0;
 				} else if (numbuildtemp + planet.mines > maxbld) {
 					numbuildtemp = maxbld - planet.mines;
@@ -1364,20 +1379,20 @@ function wrapper1 () { // wrapper for injection
 			}
 		},
 
-		roboBuildDefenses: function() {
+		roboBuildDefenses: function () {
 			// Builds Defense Posts
 			var plg = vgap.plugins["roboMaxPlugin"];
-                        console.log("Constructing Defense Posts at planets");
+			console.log("Constructing Defense Posts at planets");
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
 				//console.log(".Constructing defense posts for planet",planet.id);
 
 				//Si hay targetdefenses el juego las construye automaticamente.
-                if (planet.targetdefenses > 0) {
-                    numbuildtemp = 0;
+				if (planet.targetdefenses > 0) {
+					numbuildtemp = 0;
 					continue;
-                }
+				}
 
 				var numbuildtemp = 15; // Make sure there are at least 15 defense posts
 				// Check for presence of starbase. Build up to 57 defenses,
@@ -1385,22 +1400,22 @@ function wrapper1 () { // wrapper for injection
 				if (vgap.settings.turn > 8 && vgap.getStarbase(planet.id) != null)
 					numbuildtemp = 57; // build extra defenses at each starbase
 				// for (var k = 0; k < vgap.mystarbases.length; k++) {
-					// var sb = vgap.mystarbases[k];
-					// if (planet.id == sb.planetid) {
-						// numbuildtemp = 57; // build extra defenses at each starbase
-						// break;
-					// }
+				// var sb = vgap.mystarbases[k];
+				// if (planet.id == sb.planetid) {
+				// numbuildtemp = 57; // build extra defenses at each starbase
+				// break;
+				// }
 				// }
 				// Check for nearby threats
 				// Maximize defenses if threats detected,
 				// but not in the earliest turns.
 				if (vgap.settings.turn > 6 && plg.roboEnemyThreatsNearby(planet)) {
-					console.log(".Enemy activity was detected near our planet",planet.id,". Maximizing planetary defenses.");
+					console.log(".Enemy activity was detected near our planet", planet.id, ". Maximizing planetary defenses.");
 					numbuildtemp = 999;
 				}
 
 				// Maximize defense posts if home sector and planet upgraded
-				if (isHomeSector() && planet.developmentlevel > 0) {
+				if (vgap.isHomeSector() && planet.developmentlevel > 0) {
 					numbuildtemp = 999;
 				}
 				numbuildtemp = numbuildtemp - planet.defense;
@@ -1421,7 +1436,7 @@ function wrapper1 () { // wrapper for injection
 				if ((planet.megacredits + available_supplies) < (numbuildtemp * 11))
 					numbuildtemp = Math.floor((planet.megacredits + available_supplies) / 11);
 				// number we can build is limited by population
-				var maxbld = plg.roboMaxBldgs(planet,50);
+				var maxbld = plg.roboMaxBldgs(planet, 50);
 				//if (planet.defense > maxbld) numbuildtemp = 0;
 				//if (numbuildtemp + planet.defense > maxbld) numbuildtemp = maxbld - planet.defense;
 				if (planet.defense > maxbld) {
@@ -1439,7 +1454,7 @@ function wrapper1 () { // wrapper for injection
 					planet.suppliessold += diff;
 				}
 				// build the defense posts
-				console.log("Building",numbuildtemp,"defense posts at planet",planet.id);
+				console.log("Building", numbuildtemp, "defense posts at planet", planet.id);
 				if (!vgap.settings.nosupplies) {
 					// Build under normal rules
 					planet.supplies -= numbuildtemp;
@@ -1455,20 +1470,20 @@ function wrapper1 () { // wrapper for injection
 			}
 		},
 
-		roboEnemyThreatsNearby: function(planet) {
+		roboEnemyThreatsNearby: function (planet) {
 			// Look for enemy activity near our planet
 			var plg = vgap.plugins["roboMaxPlugin"];
-            //console.log("Scanning for threats to planet",planet.id);
+			//console.log("Scanning for threats to planet",planet.id);
 
 			// Check combat messages for nearby hostile activity
-    			for (var k = 0; k < vgap.messages.length; k++) {
-        			var message = vgap.messages[k];
-        			if (message.messagetype == 6) {
-            				// combat report
+			for (var k = 0; k < vgap.messages.length; k++) {
+				var message = vgap.messages[k];
+				if (message.messagetype == 6) {
+					// combat report
 					var distance = Math.dist(planet.x, planet.y, message.x, message.y);
 					if (distance < 200) return true;
-        			}
-    			}
+				}
+			}
 			// Check for enemy ships nearby
 			for (var k = 0; k < vgap.ships.length; k++) {
 				var s = vgap.ships[k];
@@ -1491,7 +1506,7 @@ function wrapper1 () { // wrapper for injection
 			return false;
 		},
 
-		roboMaxBldgs: function (planet,baseAmount) {
+		roboMaxBldgs: function (planet, baseAmount) {
 			// This function was adapted from the maxBuilding function in the planets.nu client
 			// baseAmount is 100 for factories, 200 for mines, 50 for defense
 			if (planet.clans <= baseAmount)
@@ -1500,17 +1515,17 @@ function wrapper1 () { // wrapper for injection
 				return Math.floor(baseAmount + Math.sqrt(planet.clans - baseAmount));
 		},
 
-///////////////////////////////////////////////////////////////////////////////////
-////  Planetary Friendly Code Section
-////  1. roboMaxRandomizePlanetFcodes
-////  2. roboPermuteFcode
-///////////////////////////////////////////////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////
+		////  Planetary Friendly Code Section
+		////  1. roboMaxRandomizePlanetFcodes
+		////  2. roboPermuteFcode
+		///////////////////////////////////////////////////////////////////////////////////
 
 		roboMaxRandomizePlanetFcodes: function () {
 			// Manage planetary friendly codes
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0,"Managing planetary friendly codes");
-            console.log("Managing planetary friendly codes");
+			plg.roboStatusUpdate(0, "Managing planetary friendly codes");
+			console.log("Managing planetary friendly codes");
 
 			// Planet fcode behavior for RoboMax:
 			// Don't change fcodes that start with "x"
@@ -1531,21 +1546,21 @@ function wrapper1 () { // wrapper for injection
 					// Do nothing if is starts with "x".
 					// The idea is that Birds cannot set your friendly code to one that
 					// starts with an x, so anything that starts with an x is intentional.
-				} else if (	fcode.toLowerCase() == "att" ||
-							fcode.toLowerCase() == "nuk" ||
-							fcode.toLowerCase() == "bum" ||
-							fcode.toLowerCase() == "edf" ||
-							fcode.toLowerCase() == "dmp" ) {
+				} else if (fcode.toLowerCase() == "att" ||
+					fcode.toLowerCase() == "nuk" ||
+					fcode.toLowerCase() == "bum" ||
+					fcode.toLowerCase() == "edf" ||
+					fcode.toLowerCase() == "dmp") {
 					plg.roboPermuteFcode(planet); // Permute special friendly code
-				} else if ( fcode.substring(0, 2).toLowerCase() == "pb" ||
-							fcode.substring(0, 2).toLowerCase() == "mf" ||
-                            fcode.substring(0, 2).toLowerCase() == "rb" ) {
+				} else if (fcode.substring(0, 2).toLowerCase() == "pb" ||
+					fcode.substring(0, 2).toLowerCase() == "mf" ||
+					fcode.substring(0, 2).toLowerCase() == "rb") {
 					plg.roboPermuteFcode(planet); // Permute special friendly code
 				} else {
 					// Create new alphanumeric fcode
-					var r1 = Math.floor(Math.random()*abc1.length);
-					var r2 = Math.floor(Math.random()*36);
-					var r3 = Math.floor(Math.random()*36);
+					var r1 = Math.floor(Math.random() * abc1.length);
+					var r2 = Math.floor(Math.random() * 36);
+					var r3 = Math.floor(Math.random() * 36);
 					planet.friendlycode = abc1[r1] + abc[r2] + abc[r3];
 					plg.roboPermuteFcode(planet); // Permute friendly code
 				}
@@ -1567,7 +1582,7 @@ function wrapper1 () { // wrapper for injection
 			entity.friendlycode = a1 + a2 + a3;
 		},
 
-		checkIfMobileVersion: function() {
+		checkIfMobileVersion: function () {
 			// This function adapted from Kedalion's Enemy ship list plugin:
 			url = window.location.href;
 			if (vgap.version >= 4.0) {
@@ -1580,14 +1595,10 @@ function wrapper1 () { // wrapper for injection
 			}
 		},
 
-//***********************************************************************************************
+		//***********************************************************************************************
 
 	};
-	
-	// IsHomeSector //
-	function isHomeSector() {
-		return vgap.game.gametype === 100;
-	};
+
 	// register your plugin with NU
 	vgap.registerPlugin(roboMaxPlugin, "roboMaxPlugin");
 
