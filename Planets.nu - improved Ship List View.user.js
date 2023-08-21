@@ -1025,8 +1025,8 @@ function wrapper() { // wrapper for injection
     setShipMission = function (selectElement) {
         const selectedIndex = selectElement.selectedIndex;
         let shipIndex = parseInt(selectElement.id.replace("Dropdown", ""));
-        const command = 0;
-        if (shipIndex.charAt(0) == 'A') {
+        let command = 0;
+        if (shipIndex.toString().charAt(0) == 'A') {
             shipIndex = parseInt(selectElement.id.replace("DropdownA", ""));
             command = 1;
         }
