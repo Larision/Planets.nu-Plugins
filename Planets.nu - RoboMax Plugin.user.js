@@ -516,7 +516,6 @@ function wrapper1() { // wrapper for injection
 					clearInterval(checkInterval);
 					plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
 					vgap.loadWaypoints();
-					vgap.save();
 					console.log("RoboMax is finished giving orders.");
 				}
 			}, 500);

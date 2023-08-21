@@ -86,7 +86,24 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td>" + planet.megacredits + "</td>";
 				}
 				//-------------------MC to Develop-----------------------
-				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td><td>" + planet.groundneutronium + "</td><td>" + planet.groundduranium + "</td><td>" + planet.groundtritanium + "</td><td>" + planet.groundmolybdenum + "</td><td>" + planet.densityneutronium + "</td><td>" + planet.densityduranium + "</td><td>" + planet.densitytritanium + "</td><td>" + planet.densitymolybdenum + "</td></tr>";
+				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
+				if (planet.groundneutronium < 10)
+					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
+				else
+					temphtml += "<td>" + planet.groundneutronium + "</td>";
+				if (planet.groundduranium < 10)
+					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundduranium + "</td>";
+				else
+					temphtml += "<td>" + planet.groundduranium + "</td>";
+				if (planet.groundtritanium < 10)
+					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundtritanium + "</td>";
+				else
+					temphtml += "<td>" + planet.groundtritanium + "</td>";
+				if (planet.groundmolybdenum < 10)
+					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundmolybdenum + "</td>";
+				else
+					temphtml += "<td>" + planet.groundmolybdenum + "</td>";
+				temphtml += "<td>" + planet.densityneutronium + "</td><td>" + planet.densityduranium + "</td><td>" + planet.densitytritanium + "</td><td>" + planet.densitymolybdenum + "</td></tr>";
 			}
 			if (view == 2) {
 				if (vgap.getStarbase(planet.id) != null)
@@ -486,16 +503,16 @@ function wrapper() { // wrapper for injection
 		return missions;
 	};
 
-	setSBMission = function (selectElement) {
-		var selectedIndex = selectElement.selectedIndex;
-		var starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
-		var starbase = vgap.mystarbases[starbaseIndex];
-		var mission_list = returnSBMissionArray(starbase);
-		starbase.mission = mission_list[selectedIndex].id;
-		vgap.getPlanet(starbase.planetid).changed = 1;
-		vgap.save();
-		vgap.map.draw();
-	};
+setSBMission = function (selectElement) {
+    const selectedIndex = selectElement.selectedIndex;
+    const starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
+    const starbase = vgap.mystarbases[starbaseIndex];
+    const mission_list = returnSBMissionArray(starbase);
+    starbase.mission = mission_list[selectedIndex]?.id;
+    vgap.getPlanet(starbase.planetid).changed = 1;
+    vgap.save();
+    vgap.map.draw();
+};
 
 } //wrapper for injection
 

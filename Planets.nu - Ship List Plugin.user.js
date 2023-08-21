@@ -108,8 +108,7 @@
  * @param {vgaPlanets}  vgap
  * @constructor
  */
-const ShipList = function (vgap)
-{
+const ShipList = function (vgap) {
 
     if (vgap.version < 3.0) {
         console.log("Ship List: [3000] NU version < 3.0. Plugin Disabled.");
@@ -148,8 +147,7 @@ const ShipList = function (vgap)
      * Initialize the app and its helpers
      * @returns {ShipList}
      */
-    this.init = function ()
-    {
+    this.init = function () {
         this.processedActivities = {};
 
         // quick hack to hide features in development
@@ -202,8 +200,7 @@ const ShipList = function (vgap)
      * Called when redrawing the map
      * @namespace vgap.plugins.shipList
      */
-    this.draw = function ()
-    {
+    this.draw = function () {
         const app = vgap.plugins.shipList;
 
         try {
@@ -218,8 +215,7 @@ const ShipList = function (vgap)
     };
 
     /** Called when building the dashboard */
-    this.loaddashboard = function ()
-    {
+    this.loaddashboard = function () {
         const app = vgap.plugins.shipList;
 
         try {
@@ -234,8 +230,7 @@ const ShipList = function (vgap)
     };
 
     /** Called after loading the first turn to create the map */
-    this.loadmap = function ()
-    {
+    this.loadmap = function () {
         const app = vgap.plugins.shipList;
 
         try {
@@ -260,8 +255,7 @@ const ShipList = function (vgap)
     };
 
     /** Called when loading a turn (current turn or time machine) */
-    this.processload = function ()
-    {
+    this.processload = function () {
         const app = vgap.plugins.shipList;
 
         try {
@@ -292,9 +286,8 @@ const ShipList = function (vgap)
             if (!app.enabled) return;
 
             app.loopThroughActivities()
-                .catch(e => {}) // e has been logged already, just continue
-                .then(_ =>
-                {
+                .catch(e => { }) // e has been logged already, just continue
+                .then(_ => {
 
                     if (vgap.game.turn <= app.lastTurn) {
                         console.log('Ship List: [' + vgap.game.turn + '] (processload) Turn ' + vgap.game.turn + ' already processed, skipping.');
@@ -306,7 +299,7 @@ const ShipList = function (vgap)
                         if (vgap.game.turn == app.nowTurn)
                             app
                                 .sendMessages()
-                                .catch(e => {console.error(e);});
+                                .catch(e => { console.error(e); });
                     }
 
                     if (app.doLoop) {
@@ -321,7 +314,7 @@ const ShipList = function (vgap)
 
                 })
                 .catch(e => console.error(e))
-            ;
+                ;
 
         } catch (e) {
             console.log('Ship List: [' + vgap.game.turn + '] (processload)');
@@ -332,8 +325,7 @@ const ShipList = function (vgap)
     };
 
     /** Called when viewing the home screen of the dashboard */
-    this.showsummary = function ()
-    {
+    this.showsummary = function () {
         const app = vgap.plugins.shipList;
 
         try {
@@ -384,8 +376,7 @@ const ShipList = function (vgap)
      * Update the ship list with data from current turn
      * @returns {ShipList}
      */
-    this.updateShips = function ()
-    {
+    this.updateShips = function () {
         console.log('Ship List: [' + vgap.game.turn + '] (updateShips) Updating Ships & Planets.');
 
         try {
@@ -442,7 +433,7 @@ const ShipList = function (vgap)
         try {
             this.updateShipsFromMinehitReports();
         } catch (e) { console.error(e); }
-        
+
         // visible ships
         try {
             this.updateShipsFromVgap();
@@ -457,7 +448,7 @@ const ShipList = function (vgap)
         try {
             this.updateShipsDamageFromGloryDeviceReports();
         } catch (e) { console.error(e); }
-        
+
         // visible planets
         try {
             this.updatePlanetsFromVgap();
@@ -470,8 +461,7 @@ const ShipList = function (vgap)
         return this;
     };
 
-    this.updateShipsFromIntercepts = function ()
-    {
+    this.updateShipsFromIntercepts = function () {
         // if in history, abort - only end-of-turn data available
         if (vgap.inHistory) return this;
 
@@ -496,8 +486,8 @@ const ShipList = function (vgap)
                     const tgtShip = this.ships[tgtShipIdx];
 
                     tgtShip.heading = Math.round((
-                                                 90 - Math.atan2(srcShip.targety - tgtShip.y, srcShip.targetx - tgtShip.x)
-                                                      * 180 / Math.PI + 360) % 360);
+                        90 - Math.atan2(srcShip.targety - tgtShip.y, srcShip.targetx - tgtShip.x)
+                        * 180 / Math.PI + 360) % 360);
                     tgtShip.x = srcShip.targetx;
                     tgtShip.y = srcShip.targety;
                     tgtShip.infoturn = vgap.game.turn;
@@ -513,8 +503,7 @@ const ShipList = function (vgap)
      * Checks for ships destroyed by mine hits
      * @returns {ShipList}
      */
-    this.updateShipsFromMinehitReports = function ()
-    {
+    this.updateShipsFromMinehitReports = function () {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
 
@@ -536,8 +525,8 @@ const ShipList = function (vgap)
 
             if (shipIdx != -1 &&
                 // Lizards
-                ( vgap.players[this.ships[shipIdx].ownerid -1].raceid != 2 ||
-                  ships[i][1] >= 150 )
+                (vgap.players[this.ships[shipIdx].ownerid - 1].raceid != 2 ||
+                    ships[i][1] >= 150)
             ) this.ships.splice(shipIdx, 1);
         }
 
@@ -548,8 +537,7 @@ const ShipList = function (vgap)
      * Checks for ships hitted by mine hits
      * @returns {ShipList}
      */
-    this.updateShipsDamageFromMinehitReports = function ()
-    {
+    this.updateShipsDamageFromMinehitReports = function () {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
 
@@ -560,7 +548,7 @@ const ShipList = function (vgap)
             if (message.messagetype != 16) continue;
 
             const match = message.body.match(/ ID#(\d+) has struck a mine!<br\/>Damage is at: (\d+)<br\/>\( \d+, \d+ \)/);
-            const matchweb =message.body.match(/ ID#(\d+) has struck a WEB mine!<br\/>Damage is at: (\d+)<br\/>We are stuck in the web! We are burning fuel to keep our shields up!<br\/>\( (\d+), (\d+) \)/);
+            const matchweb = message.body.match(/ ID#(\d+) has struck a WEB mine!<br\/>Damage is at: (\d+)<br\/>We are stuck in the web! We are burning fuel to keep our shields up!<br\/>\( (\d+), (\d+) \)/);
 
             if (match && (match[2] <= 149)) {
                 ships.push([parseInt(match[1]), parseInt(match[2])]);
@@ -575,7 +563,7 @@ const ShipList = function (vgap)
 
             if (shipIdx != -1) {
                 // Lizards
-                if (vgap.players[this.ships[shipIdx].ownerid -1].raceid == 2) {
+                if (vgap.players[this.ships[shipIdx].ownerid - 1].raceid == 2) {
                     this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
                     continue;
                 }
@@ -598,8 +586,7 @@ const ShipList = function (vgap)
      * @returns {ShipList}
      */
 
-    this.updateShipsDamageFromGloryDeviceReports = function ()
-    {
+    this.updateShipsDamageFromGloryDeviceReports = function () {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
 
@@ -622,7 +609,7 @@ const ShipList = function (vgap)
 
             if (shipIdx != -1) {
                 // Lizards
-                if (vgap.players[this.ships[shipIdx].ownerid -1].raceid == 2) {
+                if (vgap.players[this.ships[shipIdx].ownerid - 1].raceid == 2) {
                     this.ships[shipIdx].damage = this.ships[shipIdx].damage < ships[i][1] ? ships[i][1] : this.ships[shipIdx].damage;
                     continue;
                 }
@@ -638,8 +625,7 @@ const ShipList = function (vgap)
         }
     }
 
-    this.updateShipsFromTowCaptureReports = function ()
-    {
+    this.updateShipsFromTowCaptureReports = function () {
         let ships = [];
         let shipIds = this.ships.map((ship) => { return ship.id; });
 
@@ -676,8 +662,7 @@ const ShipList = function (vgap)
      * @param {number}         shipIdx
      * @returns {*}
      */
-    this.updateShipsFromVcr = function (vcr, report, ix, shipIdx)
-    {
+    this.updateShipsFromVcr = function (vcr, report, ix, shipIdx) {
 
         const combatInfo = vcr.Objects[ix];
         const side = ix == 0 ? 'left' : 'right';
@@ -739,8 +724,7 @@ const ShipList = function (vgap)
      * Update ship list from VGAP ship list
      * @returns {ShipList}
      */
-    this.updateShipsFromVgap = function ()
-    {
+    this.updateShipsFromVgap = function () {
         // mark all ships in list invisible
         for (let i = this.ships.length - 1; i >= 0; i--) {
             this.ships[i].visible = false;
@@ -825,8 +809,8 @@ const ShipList = function (vgap)
         // delete own ships / from share intel / full allies that aren't visible
         for (let i = this.ships.length - 1; i >= 0; i--) {
             if (vgapShipIds.indexOf(this.ships[i].id) == -1 &&
-                ( vgap.getRelationFromForShip(this.ships[i].ownerid) >= 3 ||
-                  this.ships[i].ownerid == vgap.player.id )
+                (vgap.getRelationFromForShip(this.ships[i].ownerid) >= 3 ||
+                    this.ships[i].ownerid == vgap.player.id)
             ) this.ships.splice(i, 1);
         }
 
@@ -837,8 +821,7 @@ const ShipList = function (vgap)
      * Update planet list from VGAP ship list
      * @returns {ShipList}
      */
-    this.updatePlanetsFromVgap = function ()
-    {
+    this.updatePlanetsFromVgap = function () {
 
         let planetIds = this.planets.map((planet) => { return planet.id; });
 
@@ -861,12 +844,12 @@ const ShipList = function (vgap)
                 $.extend(planet, {
                     clans: vgapPlanet.clans,
                     climate: vgapPlanet.climate,
-                    defense: vgapPlanet.defense,     
-                    temp: vgapPlanet.temp,                    
+                    defense: vgapPlanet.defense,
+                    temp: vgapPlanet.temp,
                     densityduranium: vgapPlanet.densityduranium,
                     densitymolybdenum: vgapPlanet.densitymolybdenum,
                     densityneutronium: vgapPlanet.densityneutronium,
-                    densitytritanium: vgapPlanet.densitytritanium,     
+                    densitytritanium: vgapPlanet.densitytritanium,
                     duranium: vgapPlanet.duranium,
                     factories: vgapPlanet.factories,
                     friendlycode: vgapPlanet.friendlycode,
@@ -889,7 +872,7 @@ const ShipList = function (vgap)
                     supplies: vgapPlanet.supplies,
                     tritanium: vgapPlanet.tritanium
                 });
-                this.planets.push(planet); 
+                this.planets.push(planet);
             } else {
                 let oldPlanet = this.planets[planetIdx];
 
@@ -930,11 +913,11 @@ const ShipList = function (vgap)
         const vgapPlanetIds = vgap.planets.map((planet) => { return planet.id; });
 
         // delete own planets / from share intel / full allies that aren't visible
-        /* for (let i = this.planets.length - 1; i >= 0; i--) {
+        for (let i = this.planets.length - 1; i >= 0; i--) {
             if (vgapPlanetIds.indexOf(this.planets[i].id) == -1 &&
                 this.planets[i].ownerid == vgap.player.id
             ) this.planets.splice(i, 1);
-        } */
+        }
 
         return this;
     };
@@ -946,8 +929,7 @@ const ShipList = function (vgap)
      * @returns {Object} oldShip
      */
 
-    this.updateShipHistory = function (oldShip, newShip)
-    {
+    this.updateShipHistory = function (oldShip, newShip) {
         if (oldShip.history.length == 0 || oldShip.history[0].turn < newShip.infoturn) {
             oldShip.history.unshift({
                 turn: newShip.infoturn,
@@ -957,8 +939,7 @@ const ShipList = function (vgap)
             });
         }
         while (oldShip.history.length > 5) oldShip.history.pop();
-        oldShip.history.sort(function (a, b)
-        {
+        oldShip.history.sort(function (a, b) {
             return (b.turn - a.turn);
         });
 
@@ -970,8 +951,7 @@ const ShipList = function (vgap)
      * @param {Object}      ship
      * @returns {ShipList}
      */
-    this.updateShipNote = function (ship)
-    {
+    this.updateShipNote = function (ship) {
         const start = '\n---SHIP HISTORY---';
         const note = vgap.getNote(ship.id, 2);
         const body = note.body.split(start);
@@ -1022,8 +1002,7 @@ const ShipList = function (vgap)
      * @param {number}  playerId [1]
      * @returns {ShipList}
      */
-    this.showShips = function (view, playerId)
-    {
+    this.showShips = function (view, playerId) {
 
         if (view)
             this.view = view;
@@ -1060,7 +1039,7 @@ const ShipList = function (vgap)
 
         switch (this.view) {
             case 1:
-                this.ractive.attachChild(new ShipListOverviewPane(), {target: 'main'});
+                this.ractive.attachChild(new ShipListOverviewPane(), { target: 'main' });
                 return this;
             case 2:
             //this.ractive.attachChild(new ShipListSelectionPaneComplete(), {target: 'main'});
@@ -1074,33 +1053,32 @@ const ShipList = function (vgap)
                 //return this;
                 break;
             case 7:
-                this.ractive.attachChild(new ShipListSettingsPane(), {target: 'main'});
+                this.ractive.attachChild(new ShipListSettingsPane(), { target: 'main' });
                 return this;
             case 8:
-                this.ractive.attachChild(new ShipListStoragePane(), {target: 'main'});
+                this.ractive.attachChild(new ShipListStoragePane(), { target: 'main' });
                 return this;
             case 9:
-                this.ractive.attachChild(new ShipListFleetsPane(), {target: 'main'});
+                this.ractive.attachChild(new ShipListFleetsPane(), { target: 'main' });
                 return this;
         }
 
         let pane = $('#dashPane');
 
         console.time('showShips');
-        if (this.view == 2) this.ractive.attachChild(new ShipListSelectionPaneComplete(), {target: 'main'});
+        if (this.view == 2) this.ractive.attachChild(new ShipListSelectionPaneComplete(), { target: 'main' });
         //if (view == 2) this.showSelectionPaneComplete(pane, view, playerId);
-        if (this.view == 4) this.ractive.attachChild(new ShipListSelectionPaneAllied(), {target: 'main'});
+        if (this.view == 4) this.ractive.attachChild(new ShipListSelectionPaneAllied(), { target: 'main' });
 
         //if (view == 4) this.showSelectionPaneAllied(pane, view, playerId);
         if (this.view == 6) {
             //this.showSelectionPaneSingle(pane, view, playerId);
-            this.ractive.attachChild(new ShipListSelectionPaneSingle(), {target: 'main'});
+            this.ractive.attachChild(new ShipListSelectionPaneSingle(), { target: 'main' });
             this.showShipForm($('#newShipForm'), this.view, this.playerId);
         }
         if (this.ships.length) this.showShipTableHeader(pane, this.view, this.playerId);
 
-        const shipIds = this.ships.map(function (ship)
-        {
+        const shipIds = this.ships.map(function (ship) {
             return ship.id;
         });
 
@@ -1131,21 +1109,21 @@ const ShipList = function (vgap)
 
             if (
                 //ships of other players
-            (this.view == 3 && ship.ownerid == vgap.player.id) ||
-            //allies (>= safe passage)
-            (this.view == 4 && (
-                relation == 1 ||
-                (relation == 2 && !this.settings.showSafePassage) ||
-                (relation == 3 && !this.settings.showShareIntel) ||
-                (relation == 4 && !this.settings.showFullAllies) ||
-                (ship.ownerid == vgap.player.id && !this.settings.showOwnShips)
-            )) ||
-            //non-allies
-            (this.view == 5 &&
-             (ship.ownerid == vgap.player.id || vgap.alliedTo(ship.ownerid))
-            ) ||
-            //single player
-            (this.view == 6 && ship.ownerid != this.playerId)
+                (this.view == 3 && ship.ownerid == vgap.player.id) ||
+                //allies (>= safe passage)
+                (this.view == 4 && (
+                    relation == 1 ||
+                    (relation == 2 && !this.settings.showSafePassage) ||
+                    (relation == 3 && !this.settings.showShareIntel) ||
+                    (relation == 4 && !this.settings.showFullAllies) ||
+                    (ship.ownerid == vgap.player.id && !this.settings.showOwnShips)
+                )) ||
+                //non-allies
+                (this.view == 5 &&
+                    (ship.ownerid == vgap.player.id || vgap.alliedTo(ship.ownerid))
+                ) ||
+                //single player
+                (this.view == 6 && ship.ownerid != this.playerId)
             ) continue;
 
             const hull = vgap.getHull(ship.hullid);
@@ -1166,7 +1144,7 @@ const ShipList = function (vgap)
             } else if (hull.launchers > 0) {
                 if (ship.torps == -1 || ship.torpedoid == -1) secondary_weapons = "?";
                 else if (ship.torps == 0 || ship.torpedoid == 0) secondary_weapons = "---";
-                else secondary_weapons = ( ship.torps ? ship.torps + ' ' : '') + shortTorpNames[ship.torpedoid];
+                else secondary_weapons = (ship.torps ? ship.torps + ' ' : '') + shortTorpNames[ship.torpedoid];
             } else secondary_weapons = "---";
 
             let row = [
@@ -1215,19 +1193,16 @@ const ShipList = function (vgap)
 
             if (this.view == 6 && this.editMode) {
                 row.on('fill-form', this.fillShipForm.bind(this));
-                row.click(function ()
-                {
+                row.click(function () {
                     $(this).trigger('fill-form', [ship.id, this.playerId]);
                     pane.data('jsp').scrollToElement($('#ShipEditTable'));
                 });
             } else {
-                row.children().eq(6).hover((function (ship)
-                {
+                row.children().eq(6).hover((function (ship) {
                     this.showScan(ship);
                 }).bind(this.drawer, ship), this.drawer.hideScan.bind(this.drawer));
 
-                row.click((function (x, y, id, ships)
-                {
+                row.click((function (x, y, id, ships) {
                     vgap.showMap();
                     vgap.map.centerMap(x, y, true);
                     this.selectPlayer(id)
@@ -1236,8 +1211,7 @@ const ShipList = function (vgap)
             }
 
             // add slide toggle for notes row
-            row.children('.noteIcon').click(function (e)
-            {
+            row.children('.noteIcon').click(function (e) {
                 $(this)
                     .toggleClass('down')
                     .parent().next().slideToggle();
@@ -1245,8 +1219,7 @@ const ShipList = function (vgap)
             });
 
             // save note on blur
-            row.next().find('textarea').blur(function ()
-            {
+            row.next().find('textarea').blur(function () {
                 const note = vgap.getNote(ship.id, 2);
                 note.body = $(this).val();
                 note.changed = 1;
@@ -1257,7 +1230,7 @@ const ShipList = function (vgap)
         //add freighters and warships to end of list
         this.showUnknownShipsSingle(this.view, this.playerId, shipRows, freighterRows);
 
-        $('#ShipTable').tablesorter({cssChildRow: 'tablesorter-childRow'});
+        $('#ShipTable').tablesorter({ cssChildRow: 'tablesorter-childRow' });
         shipRows.find('td:nth-child(2)').addClass('capitalize');
 
         if (this.view == 6) {
@@ -1265,7 +1238,7 @@ const ShipList = function (vgap)
             freighterRows.find('td:nth-child(2)').addClass('capitalize');
         }
 
-        pane.jScrollPane({animateScroll: true, hideFocus: true});
+        pane.jScrollPane({ animateScroll: true, hideFocus: true });
         // fix annoying scroll up behavior
         $('#newShipForm *').off('focus');
         // remove focus handler on textareas
@@ -1282,8 +1255,7 @@ const ShipList = function (vgap)
     };
 
     /** Unknown Ships for "Single Player" view */
-    this.showUnknownShipsSingle = function (view, playerId, shipRows, freighterRows)
-    {
+    this.showUnknownShipsSingle = function (view, playerId, shipRows, freighterRows) {
         if (view == 6 && this.settings.showUnknown) {
 
             const player = vgap.getPlayer(playerId);
@@ -1326,8 +1298,7 @@ const ShipList = function (vgap)
      * @param data
      * @returns {ShipList}
      */
-    this.processActivity = function (data)
-    {
+    this.processActivity = function (data) {
         /** @todo add version check and abort if incompatible */
 
         const ships = data.ships;
@@ -1469,10 +1440,10 @@ const ShipList = function (vgap)
                     planet.img = listPlanet.img;
                     planet.mines = listPlanet.mines;
                 };
-                
 
-                    /** @todo update ship notes from history if addShipHistory is true */
-                
+
+                /** @todo update ship notes from history if addShipHistory is true */
+
 
                 this.savePlanet(planet, true);
             };
@@ -1486,22 +1457,20 @@ const ShipList = function (vgap)
      * Beware call stack exceeded-man
      * @returns {Promise.<ShipList>}
      */
-    this.loopThroughActivities = async function ()
-    {
+    this.loopThroughActivities = async function () {
         if (this.activityIndex == null)
             this.activityIndex = vgap.activity.length - 1;
 
         while (this.activityIndex > -1)
             await this
                 .checkActivity()
-                .catch(e =>
-                {
+                .catch(e => {
                     console.error(e);
                     // rethrow to exit loop
                     throw e;
                     //this.activityIndex = -1;
                 })
-            ;
+                ;
 
         // save processed activities
         this.save();
@@ -1513,8 +1482,7 @@ const ShipList = function (vgap)
      * Check activities for ship list data
      * @returns {Promise.<ShipList>}
      */
-    this.checkActivity = async function ()
-    {
+    this.checkActivity = async function () {
         const activity = vgap.activity[this.activityIndex];
 
         // processed or from yourself
@@ -1527,8 +1495,8 @@ const ShipList = function (vgap)
         }
 
         const match = activity
-                .message
-                .match(/Ship Data on (.+) from (.+)<br\/><br\/>JSON_START(.+)J\s?S\s?O\s?N\s?_\s?E\s?N\s?D\s?$/)
+            .message
+            .match(/Ship Data on (.+) from (.+)<br\/><br\/>JSON_START(.+)J\s?S\s?O\s?N\s?_\s?E\s?N\s?D\s?$/)
             ;
 
         if (!match) {
@@ -1594,10 +1562,8 @@ const ShipList = function (vgap)
             return this;
         }
 
-        const promise = (...args) =>
-        {
-            return new Promise((resolve, reject) =>
-            {
+        const promise = (...args) => {
+            return new Promise((resolve, reject) => {
                 new ShipListModalDialog({
                     data: {
                         title: 'Accept Ship List Data?',
@@ -1607,21 +1573,21 @@ const ShipList = function (vgap)
                         width: 500
                     },
                     on: {
-                        accept (ctx) {
+                        accept(ctx) {
                             this.get('app').settings.acceptShipData[data.from] = ctx.getBinding();
                             resolve(true);
                             this.teardown();
                         },
-                        ignore (ctx) {
+                        ignore(ctx) {
                             this.get('app').settings.acceptShipData[data.from] = ctx.getBinding();
                             resolve(false);
                             this.teardown();
                         },
-                        no () {
+                        no() {
                             resolve(false);
                             this.teardown();
                         },
-                        yes () {
+                        yes() {
                             this.get('app').processActivity(data);
                             resolve(true);
                             this.teardown();
@@ -1647,8 +1613,7 @@ const ShipList = function (vgap)
         return this;
     };
 
-    this.sendMessages = async function ()
-    {
+    this.sendMessages = async function () {
         const messages = {};
 
         for (let to in this.settings.updates) {
@@ -1673,8 +1638,7 @@ const ShipList = function (vgap)
         return this;
     }
 
-    this.sendMessage = function (on, to, type)
-    {
+    this.sendMessage = function (on, to, type) {
         const planets = [];
         const ships = [];
 
@@ -1688,12 +1652,12 @@ const ShipList = function (vgap)
                 if (this.planets[i].ownerid == on) {
                     const cut = this.planets[i];
                     Object.keys(cut).forEach(key => {
-                        if (cut[key] === undefined) {
+                        if (cut[key] == -1 || cut[key] == undefined) {
                             delete cut[key];
                         }
                     });
-                    const recut = omit(cut, 'img', 'defense', 'factories', 'mines');
-                    planets.push(recut);
+                    // const recut = omit(cut, 'img', 'defense', 'factories', 'mines');
+                    planets.push(cut);
                 }
             }
 
@@ -1704,8 +1668,13 @@ const ShipList = function (vgap)
             for (let i = this.ships.length - 1; i >= 0; i--) {
                 if (this.ships[i].ownerid == on) {
                     const cut = this.ships[i];
-                    const recut = omit(cut, 'history');
-                    ships.push(recut);
+                    Object.keys(cut).forEach(key => {
+                        if (cut[key] == -1 || cut[key] == undefined) {
+                            delete cut[key];
+                        }
+                    });
+                    // const recut = omit(cut, 'history');
+                    ships.push(cut);
                 }
             }
 
@@ -1721,12 +1690,10 @@ const ShipList = function (vgap)
         ].join(''), null, to);
     }
 
-    this.hideMessages = function ()
-    {
+    this.hideMessages = function () {
         const messages = $('#egameactivity').find('.egamefeedline');
 
-        messages.each(function ()
-        {
+        messages.each(function () {
             const message = $(this).find('.eexcerpt').text();
 
             if (message && message.match(/\s+Ship Data on .+ from .+\s/)) {
@@ -1735,16 +1702,15 @@ const ShipList = function (vgap)
         });
     }
 
-    this.showShipForm = function (target, view, playerId)
-    {
+    this.showShipForm = function (target, view, playerId) {
         if (!(view == 6) || !this.editMode) return this;
 
         let engineTypes = [...vgap.engines];
-        engineTypes.unshift({id: 0, name: 'Unknown'});
+        engineTypes.unshift({ id: 0, name: 'Unknown' });
         let beamTypes = [...vgap.beams];
-        beamTypes.unshift({id: 0, name: 'Unknown'});
+        beamTypes.unshift({ id: 0, name: 'Unknown' });
         let torpTypes = [...vgap.torpedos];
-        torpTypes.unshift({id: 0, name: 'Unknown'});
+        torpTypes.unshift({ id: 0, name: 'Unknown' });
 
         target.append([
             '<div id="ShipEditPane">',
@@ -1753,15 +1719,15 @@ const ShipList = function (vgap)
             '<tr><td><select id="id"><optgroup id="optGroupOwn" label="Owned Ships"/><optgroup id="optGroupNew" label="Unknown Ships"/></select></td><td><select id="hullid"/></td><td><input id="name" size="30"></td></tr>',
             '<tr><th></th><th>Engine(s)</th></tr>',
             '<tr><td rowspan="3"><input id="visible" type="hidden" value="false"><input id="history" type="hidden" value="[]"><input id="ownerid" type="hidden" value="' + playerId + '"><img id="hullImg"/></td><td>',
-            this.templater.get('selectBox', {id: 'engineid', options: engineTypes}),
+            this.templater.get('selectBox', { id: 'engineid', options: engineTypes }),
             '</td></tr>',
             '<tr><th>Beam Type</th><th>Beam #</th></tr>',
             '<tr><td>',
-            this.templater.get('selectBox', {id: 'beamid', options: beamTypes}),
+            this.templater.get('selectBox', { id: 'beamid', options: beamTypes }),
             '</td><td><input id="beams" size="4"></td></tr>',
             '<tr><th></th><th>Torp Type</th><th>Tube #</th></tr>',
             '<tr><td></td><td>',
-            this.templater.get('selectBox', {id: 'torpedoid', options: torpTypes}),
+            this.templater.get('selectBox', { id: 'torpedoid', options: torpTypes }),
             '</td><td><input id="torps" size="4"></td></tr>',
             '<tr><th rowspan="2"></th><td colspan="2"><table id="ShipMiscTable">',
             '<tr><th>Turn</th><th>X</th><th>Y</th><th>Heading</th><th>Warp</th><th>Ammo</th><th>Mass</th><th>Crew</th><th>Dmg</th></tr>',
@@ -1824,13 +1790,11 @@ const ShipList = function (vgap)
         shipForm.change(this.changeShipForm);
 
         idSelect.on('fill-form', this.fillShipForm.bind(this));
-        idSelect.change(function ()
-        {
+        idSelect.change(function () {
             $(this).trigger('fill-form', [$(this).val(), playerId]);
         });
 
-        shipHullSelect.change(function ()
-        {
+        shipHullSelect.change(function () {
             const val = $(this).val();
             // new ships - add name of hull
             if (val != 0 && !newShip.overwrite) {
@@ -1847,23 +1811,21 @@ const ShipList = function (vgap)
         shipHullSelect.trigger('change');
 
         /** @this ShipList */
-        $('#shipSaveButton').click((function (view, playerId)
-        {
+        $('#shipSaveButton').click((function (view, playerId) {
             shipForm.trigger('change');
             console.log('Ship List: [2017] (newShipForm) Saving Ship ' + newShip.ship.id + '.');
             console.log(newShip);
             this.saveShip(newShip.ship, newShip.overwrite).showShips(view, playerId);
         }).bind(this, view, playerId));
 
-        $('#shipResetButton').click(function ()
-        {
+        $('#shipResetButton').click(function () {
             shipForm.trigger('reset');
             // DUPLICATE CODE - REFACTOR
             $('#shipListPlayer').val(playerId);
             idSelect.val(optGroupNew.find(':first').val());
             // hidden fields don't reset
             $('#history').val('[]');
-            newShip = {overwrite: false, ship: {}};
+            newShip = { overwrite: false, ship: {} };
             // update hull and name
             shipHullSelect.trigger('change');
         });
@@ -1871,8 +1833,7 @@ const ShipList = function (vgap)
         return this;
     };
 
-    this.fillShipForm = function (e, shipId, playerId)
-    {
+    this.fillShipForm = function (e, shipId, playerId) {
 
         const shipIds = this.ships.map((ship) => { return ship.id; });
 
@@ -1922,8 +1883,7 @@ const ShipList = function (vgap)
      * Event handler for ship form change
      * @returns {ShipList}
      */
-    this.changeShipForm = function ()
-    {
+    this.changeShipForm = function () {
         let ship = newShip.ship;
 
         ship.id = parseInt($('#id').val());
@@ -1957,8 +1917,7 @@ const ShipList = function (vgap)
     };
 
     /** Ship table header */
-    this.showShipTableHeader = function (target, view, playerId)
-    {
+    this.showShipTableHeader = function (target, view, playerId) {
 
         let warshipsTotal = vgap.getPlayerScore(playerId, "capitalships");
         let freightersTotal = vgap.getPlayerScore(playerId, "freighters");
@@ -2001,8 +1960,7 @@ const ShipList = function (vgap)
      * Load app data from storage or initialize empty list
      * @returns {ShipList}
      */
-    this.load = function ()
-    {
+    this.load = function () {
         /**
          * get from VGAP note
          * will not work when looping - notes in time machine don't get written
@@ -2087,8 +2045,7 @@ const ShipList = function (vgap)
      * Save app data to local storage
      * @returns {ShipList}
      */
-    this.save = function ()
-    {
+    this.save = function () {
         if (!this.enabled) return this;
 
         console.log('Ship List: [' + vgap.game.turn + '] (save) Saving Game Data.')
@@ -2139,8 +2096,7 @@ const ShipList = function (vgap)
      * @param key
      * @returns {*}
      */
-    this.fromStorage = function (key)
-    {
+    this.fromStorage = function (key) {
         if ($.isPlainObject(key)) {
             const self = this;
             $.each(key, (k, v) => { v = localStorage.getItem(self.storagePath + k); });
@@ -2155,13 +2111,11 @@ const ShipList = function (vgap)
      * @param data
      * @returns {*}
      */
-    this.toStorage = function (key, data)
-    {
+    this.toStorage = function (key, data) {
         // hash
         if ($.isPlainObject(key)) {
             const self = this;
-            $.each(key, function (k, v)
-            {
+            $.each(key, function (k, v) {
                 localStorage.setItem(self.storagePath + k, v);
             });
             return key;
@@ -2177,8 +2131,7 @@ const ShipList = function (vgap)
     /** Get data from VGAP notes
      * returns {*}
      */
-    this.fromNote = function (key)
-    {
+    this.fromNote = function (key) {
         try {
             let noteId = 0;
             let arr = [];
@@ -2206,8 +2159,7 @@ const ShipList = function (vgap)
      * @param value
      * @returns {ShipList}
      */
-    this.toNote = function (key, value)
-    {
+    this.toNote = function (key, value) {
         try {
             let noteId = 0;
             let obj = {};
@@ -2217,7 +2169,7 @@ const ShipList = function (vgap)
             let chunks = match.length;
 
             let note = vgap.getNote(noteId--, this.noteType);
-            note.body = JSON.stringify({chunks: chunks});
+            note.body = JSON.stringify({ chunks: chunks });
             note.changed = 1;
 
             for (let i = 0; i < chunks; i++) {
@@ -2244,8 +2196,7 @@ const ShipList = function (vgap)
      * @param   playerId       int
      * @returns {ShipList}
      */
-    this.deleteGame = function (gameId, playerId)
-    {
+    this.deleteGame = function (gameId, playerId) {
         console.log('Ship List: [' + vgap.game.turn + '] (deleteGame) Deleting Game Data.');
 
         const path = this.storagePrefix + gameId + '.' + playerId + '.';
@@ -2271,8 +2222,7 @@ const ShipList = function (vgap)
      * Delete all game data from local storage
      * @returns {ShipList}
      */
-    this.deleteAllGames = function ()
-    {
+    this.deleteAllGames = function () {
 
         console.log('Ship List: [' + vgap.game.turn + '] (deleteAllGames) Deleting Game Data.');
 
@@ -2290,8 +2240,7 @@ const ShipList = function (vgap)
      * @param id    id of ship to remove
      * @returns {ShipList}
      */
-    this.deleteShip = function (id)
-    {
+    this.deleteShip = function (id) {
         for (let i = this.ships.length - 1; i >= 0; i--) {
             if (this.ships[i].id == id) {
                 this.ships.splice(i, 1);
@@ -2306,8 +2255,7 @@ const ShipList = function (vgap)
      * Enable app
      * @returns {ShipList}
      */
-    this.enable = function ()
-    {
+    this.enable = function () {
         /** @todo Remove Local Storage check once we switch entirely to notes */
         try {
             localStorage.setItem(this.storagePrefix, this.version);
@@ -2325,8 +2273,7 @@ const ShipList = function (vgap)
     };
 
     /** Exports all game data to JSON */
-    this.exportGameData = function ()
-    {
+    this.exportGameData = function () {
         const appData = {};
 
         for (let key in localStorage) {
@@ -2335,11 +2282,11 @@ const ShipList = function (vgap)
             }
         }
 
-        let blob = new Blob([JSON.stringify(appData)], {type: 'text/json;charset=utf-8'});
+        let blob = new Blob([JSON.stringify(appData)], { type: 'text/json;charset=utf-8' });
         /** @namespace window.URL.createObjectURL */
         let url = window.URL.createObjectURL(blob);
         let a = $('<a style="display:none" href="' + url + '" download="ShipList.json"></a>')
-                .appendTo($('#MessageInbox'))
+            .appendTo($('#MessageInbox'))
             ;
         // jQuery click doesn't work for default event
         a[0].click();
@@ -2349,8 +2296,7 @@ const ShipList = function (vgap)
     };
 
     /** Import JSON game data */
-    this.importGameData = function ()
-    {
+    this.importGameData = function () {
         console.log('Ship List: [' + vgap.game.turn + '] (importGameData) Starting Import.');
 
         let fileInput = $('#fileInput');
@@ -2364,8 +2310,7 @@ const ShipList = function (vgap)
         // reset fileInput
         fileInput.val('');
 
-        read.onload = function ()
-        {
+        read.onload = function () {
             let obj;
 
             try {
@@ -2378,7 +2323,7 @@ const ShipList = function (vgap)
                         name: file.name,
                         width: 400
                     },
-                    partials: {main: Ractive.partials['gameInvalidJson']}
+                    partials: { main: Ractive.partials['gameInvalidJson'] }
                 });
                 /*
                 nu.info([
@@ -2403,8 +2348,7 @@ const ShipList = function (vgap)
 
             // save uploaded data
             let err;
-            $.each(obj, (key, val) =>
-            {
+            $.each(obj, (key, val) => {
                 if (key.indexOf(self.storagePrefix) != 0) {
                     err = true;
                     return false;
@@ -2426,7 +2370,7 @@ const ShipList = function (vgap)
                         name: file.name,
                         width: 400
                     },
-                    partials: {main: Ractive.partials['gameInvalidData']}
+                    partials: { main: Ractive.partials['gameInvalidData'] }
                 });
                 /*
                 nu.info([
@@ -2448,8 +2392,7 @@ const ShipList = function (vgap)
      * @param turn
      * @returns {ShipList}
      */
-    this.initLoop = function (turn)
-    {
+    this.initLoop = function (turn) {
         if (!turn) turn = this.lastTurn + 1;
         if (turn < 1 || turn > vgap.nowTurn) return this;
 
@@ -2469,8 +2412,7 @@ const ShipList = function (vgap)
      * @param turn  int
      * @returns     {ShipList}
      */
-    this.rebuildShips = function (turn)
-    {
+    this.rebuildShips = function (turn) {
         console.log('Ship List: [' + vgap.game.turn + '] (rebuildShips) Updating from turn ' + turn + '.');
 
         if (!turn) turn = vgap.game.turn;
@@ -2487,8 +2429,7 @@ const ShipList = function (vgap)
      * Reset game defaults
      * @returns {ShipList}
      */
-    this.reInitialize = function ()
-    {
+    this.reInitialize = function () {
         console.log('Ship List: [' + vgap.game.turn + '] (reInitialize) Reinitializing.');
         this.ships = [];
         this.planets = [];
@@ -2503,8 +2444,7 @@ const ShipList = function (vgap)
      * Empty ship list and update from current turn
      * @returns {ShipList}
      */
-    this.resetShips = function ()
-    {
+    this.resetShips = function () {
         console.log('Ship List: [' + vgap.game.turn + '] (resetShips) Updating from current turn.');
 
         this.ships = [];
@@ -2524,8 +2464,7 @@ const ShipList = function (vgap)
      * @param update        boolean
      * @returns {ShipList}
      */
-    this.saveShip = function (ship, update)
-    {
+    this.saveShip = function (ship, update) {
         const shipIds = this.ships.map((ship) => { return ship.id; });
 
         const shipIdx = shipIds.indexOf(ship.id);
@@ -2548,21 +2487,20 @@ const ShipList = function (vgap)
      * @param update        boolean
      * @returns {ShipList}
      */
-    this.savePlanet = function (planet, update)
-    {
+    this.savePlanet = function (planet, update) {
         const planetIds = this.planets.map((planet) => { return planet.id; });
-    
+
         const planetIdx = planetIds.indexOf(planet.id);
-    
-         if (planetIdx != -1 && update)
+
+        if (planetIdx != -1 && update)
             this.planets.splice(planetIdx, 1);
-    
+
         this.planets.push(planet);
-    
+
         this.planets.sort((a, b) => { return (a.id - b.id); });
-    
-         this.save();
-    
+
+        this.save();
+
         return this;
     };
 }; // end ShipList
@@ -2575,20 +2513,20 @@ const ShipList = function (vgap)
  */
 const ShipListCss = Ractive.extend({
     append: true,
-    colorToRGBA (color, alpha) {
+    colorToRGBA(color, alpha) {
         const red = hexToR(color);
         const green = hexToG(color);
         const blue = hexToB(color);
 
         return "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
     },
-    cutHex (h) { return (h.charAt(0) == "#") ? h.substring(1, 7) : h },
+    cutHex(h) { return (h.charAt(0) == "#") ? h.substring(1, 7) : h },
     el: 'head',
-    hexToR (h) { return parseInt((cutHex(h)).substring(0, 2), 16) },
-    hexToG (h) { return parseInt((cutHex(h)).substring(2, 4), 16) },
-    hexToB (h) { return parseInt((cutHex(h)).substring(4, 6), 16) },
+    hexToR(h) { return parseInt((cutHex(h)).substring(0, 2), 16) },
+    hexToG(h) { return parseInt((cutHex(h)).substring(2, 4), 16) },
+    hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16) },
     on: {
-        init () {
+        init() {
             if ($('#shipListCss').length)
                 $('#shipListCss').remove();
         }
@@ -2660,16 +2598,16 @@ const ShipListInfoDialog = Ractive.extend({
     append: true,
     el: 'body',
     on: {
-        render () {
-            $(this.find('.popup')).width(this.get('width')).center().drags({handle: "header"});
+        render() {
+            $(this.find('.popup')).width(this.get('width')).center().drags({ handle: "header" });
         },
-        ok () {
+        ok() {
             this.teardown();
         }
     },
     template: [
         '<section class="popup">', '' +
-                                   '<data on-click="ok"><i class="fas fa-times"></i></data>',
+        '<data on-click="ok"><i class="fas fa-times"></i></data>',
         '<header>{{title}}</header>',
         '<article class="esimplewincontent">' +
         '<form class="modalForm"><table>',
@@ -2689,24 +2627,23 @@ const ShipListInfoDialog = Ractive.extend({
  * @constructor
  */
 const ShipListMenu = Ractive.extend({
-    data: _ =>
-    {
+    data: _ => {
         return {
             items: [
-                {view: 1, title: 'Summary'},
-                {view: 9, title: 'Fleets'},
-                {view: 2, title: 'All Ships'},
-                {view: 3, title: 'Other Players'},
-                {view: 4, title: 'Allies'},
-                {view: 5, title: 'Enemies'},
-                {view: 6, title: 'Single Player'},
-                {view: 7, title: 'Settings'},
-                {view: 8, title: 'Storage'}
+                { view: 1, title: 'Summary' },
+                { view: 9, title: 'Fleets' },
+                { view: 2, title: 'All Ships' },
+                { view: 3, title: 'Other Players' },
+                { view: 4, title: 'Allies' },
+                { view: 5, title: 'Enemies' },
+                { view: 6, title: 'Single Player' },
+                { view: 7, title: 'Settings' },
+                { view: 8, title: 'Storage' }
             ]
         };
     },
     on: {
-        view (ctx, view) {
+        view(ctx, view) {
             this.set('view', view);
             this.get('app').showShips(view);
         }
@@ -2728,16 +2665,16 @@ const ShipListModalDialog = Ractive.extend({
     append: true,
     el: 'body',
     on: {
-        render () {
-            $(this.find('.popup')).width(this.get('width')).center().drags({handle: "header"});
+        render() {
+            $(this.find('.popup')).width(this.get('width')).center().drags({ handle: "header" });
         },
-        no () {
+        no() {
             this.teardown();
         }
     },
     template: [
         '<section class="popup">', '' +
-                                   '<data on-click="no"><i class="fas fa-times"></i></data>',
+        '<data on-click="no"><i class="fas fa-times"></i></data>',
         '<header>{{title}}</header>',
         '<article class="esimplewincontent">' +
         '<form class="modalForm"><table>',
@@ -2758,27 +2695,27 @@ const ShipListModalDialog = Ractive.extend({
 const ShipListFleetsPane = Ractive.extend({
     isolated: false,
     on: {
-        complete () {
+        complete() {
             $('#FreighterTable').tablesorter();
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({hideFocus: true});
+            $('#dashPane').jScrollPane({ hideFocus: true });
             $('#newShipForm *').off('focus');
 
         },
-        render () {
+        render() {
             if (!this.get('showFleet1')) this.set('showFleet1', [1]);
             if (!this.get('showFleet2')) this.set('showFleet2', [2]);
             this.parseFleets();
         },
-        show () {
+        show() {
             this.parseFleets();
             $('#FreighterTable').tablesorter();
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({hideFocus: true});
+            $('#dashPane').jScrollPane({ hideFocus: true });
             $('#newShipForm *').off('focus');
         }
     },
-    parseFleets () {
+    parseFleets() {
         let fleets = [[], []];
         let ships = this.get('app').ships;
 
@@ -2802,7 +2739,7 @@ const ShipListFleetsPane = Ractive.extend({
 
         this.set('fleets', fleets);
     },
-    sortFleet (a, b) {
+    sortFleet(a, b) {
         return !(b.tech - a.tech) ?
             (a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)) :
             b.tech - a.tech
@@ -2863,12 +2800,11 @@ const ShipListFleetsPane = Ractive.extend({
 const ShipListOverviewPane = Ractive.extend({
     isolated: false,
     on: {
-        complete () {
+        complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({hideFocus: true});
+            $('#dashPane').jScrollPane({ hideFocus: true });
         },
-        render ()
-        {
+        render() {
             const players = this.get('vgap').players;
 
             for (let i = players.length - 1; i >= 0; i--) {
@@ -2896,7 +2832,7 @@ const ShipListOverviewPane = Ractive.extend({
                 this.set('vgap.players[' + i + '].warshipsKnown', warshipsKnown);
             }
         },
-        click (ctx, id) {
+        click(ctx, id) {
             this.get('app').showShips(6, id);
         }
     },
@@ -2931,7 +2867,7 @@ const ShipListOverviewPane = Ractive.extend({
 const ShipListSelectionPaneAllied = Ractive.extend({
     isolated: false,
     on: {
-        render () {
+        render() {
             this.set({
                 checkBoxes: [
                     {
@@ -2982,7 +2918,7 @@ const ShipListSelectionPaneAllied = Ractive.extend({
 const ShipListSelectionPaneComplete = Ractive.extend({
     isolated: false,
     on: {
-        render () {
+        render() {
             this.set({
                 checkBox: {
                     name: 'settings.showUnknown',
@@ -3017,7 +2953,7 @@ const ShipListSelectionPaneComplete = Ractive.extend({
 const ShipListSelectionPaneSingle = Ractive.extend({
     isolated: false,
     on: {
-        render () {
+        render() {
             this.set({
                 checkBoxes: [
                     {
@@ -3036,7 +2972,7 @@ const ShipListSelectionPaneSingle = Ractive.extend({
                 }
             });
         },
-        select (ctx) {
+        select(ctx) {
             this.set('app.' + ctx.get('name'), ctx.getBinding());
             this.get('app').showShips();
         },
@@ -3070,9 +3006,9 @@ const ShipListSelectionPaneSingle = Ractive.extend({
 const ShipListSettingsPane = Ractive.extend({
     isolated: false,
     on: {
-        complete () {
+        complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({hideFocus: true});
+            $('#dashPane').jScrollPane({ hideFocus: true });
             if (this.get('app').lastTurn == this.get('vgap').nowTurn) {
                 $('#updateMissingTurns').prop('disabled', true);
             }
@@ -3083,24 +3019,23 @@ const ShipListSettingsPane = Ractive.extend({
             this.set('app.settings.' + setting, !this.get('app.settings.' + setting));
             this.get('app').save();
         },
-        updateMissingTurns () {
+        updateMissingTurns() {
             this.get('app').initLoop();
         },
-        rebuildFromCurrent () {
+        rebuildFromCurrent() {
             this.get('app').enable().resetShips().showShips();
         },
-        rebuildFromScratch () {
+        rebuildFromScratch() {
             const accel = this.get('vgap').settings.acceleratedturns;
             this.get('app').enable().rebuildShips(accel > 0 ? accel : 1);
         },
-        updateFromCurrent () {
+        updateFromCurrent() {
             this.set('app.lastTurn', this.get('vgap.nowTurn') - 1);
             // loop from turn N - 1 so we get clean data, including intercepts
             this.get('app').initLoop(this.get('app.lastTurn'));
             //this.updateShips().showShips(7);
         },
-        sendPlanetsMessage ()
-        {
+        sendPlanetsMessage() {
             $('#sendPlanetsMessage').prop('checked', false);
 
             new ShipListModalDialog({
@@ -3115,11 +3050,11 @@ const ShipListSettingsPane = Ractive.extend({
                     width: 450
                 },
                 on: {
-                    onto () {
+                    onto() {
                         if (this.get('app').settings.updates2[this.get('to')])
                             this.set('checked', this.get('app').settings.updates2[this.get('to')][this.get('on')]);
                     },
-                    toggle (ctx) {
+                    toggle(ctx) {
                         if (ctx.getBinding()) {
                             if (!this.get('app').settings.updates2[this.get('to')])
                                 this.get('app').settings.updates2[this.get('to')] = {};
@@ -3128,7 +3063,7 @@ const ShipListSettingsPane = Ractive.extend({
                             delete this.get('app').settings.updates2[this.get('to')][this.get('on')];
                         this.get('app').save();
                     },
-                    yes () {
+                    yes() {
                         this.get('app').sendMessage(this.get('on'), this.get('to'), 'planets');
                         this.teardown();
                     }
@@ -3138,8 +3073,7 @@ const ShipListSettingsPane = Ractive.extend({
                 }
             });
         },
-        sendShipsMessage ()
-        {
+        sendShipsMessage() {
             $('#sendShipsMessage').prop('checked', false);
 
             new ShipListModalDialog({
@@ -3154,11 +3088,11 @@ const ShipListSettingsPane = Ractive.extend({
                     width: 450
                 },
                 on: {
-                    onto () {
+                    onto() {
                         if (this.get('app').settings.updates[this.get('to')])
                             this.set('checked', this.get('app').settings.updates[this.get('to')][this.get('on')]);
                     },
-                    toggle (ctx) {
+                    toggle(ctx) {
                         if (ctx.getBinding()) {
                             if (!this.get('app').settings.updates[this.get('to')])
                                 this.get('app').settings.updates[this.get('to')] = {};
@@ -3167,7 +3101,7 @@ const ShipListSettingsPane = Ractive.extend({
                             delete this.get('app').settings.updates[this.get('to')][this.get('on')];
                         this.get('app').save();
                     },
-                    yes () {
+                    yes() {
                         this.get('app').sendMessage(this.get('on'), this.get('to'), 'ships');
                         this.teardown();
                     }
@@ -3231,18 +3165,18 @@ const ShipListSettingsPane = Ractive.extend({
 const ShipListStoragePane = Ractive.extend({
     isolated: false,
     on: {
-        complete () {
+        complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({hideFocus: true});
+            $('#dashPane').jScrollPane({ hideFocus: true });
             $('.ConfigTable *').off('focus');
         },
-        delete (ctx, gameId, playerId) {
+        delete(ctx, gameId, playerId) {
             this.get('app').deleteGame(gameId, playerId).showShips();
         },
-        deleteAll () {
+        deleteAll() {
             this.get('app').deleteAllGames().showShips();
         },
-        render () {
+        render() {
             let games = [];
             let totalSize = 0;
 
@@ -3274,10 +3208,10 @@ const ShipListStoragePane = Ractive.extend({
 
             this.set('games', games);
         },
-        export () {
+        export() {
             this.get('app').exportGameData();
         },
-        import () {
+        import() {
             this.get('app').importGameData();
         }
     },
@@ -3324,7 +3258,7 @@ const ShipListStoragePane = Ractive.extend({
 const ShipListWarningPane = Ractive.extend({
     isolated: false,
     on: {
-        init () {
+        init() {
             this.set('acceleratedTurns', this.get('vgap').settings.acceleratedturns);
             this.set('buildTurn', this.get('vgap').settings.acceleratedturns > 0 ? this.get('vgap').settings.acceleratedturns : 1);
             this.set('inAcceleratedTurns', this.get('vgap').nowTurn < this.get('vgap').settings.acceleratedturns);
@@ -3334,14 +3268,14 @@ const ShipListWarningPane = Ractive.extend({
             this.set('settingsView', this.get('app').view == 7);
             this.set('thisTurn', this.get('vgap').game.turn);
         },
-        close () {
+        close() {
             this.set('app.hideWarningPane', true);
             this.teardown();
         },
-        rebuild (ctx, app, view, buildTurn) {
+        rebuild(ctx, app, view, buildTurn) {
             app.enable().rebuildShips(buildTurn).showShips(view);
         },
-        reset (ctx, app, view) {
+        reset(ctx, app, view) {
             app.enable().resetShips().showShips(view);
         }
     },
@@ -3382,10 +3316,8 @@ const ShipListWarningPane = Ractive.extend({
     ].join('')
 });
 
-const Templater = function ()
-{
-    this.get = function (template, data)
-    {
+const Templater = function () {
+    this.get = function (template, data) {
         return Mustache.render(this.templates[template], data, this.partials);
     }
 
@@ -3435,16 +3367,14 @@ const Templater = function ()
  * @type {DrawHelper}
  * @constructor
  */
-const DrawHelper = function (vgap, settings)
-{
+const DrawHelper = function (vgap, settings) {
     this.drawRadius = 10;
     this.shipsDrawn = [];
     this.togglesShown = false;
 
     this.settings = settings;
 
-    this.init = function ()
-    {
+    this.init = function () {
         this.playerToggles = [];
         this.playerColors = ["#ffff00", "#0000ff", "#00ff00", "#ff0000", "#ffff00", "#ff00ff", "#0000ff", "#ff9900", "#00ff99", "#9900ff", "#cccc00", "#00cccc", "#cc00cc", "#ff9999", "#99ff99", "#9999ff", "#cc0044", "#44cc00", "#0044cc", "#999900", "#009999", "#990099", "#ee3300", "#00ee33", "#3300ee", "#ee0033", "#33ee00", "#0033ee", "#bb4444", "#44bb44", "#4444bb"];
 
@@ -3471,8 +3401,7 @@ const DrawHelper = function (vgap, settings)
         return this;
     }
 
-    this.addMapTool = function ()
-    {
+    this.addMapTool = function () {
         if (vgap.isMobileVersion()) {
             vgap.map.addMapTool('Ship List', 'shipListTool', this.toggleMapTool.bind(this));
         } else {
@@ -3487,8 +3416,7 @@ const DrawHelper = function (vgap, settings)
      * @param {[]}  ships
      * @returns {DrawHelper}
      */
-    this.drawShips = function (ships)
-    {
+    this.drawShips = function (ships) {
 
         let doDraw = false;
 
@@ -3507,7 +3435,7 @@ const DrawHelper = function (vgap, settings)
             if (vgap.game.turn < ship.infoturn) continue;
 
             if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
-                this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
+                this.drawShipCircle(ship.x, ship.y, this.drawRadius, { stroke: this.playerColors[ship.ownerid] }, null);
             }
         }
 
@@ -3517,7 +3445,7 @@ const DrawHelper = function (vgap, settings)
                 const ship = vgap.ships[i];
 
                 if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
-                    this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
+                    this.drawShipCircle(ship.x, ship.y, this.drawRadius, { stroke: this.playerColors[ship.ownerid] }, null);
                 }
             }
         }
@@ -3534,8 +3462,7 @@ const DrawHelper = function (vgap, settings)
      * @param ctx          context
      * @returns {DrawHelper}
      */
-    this.drawShipCircle = function (x, y, radius, attr, ctx)
-    {
+    this.drawShipCircle = function (x, y, radius, attr, ctx) {
         if (!vgap.map.isVisible(x, y, radius)) return this;
         radius *= vgap.map.zoom;
         if (radius <= 1) radius = 1;
@@ -3549,8 +3476,7 @@ const DrawHelper = function (vgap, settings)
     };
 
     /** hide ship scan pane */
-    this.hideScan = function ()
-    {
+    this.hideScan = function () {
         vgap.list.hide();
     };
 
@@ -3559,8 +3485,7 @@ const DrawHelper = function (vgap, settings)
      * @param {number} id
      * @returns {DrawHelper}
      */
-    this.selectPlayer = function (id)
-    {
+    this.selectPlayer = function (id) {
         for (let i = this.playerToggles.length - 1; i >= 0; i--) {
             if (!this.playerToggles[i]) {
                 this.playerToggles[0] = false;
@@ -3578,8 +3503,7 @@ const DrawHelper = function (vgap, settings)
      * @param {boolean}         includeVisible  include visible ships from the list
      * @returns {[]}
      */
-    this.shipsAt = function (ships, x, y, includeVisible)
-    {
+    this.shipsAt = function (ships, x, y, includeVisible) {
         let at = [];
 
         for (let i = 0; i < ships.length; i++) {
@@ -3593,8 +3517,7 @@ const DrawHelper = function (vgap, settings)
     };
 
     /** Show ships from previous turns in pane (hover) */
-    this.shipScan = function (ship)
-    {
+    this.shipScan = function (ship) {
         const ago = vgap.game.turn - ship.infoturn;
         const note = vgap.getNote(ship.id, 2);
         const shortBeamNames = ['?', 'Las', 'X-Ray', 'Pla', 'Bla', 'Posi', 'Dis', 'HB', 'PH', 'HD', 'HP'];
@@ -3613,7 +3536,7 @@ const DrawHelper = function (vgap, settings)
             let html = "<div class='ItemSelection ShipSeen " + cls + "' data-id='" + ship.id + "'>";
             html += "<img src='" + hullImg(ship.hullid) + "'/>";
 
-            html += "<div class='ItemTitle'><div class='sval warp'>" + ( ship.warp == -1 ? '?' : ship.warp ) + "</div>" + Math.abs(ship.id) + ": " + ship.name + "</div>";
+            html += "<div class='ItemTitle'><div class='sval warp'>" + (ship.warp == -1 ? '?' : ship.warp) + "</div>" + Math.abs(ship.id) + ": " + ship.name + "</div>";
             html += "<div class='ItemTitle'>" + hull.name + "</div>";
 
             html += "<div><strong>Seen: Turn " + ship.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
@@ -3637,7 +3560,7 @@ const DrawHelper = function (vgap, settings)
                 if (ship.history[i].mass > maxMass) maxMass = ship.history[i].mass;
             }
             html += "<div class='lval mass'>" + ship.mass + " kt" +
-                    (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
+                (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
 
             if (note != null) html += "<hr/><div class='GoodTextNote'>" + note.body.replace(/\n/g, "<br/>") + "</div>";
 
@@ -3655,12 +3578,12 @@ const DrawHelper = function (vgap, settings)
                 '<table class="CleanTable">',
                 '<tr><td colspan="2"><strong>Seen: Turn ', ship.infoturn,
                 ' (', ago, ' turn' + (ago > 1 ? 's' : '') + ' ago)</strong></td></tr>',
-                '<tr><td>Heading:</td><td>', (ship.heading >= 0 ? ship.heading : '?' ),
-                ' at Warp: ', (ship.warp >= 0 ? ship.warp : '?' ), '</td></tr>',
+                '<tr><td>Heading:</td><td>', (ship.heading >= 0 ? ship.heading : '?'),
+                ' at Warp: ', (ship.warp >= 0 ? ship.warp : '?'), '</td></tr>',
                 '<tr><td>Mass:</td><td>', ship.mass, '</td></tr>',
                 '<tr><td colspan="2">', name, '</td></tr>',
                 (note != null ? '<tr><td colspan="4" class="GoodTextNote">' +
-                                note.body.replace(/\n/g, '<br/>') + '</td></tr>' : ''),
+                    note.body.replace(/\n/g, '<br/>') + '</td></tr>' : ''),
                 '</table>',
                 '</div>'
             ].join('');
@@ -3668,8 +3591,7 @@ const DrawHelper = function (vgap, settings)
     };
 
     /** Show player toggles */
-    this.showMapTool = function ()
-    {
+    this.showMapTool = function () {
         const map = vgap.map;
 
         $("#playerToggles").remove();
@@ -3681,8 +3603,7 @@ const DrawHelper = function (vgap, settings)
 
         map.addMapTool("Close Ship Tool", "hideToggles", this.toggleMapTool.bind(this), "#playerToggles");
 
-        map.addMapTool('All Ships', 'player0 capitalize' + (this.playerToggles[0] ? ' active' : ''), (function ()
-        {
+        map.addMapTool('All Ships', 'player0 capitalize' + (this.playerToggles[0] ? ' active' : ''), (function () {
             this.togglePlayer(0)
         }).bind(this), "#playerToggles");
 
@@ -3694,8 +3615,7 @@ const DrawHelper = function (vgap, settings)
                     break;
                 }
             }
-            map.addMapTool(name, 'player' + i + (this.playerToggles[i] ? ' active' : ''), (function ()
-            {
+            map.addMapTool(name, 'player' + i + (this.playerToggles[i] ? ' active' : ''), (function () {
                 this.togglePlayer(i);
             }).bind(this), "#playerToggles");
         }
@@ -3707,8 +3627,7 @@ const DrawHelper = function (vgap, settings)
      * @param ship
      * @returns {DrawHelper}
      */
-    this.showScan = function (ship)
-    {
+    this.showScan = function (ship) {
         if (vgap.isMobileVersion()) {
             vgap.list.empty();
             vgap.list.show();
@@ -3751,8 +3670,7 @@ const DrawHelper = function (vgap, settings)
     };
 
     /** show player selection pane for old client */
-    this.showSelectionPane = function ()
-    {
+    this.showSelectionPane = function () {
         // empty left content
         vgap.lc.empty();
 
@@ -3783,8 +3701,7 @@ const DrawHelper = function (vgap, settings)
                 '</div>'
             ].join('')).appendTo(pane);
 
-            row.click(_ =>
-            {
+            row.click(_ => {
                 this.togglePlayer(i);
             });
         }
@@ -3793,8 +3710,7 @@ const DrawHelper = function (vgap, settings)
     };
 
     /** toggles player buttons */
-    this.toggleMapTool = function ()
-    {
+    this.toggleMapTool = function () {
         if (this.togglesShown) $("#playerToggles").remove();
         else this.showMapTool();
         this.togglesShown = !this.togglesShown;
@@ -3804,8 +3720,7 @@ const DrawHelper = function (vgap, settings)
      * Toggle player ships on starmap
      * @param id        int player id
      */
-    this.togglePlayer = function (id)
-    {
+    this.togglePlayer = function (id) {
 
         if (id < 0 || id > vgap.players.length) return;
 
@@ -3839,16 +3754,14 @@ vgap.registerPlugin(shipList, "shipList");
 /** OVERLOADED nu.js FUNCTIONS */
 
 /** Check for mobile version */
-vgaPlanets.prototype.isMobileVersion = function ()
-{
+vgaPlanets.prototype.isMobileVersion = function () {
     return (this.version >= 4.0);
 };
 
 /** Overload to clear player toggles */
 let fn1 = vgapMap.prototype.clearTools;
 
-vgapMap.prototype.clearTools = function (result)
-{
+vgapMap.prototype.clearTools = function (result) {
 
     /** @type {ShipList} */
     const app = vgap.plugins.shipList;
@@ -3868,8 +3781,7 @@ vgapMap.prototype.clearTools = function (result)
 /** Overload shipScan to show ship list info on hover */
 
 if (vgap.isMobileVersion) {
-    sharedContent.prototype.shipScan = function (ship, showdamage)
-    {
+    sharedContent.prototype.shipScan = function (ship, showdamage) {
         const hull = vgap.getHull(ship.hullid);
         const player = vgap.getPlayer(ship.ownerid);
         const race = vgap.getRace(player.raceid);
@@ -3882,8 +3794,7 @@ if (vgap.isMobileVersion) {
         let listShip = {};
         const listShips = vgap.plugins.shipList.ships;
 
-        const shipIds = listShips.map(function (ship)
-        {
+        const shipIds = listShips.map(function (ship) {
             return ship.id;
         });
 
@@ -3940,7 +3851,7 @@ if (vgap.isMobileVersion) {
                     if (listShip.history[i].mass > maxMass) maxMass = listShip.history[i].mass;
                 }
                 html += "<div class='lval mass'>" + ship.mass + " kt" +
-                        (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
+                    (minMass != ship.mass || maxMass != ship.mass ? ' (' + minMass + '-' + maxMass + ')' : '') + "</div>";
                 // señala si va acelerado.
                 if (ship.id >= 1000 && ship.neutronium == 2) {
                     html += "<div class='lval acelerado'><strong>ACCELERATED</strong></div>";
@@ -4017,8 +3928,7 @@ if (vgap.isMobileVersion) {
 } else {
     /** @todo add non-mobile functionality */
 
-    vgaPlanets.prototype.shipScan = function (ship)
-    {
+    vgaPlanets.prototype.shipScan = function (ship) {
 
         const hull = vgap.getHull(ship.hullid);
 
@@ -4065,16 +3975,15 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     let listPlanet = {};
     const listPlanets = vgap.plugins.shipList.planets;
 
-    const planetIds = listPlanets.map(function (planet)
-    {
+    const planetIds = listPlanets.map(function (planet) {
         return planet.id;
     });
     const planetIdx = planetIds.indexOf(planet.id);
 
     if (planet.ownerid == vgap.player.id)
         cls = "MyItem";
-    else if (planet.ownerid == 0 && planet.infoturn != 0) 
-        cls = "UnknownItem";       
+    else if (planet.ownerid == 0 && planet.infoturn != 0)
+        cls = "UnknownItem";
     else if (vgap.allied(planet.ownerid) && planet.ownerid != vgap.player.id)
         cls = "AllyItem";
     else if (planet.ownerid != vgap.player.id && planet.ownerid > 0)
@@ -4088,21 +3997,21 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     } else {
         listPlanet = listPlanets[planetIdx];
     };
-    
+
     if (showTitle)
         html += "<div class='ItemTitle'>" + shtml.getTempIcon(listPlanet) + listPlanet.id + ": " + listPlanet.name + "</div>";
 
     var offset = "top:45px;right:10px;";
     if (tempAtTop)
         offset = "top:-25px;right:5px;";
-            
-    if (listPlanet.temp >=0 && !showTitle)
+
+    if (listPlanet.temp >= 0 && !showTitle)
         html += shtml.getTempIcon(listPlanet, "position:relative;" + offset);
 
-    html += "<img src='" + vgap.planets[planetIdx].img + "'" + (showTitle ? "" : " style='top:10px;'") +"/>";
+    html += "<img src='" + vgap.planets[planetIdx].img + "'" + (showTitle ? "" : " style='top:10px;'") + "/>";
 
     //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
-    
+
     const ago = vgap.game.turn - listPlanet.infoturn;
     if (listPlanet.ownerid != vgap.player.id && listPlanet.infoturn > 0)
         html += "<div><strong>Info: Turn " + listPlanet.infoturn + " (" + ago + " turn" + (ago > 1 ? "s" : "") + " ago)</strong></div>";
@@ -4121,13 +4030,13 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
         var dur = listPlanet.groundduranium;
         var tri = listPlanet.groundtritanium;
         var mol = listPlanet.groundmolybdenum;
-                    /*if (planet.groundneutronium < 0 && planet.totalneutronium > 0) {
-                        neu = planet.totalneutronium;
-                        dur = planet.totalduranium;
-                        tri = planet.totaltritanium;
-                        mol = planet.totalmolybdenum;
-                    }
-                    */
+        /*if (planet.groundneutronium < 0 && planet.totalneutronium > 0) {
+            neu = planet.totalneutronium;
+            dur = planet.totalduranium;
+            tri = planet.totaltritanium;
+            mol = planet.totalmolybdenum;
+        }
+        */
         if (vgap.gameUsesSupplies()) {
             html += "<hr/><div class='lval mc'>" + gsv(listPlanet.megacredits) + "</div>";
             html += "<div class='lval supplies'>" + gsv(listPlanet.supplies) + "</div>";
@@ -4177,7 +4086,7 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
 
     html += "</div>";
 
-    return html;    
+    return html;
 };
 
 sharedContent.prototype.getTempIcon = function (planet, css) {
@@ -4192,8 +4101,7 @@ sharedContent.prototype.getTempIcon = function (planet, css) {
 
 let fn2 = vgapMap.prototype.shipSelectorClick;
 
-vgapMap.prototype.shipSelectorClick = function (shift)
-{
+vgapMap.prototype.shipSelectorClick = function (shift) {
     /** @type {Function} */
     fn2.apply(this, arguments);
 
@@ -4201,8 +4109,8 @@ vgapMap.prototype.shipSelectorClick = function (shift)
 
     if (!shift || (ship.x == ship.targetx && ship.y == ship.targety) || vgap.isHyping(ship)) {
         ship.heading = Math.round((
-                                  90 - Math.atan2(ship.targety - ship.y, ship.targetx - ship.x)
-                                       * 180 / Math.PI + 360) % 360
+            90 - Math.atan2(ship.targety - ship.y, ship.targetx - ship.x)
+            * 180 / Math.PI + 360) % 360
         );
     }
 };
@@ -4213,8 +4121,7 @@ vgapMap.prototype.shipSelectorClick = function (shift)
  */
 let fn3 = sharedContent.prototype.showScan;
 
-sharedContent.prototype.showScan = function (x, y, target, lock)
-{
+sharedContent.prototype.showScan = function (x, y, target, lock) {
     /** @type {ShipList} */
     const app = vgap.plugins.shipList;
     let ships;
@@ -4257,8 +4164,8 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
 
             ctx.segmentedLine(vgap.map.screenX(x1), vgap.map.screenY(y1),
                 vgap.map.screenX(x2), vgap.map.screenY(y2), {
-                    rgba: [200, 220, 240, opacity]
-                });
+                rgba: [200, 220, 240, opacity]
+            });
             /*
                         opacity *= 0.75;
                         if (opacity < 0.25) opacity = 0.25;
@@ -4287,9 +4194,9 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
                 y3 = y1;
             }
 
-            const srcAngle = ( Math.atan2(y1 - y2, x1 - x2) + 2 * Math.PI ) % (2 * Math.PI);
-            const dstAngle = ( Math.atan2(y3 - y2, x3 - x2) + 2 * Math.PI ) % (2 * Math.PI);
-            const angle = (srcAngle + dstAngle + 2 * Math.PI ) % (2 * Math.PI)
+            const srcAngle = (Math.atan2(y1 - y2, x1 - x2) + 2 * Math.PI) % (2 * Math.PI);
+            const dstAngle = (Math.atan2(y3 - y2, x3 - x2) + 2 * Math.PI) % (2 * Math.PI);
+            const angle = (srcAngle + dstAngle + 2 * Math.PI) % (2 * Math.PI)
 
             vgap.map.drawOffsetText(x2 + Math.round(Math.cos(angle) * 10), Math.round(y2 + Math.sin(angle) * 10), 'T' + loc.turn, 0, 0);
 
@@ -4308,8 +4215,7 @@ sharedContent.prototype.showScan = function (x, y, target, lock)
 if (!vgap.isMobileVersion()) {
     let fn4 = vgapMap.prototype.showInfo;
 
-    vgapMap.prototype.showInfo = function (x, y)
-    {
+    vgapMap.prototype.showInfo = function (x, y) {
         /** @type {ShipList} */
         const app = vgap.plugins.shipList;
         let ships;
@@ -4366,8 +4272,7 @@ if (!vgap.isMobileVersion()) {
 /** Get intercept missions before successful save */
 let fn5 = vgaPlanets.prototype.save;
 
-vgaPlanets.prototype.save = function ()
-{
+vgaPlanets.prototype.save = function () {
     const app = vgap.plugins.shipList;
 
     // clear list
@@ -4400,8 +4305,7 @@ vgaPlanets.prototype.save = function ()
 
 let fn6 = vgapDashboard.prototype.showActivity;
 
-vgapDashboard.prototype.showActivity = function ()
-{
+vgapDashboard.prototype.showActivity = function () {
     /** @type {Function} */
     fn6.apply(this, arguments);
 
@@ -4409,8 +4313,7 @@ vgapDashboard.prototype.showActivity = function ()
 
     const messages = $('#egameactivity').find('.egamefeedline');
 
-    messages.each(function ()
-    {
+    messages.each(function () {
         const message = $(this).find('.eexcerpt').text();
 
         if (message && message.match(/\s+Ship Data on .+ from .+\s/)) {
@@ -4420,8 +4323,7 @@ vgapDashboard.prototype.showActivity = function ()
 }
 
 /** Prime the VCR player with combat data */
-vcrPlayer.prototype.runReport = function (report)
-{
+vcrPlayer.prototype.runReport = function (report) {
 
     let left = new combatObject();
     let right = new combatObject();
@@ -4430,16 +4332,14 @@ vcrPlayer.prototype.runReport = function (report)
     right.setObject(report.right);
 
     this.init(left, right, report.battletype, report.seed);
-    this.finished = function ()
-    {
+    this.finished = function () {
     };
     this.run(-1);
 
 };
 
 /** Get relationFrom for ship */
-vgaPlanets.prototype.getRelationFromForShip = function (ownerId)
-{
+vgaPlanets.prototype.getRelationFromForShip = function (ownerId) {
     const relation = this.getRelation(ownerId);
 
     if (relation) {
@@ -4452,8 +4352,7 @@ vgaPlanets.prototype.getRelationFromForShip = function (ownerId)
 /** Missing function in non-mobile */
 if (!vgap.isMobileVersion()) {
     //noinspection OverlyComplexFunctionJS
-    vgapMap.prototype.drawOffsetText = function (x, y, text, dx, dy, attr, ctx)
-    {
+    vgapMap.prototype.drawOffsetText = function (x, y, text, dx, dy, attr, ctx) {
         if (!ctx)
             ctx = this.ctx;
         if (!vgap.map.isVisible(x, y, Math.max(10, ctx.measureText(text).width) / 2 / this.zoom)) return;
@@ -4477,11 +4376,9 @@ if (!vgap.isMobileVersion()) {
  * uppercase first letter of every word
  * @returns {string}
  */
-String.prototype.ucWords = function ()
-{
+String.prototype.ucWords = function () {
     return this.toLowerCase().replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g,
-        function (s)
-        {
+        function (s) {
             return s.toUpperCase();
         });
 };
@@ -4492,8 +4389,7 @@ String.prototype.ucWords = function ()
  * @param type
  * @returns {number}
  */
-vgaPlanets.prototype.getPlayerScore = function (id, type)
-{
+vgaPlanets.prototype.getPlayerScore = function (id, type) {
     for (let i = vgap.scores.length - 1; i >= 0; i--) {
         if (vgap.scores[i].ownerid == id) {
             return vgap.scores[i][type];
@@ -4510,8 +4406,7 @@ vgaPlanets.prototype.getPlayerScore = function (id, type)
  * @param y2
  * @param {*} settings
  */
-CanvasRenderingContext2D.prototype.segmentedLine = function (x, y, x2, y2, settings)
-{
+CanvasRenderingContext2D.prototype.segmentedLine = function (x, y, x2, y2, settings) {
     const intervals = settings.int ? settings.int : [1, 1, 15, 30];
     const rgba = settings.rgba ? settings.rgba : [255, 0, 0, .75];
     this.strokeStyle = 'rgba(' + rgba[0] + ',' + rgba[1] + ',' + rgba[2] + ',' + rgba[3] + ')';
@@ -4603,8 +4498,8 @@ Ractive.partials = {
 
 function omit(obj, ...props) {
     const result = { ...obj };
-    props.forEach(function(prop) {
-      delete result[prop];
+    props.forEach(function (prop) {
+        delete result[prop];
     });
     return result;
 }

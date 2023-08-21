@@ -66,10 +66,10 @@ function wrapper() { // wrapper for injection
 
     vgapDashboard.prototype.showShips = function (view) {
 
-        if (modShipList == false)
-            oldShowShips.apply(this, arguments);
+        // if (modShipList == false)
+        //     oldShowShips.apply(this, arguments);
         //alert("working");
-        else if (vgaPlanets.prototype.version >= 3) {
+        if (vgaPlanets.prototype.version >= 3) {
             showDestination = get_cookie("showDestination");
             //alert(showDestination);
             if (showDestination == null) showDestination = 0;
@@ -91,10 +91,14 @@ function wrapper() { // wrapper for injection
             $("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Command View</li>").tclick(function () { vgap.dash.showShips(2); }).appendTo(filterMenu);
             $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () { vgap.dash.showShips(3); }).appendTo(filterMenu);
             //---------------START NEW CODE-----------------------
-            $("<li " + (view == 4 ? "class='SelectedFilter'" : "") + ">Complete Ship List</li>").tclick(function () { vgap.dash.showShips(4); }).appendTo(filterMenu);
-            $("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">Fleet View (experimental) </li>").tclick(function () { vgap.dash.showShips(5); }).appendTo(filterMenu);
-            $("<li " + (view == 6 ? "class='SelectedFilter'" : "") + ">What's Interesting </li>").tclick(function () { vgap.dash.showShips(6); }).appendTo(filterMenu);
+            if (modShipList) {
+                $("<li " + (view == 4 ? "class='SelectedFilter'" : "") + ">Complete Ship List</li>").tclick(function () { vgap.dash.showShips(4); }).appendTo(filterMenu);
+                $("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">Fleet View (experimental) </li>").tclick(function () { vgap.dash.showShips(5); }).appendTo(filterMenu);
+                $("<li " + (view == 6 ? "class='SelectedFilter'" : "") + ">What's Interesting </li>").tclick(function () { vgap.dash.showShips(6); }).appendTo(filterMenu);
+            }
             //---------------END NEW CODE-----------------------
+            // Añadida pestaña de ajustes
+            $("<li " + (view == 7 ? "class='SelectedFilter'" : "") + ">Settings </li>").tclick(function () { vgap.dash.showShips(7); }).appendTo(filterMenu);
 
 
             //loop through all ships and show the ones owned by this player
@@ -117,15 +121,18 @@ function wrapper() { // wrapper for injection
                         html += "<td><button type='button' class='TestButton' onClick='changeShow(" + i + ");'> Display " + i + " </button></td>"
                 }
             }
-
-
             html += "</tr></table>";
             //---------------END NEW CODE-----------------------
+
+
             html += "<table id='ShipTable' align='left' border='0' width='100%' style='cursor:pointer;'><thead>";
 
             //---------------START NEW CODE-----------------------
-            if (view == 5) {
 
+            // Pestaña de ajustes
+            if (view == 7)
+                html += "<th title:'Settings' align='left'>Settings</th>";
+            else if (view == 5) {
                 //html += "<th align='left'>Fleet Name</th><th align='left'>Fleet Size</th><th align='left'> Flagship Hull</th><th align='left'> Flagship Id</th><th align='left'>Flagship Hull</th><th align='left'>Flagship Name</th><th title='Destination' align='left'>Destination</th><th title='Current Coordinates' align='left'>X-Y</th><th title='Distance to Target' align='left'>D</th><th title='Warp Speed'  align='left'>W</th>";
                 html += "<th align='left'>Fleet Name</th><th align='left'>Fleet Size</th><th align='left'>FS Destination</th><th align='left'>Hull</th><th align='left'>ID</th><th align='left'>Shipname</th><th align='left'>Mission</th>";
                 html += "<th title='Battle value' align='left'>Battle Value</th><th title = 'Primary Enemy' align='left'>PE</th><th title='Current Coordinates' align='left'>X-Y</th><th title='Distance to Target' align='left'>D</th><th title='Warp Speed'  align='left'>W</th><th title='Neutronium Fuel' align='left'>N</th>";
@@ -149,7 +156,6 @@ function wrapper() { // wrapper for injection
                 html += "<th title='Hull' align='left'>Hull</th><th title='Engine' align='left'>Engine</th><th title='Beams' align='left'>Beams</th><th align='left'>Torps/Bays [Ammo]</th><th title='Damage' align='left'>Dam</th><th title='Crew' align='left'>Crew</th><th title='Friendly Code' align='left'>FC</th><th title='Ready Checkbox Status' align='left'>R</th>";
 
             }
-
             if (view == 2) {
                 html += "<th title='Battle value' align='left'>Battle Value</th><th title='Current Coordinates' align='left'>X-Y</th><th title='Target Coordinates' align='left'>Tx-Ty</th><th title='Distance to Target' align='left'>D</th><th title='Warp Speed'  align='left'>W</th><th title='Neutronium Fuel' align='left'>N</th>";
                 //---------------START NEW CODE-----------------------
@@ -167,11 +173,19 @@ function wrapper() { // wrapper for injection
             //---------------END NEW CODE-----------------------
 
 
-
-            html += "</thead><tbody id='ShipRows' align=left  >";
-            html += "</tbody></table>";
+            html += "</thead>";
+            if (view != 7) {
+                html += "<tbody id='ShipRows' align=left  >";
+                html += "</tbody>";
+            } else {
+                html += "<tbody id='ModSettings' align=left  >";
+                html += "</tbody>";
+            }
+            html += "</table>";
             html += "</div>";
+
             this.pane = $(html).appendTo(this.content);
+
             for (var i = 0; i < vgap.myships.length; i++) {
                 var ship = vgap.myships[i];
                 var hull = vgap.getHull(ship.hullid);
@@ -270,9 +284,12 @@ function wrapper() { // wrapper for injection
                         if (output != "0")
                             destination = output;
 
-                        if (ship.target != null)
-                            destination = ship.target.name.substr(0, 20);
-
+                        if (ship.target != null) {
+                            if (ship.x == dest.x && ship.y == dest.y)
+                                destination = "Not Moving";
+                            else 
+                                destination = ship.target.id + " " + ship.target.name.substr(0, 20);
+                        }
                         var hypCheck = 0;
                         if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
 
@@ -304,11 +321,11 @@ function wrapper() { // wrapper for injection
                             temphtml += "<td style='color:orange' title='Ship is trying to move 1 LY in a warpwell at greater than warp 1 '>" + destination + "</td>";
                             show = 1;
                         }
-                        else
+                        else {
                             temphtml += "<td>" + destination + "</td>";
-
+                        }
                         var SelfAssault = 0;
-                        if ((vgap.player.raceid == 4) || (vgap.player.raceid == 10))
+                        if ((vgap.player.raceid == 4) || (vgap.player.raceid == 10)) {
                             if (ship.mission == 8) {
                                 var AssaultTarget = idWarpWell(dest.x, dest.y);
                                 var targetPlanet;
@@ -322,9 +339,8 @@ function wrapper() { // wrapper for injection
                                 else if (targetPlanet != null)
                                     SelfAssault = 3;
                             }
-
+                        }
                         var towproblem = 0;
-
                         if (ship.mission == 6 && ship.mission1target != 0) {
                             var towship = vgap.getShip(ship.mission1target);
                             var AssaultTarget = idWarpWell(dest.x, dest.y);
@@ -338,14 +354,17 @@ function wrapper() { // wrapper for injection
                         var interceptProblem = 0;
                         if (ship.mission == 7 && ship.mission1target != 0) {
                             var missionTarget = vgap.getShip(ship.mission1target);
-                            if (ship.enemy != missionTarget.ownerid) interceptProblem = 1;
-                            if (vgap.allied(missionTarget.ownerid)) interceptProblem = 0;
-                            if (missionTarget.ownerid == ship.ownerid) interceptProblem = 0;
+                            if (ship.enemy != missionTarget.ownerid)
+                                interceptProblem = 1;
+                            if (vgap.allied(missionTarget.ownerid))
+                                interceptProblem = 0;
+                            if (missionTarget.ownerid == ship.ownerid)
+                                interceptProblem = 0;
                         }
 
 
                         if (view != 2) {
-                            var mission_list = returnMissionArray(ship);
+                            const mission_list = returnMissionArray(ship);
                             if (SelfAssault == 1) {
                                 temphtml += "<td style='color:red' title='Your ship is set to RGA/Pillage your own planet'>";
                                 show = 1;
@@ -364,7 +383,13 @@ function wrapper() { // wrapper for injection
                                 show = 1;
                             }
                             else temphtml += "<td>";
-                            temphtml += mission_list[ship.mission] + "</td>";
+                            for (const mission of mission_list) {
+                                if (ship.mission === mission.id) {
+                                    const missionName = mission.name;
+                                    temphtml += missionName + "</td>";
+                                }
+                            }
+                            
                         }
 
                     }
@@ -427,12 +452,12 @@ function wrapper() { // wrapper for injection
                 if (view == 2) {
                     var dest = vgap.getDest(ship);
                     var mission_list = returnMissionArray(ship);
-                    temphtml += "<td><select id='Dropdown" + i + "' onChange='setMission(this)'>";//<option value='" + ship.mission + "'>" + mission_list[ship.mission]  + "</option>";
-                    for (var k = 0; k < 17; k++) {
-                        if (ship.mission == k)
-                            temphtml += "<option value='" + k + "' selected=>" + mission_list[k] + "</option>"
+                    temphtml += "<td><select id='Dropdown" + i + "' onChange='setShipMission(this)'>";//<option value='" + ship.mission + "'>" + mission_list[ship.mission]  + "</option>";
+                    for (var k = 0; k < mission_list.length; k++) {
+                        if (ship.mission == mission_list[k].id)
+                            temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
                         else
-                            temphtml += "<option value='" + k + "'>" + mission_list[k] + "</option>"
+                            temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                     }
                     temphtml += "</select></td>";
                     //html += "<td>" + mission_list[ship.mission] + "</td>";
@@ -547,8 +572,8 @@ function wrapper() { // wrapper for injection
                 $(html).click(select(ship.id)).appendTo("#ShipRows");
             }
             if (view == 5) {
-                var ShipID;
-                ShipID = get_cookie("currentShipID");
+                // var ShipID;
+                var ShipID = get_cookie("currentShipID");
                 //html += "Ship ID to use as temporary fleet flagship (will show all ships in same location as fleet)";
                 html += "<tr><td><input type='text' id='InputID' title='Ship ID to use as temporary fleet flagship (will show all ships in same location as fleet)' onChange='setShipID(this);ShipID=this.value;vgap.dash.showShips(5);' value='" + ShipID + "'></td>";
 
@@ -558,12 +583,12 @@ function wrapper() { // wrapper for injection
                     player = vgap.getPlayer(enteredShip.ownerid);
                     if (enteredShip.ownerid == vgap.player.id) {
                         for (var count = 0; count < vgap.myships.length; count++) {
+                            var ship = vgap.myships[count];
+                            var hull = vgap.getHull(ship.hullid);
+                            var destination = "Deep Space";
+                            var dest = vgap.getDest(ship);
                             if ((showDestination == 0) && (vgap.myships[count].x == enteredShip.x) && (vgap.myships[count].y == enteredShip.y)) {
                                 //alert("match");
-                                var ship = vgap.myships[count];
-                                var hull = vgap.getHull(ship.hullid);
-                                var destination = "Deep Space";
-                                var dest = vgap.getDest(ship);
                                 var output = betterWarpWell(dest.x, dest.y);
                                 if (output != "0")
                                     destination = output;
@@ -584,16 +609,16 @@ function wrapper() { // wrapper for injection
                                     destination2 = output2;
                                 if (ship2.target != null)
                                     destination2 = ship2.target.name.substr(0, 20);
-                                var mission_list = returnMissionArray(ship2);
+                                var mission_list = returnMissionArray(ship);
                                 html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                                 html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                                 html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                                html += "<td><select id='DropdownA" + count + "' onChange='setMission(this)'>";
-                                for (var k = 0; k < 17; k++) {
-                                    if (ship2.mission == k)
-                                        html += "<option value='" + k + "' selected=>" + mission_list[k] + "</option>"
+                                html += "<td><select id='DropdownA" + count + "' onChange='setShipMission(this)'>";
+                                for (var k = 0; k < mission_list.length; k++) {
+                                    if (ship.mission == mission_list[k].id)
+                                        temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
                                     else
-                                        html += "<option value='" + k + "'>" + mission_list[k] + "</option>"
+                                        temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                                 }
                                 html += "</select></td>";
 
@@ -612,10 +637,6 @@ function wrapper() { // wrapper for injection
                             }
                             //else alert("no match "+ showDestination + count + vgap.myships[count].x + enteredShip.x + vgap.myships[count].y +  enteredShip.y);
                             if ((showDestination == 1) && (vgap.myships[count].targetx == enteredShip.targetx) && (vgap.myships[count].targety == enteredShip.targety)) {
-                                var ship = vgap.myships[count];
-                                var hull = vgap.getHull(ship.hullid);
-                                var destination = "Deep Space";
-                                var dest = vgap.getDest(ship);
                                 var output = betterWarpWell(dest.x, dest.y);
                                 if (output != "0")
                                     destination = output;
@@ -636,16 +657,16 @@ function wrapper() { // wrapper for injection
                                     destination2 = output2;
                                 if (ship2.target != null)
                                     destination2 = ship2.target.name.substr(0, 20);
-                                var mission_list = returnMissionArray(ship2);
+                                var mission_list = returnMissionArray(ship);
                                 html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                                 html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                                 html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                                html += "<td><select id='DropdownA" + count + "' onChange='setMission(this)'>";
-                                for (var k = 0; k < 17; k++) {
-                                    if (ship2.mission == k)
-                                        html += "<option value='" + k + "' selected=>" + mission_list[k] + "</option>"
+                                html += "<td><select id='DropdownA" + count + "' onChange='setShipMission(this)'>";
+                                for (var k = 0; k < mission_list.length; k++) {
+                                    if (ship.mission == mission_list[k].id)
+                                        temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
                                     else
-                                        html += "<option value='" + k + "'>" + mission_list[k] + "</option>"
+                                        temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                                 }
                                 html += "</select></td>";
 
@@ -702,12 +723,12 @@ function wrapper() { // wrapper for injection
                                     html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                                     html += "<td style='width:10%'>" + fleetNames2[i] + "</td><td style='width:5%'>" + fleetSizes2[i] + "</td><td style='width:10%'>" + destination2 + "</td>";
                                     html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                                    html += "<td><select id='DropdownA" + j + "' onChange='setMission(this)'>";
-                                    for (var k = 0; k < 17; k++) {
-                                        if (ship2.mission == k)
-                                            html += "<option value='" + k + "' selected=>" + mission_list[k] + "</option>"
+                                    html += "<td><select id='DropdownA" + j + "' onChange='setShipMission(this)'>";
+                                    for (var k = 0; k < mission_list.length; k++) {
+                                        if (ship2.mission == mission_list[k].id)
+                                            temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
                                         else
-                                            html += "<option value='" + k + "'>" + mission_list[k] + "</option>"
+                                            temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                                     }
                                     html += "</select></td>";
 
@@ -744,10 +765,68 @@ function wrapper() { // wrapper for injection
                 $(html).click(select(ship.id)).appendTo("#ShipRows");
             }
             //---------------END NEW CODE-----------------------
+            // Ajustes del plugin
+            var settingsHtml = "";
+            if (view == 7) {
+                modShipListCloakPE = get_cookie("modShipListCloakPE");
 
+                settingsHtml += "<td valign='top' style='width:20%'>";
+                settingsHtml += "<ul>";
+					if (modShipList) {
+						settingsHtml += "<br /><li><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' checked />Mod Ship List Active</li><br />";
+					} else {
+						settingsHtml += "<li><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' />Mod Ship List Active</li><br />";
+					}
+					if (modShipListCloakPE) {
+						settingsHtml += "<li><input type='checkbox' name='CloakPEWarning' id='CloakPECheck' value ='c' checked />Cloak and PE warning Active</li><br />";
+					} else {
+						settingsHtml += "<li><input type='checkbox' name='CloakPEWarning' id='CloakPECheck' value ='c' />Cloak and PE warning Active</li><br />";
+					}
+                settingsHtml += "</ul></li>";
+                settingsHtml += "</td>";
+                $(settingsHtml).appendTo("#ModSettings");
 
+                $('#modShipListCheck').click(function () {
+                    console.log("Ship List Mod CLICKED");
+                    if (modShipList == true) {
+                        modShipList = false;
+                        alert("The Improved Ship List Mod is now Deactivated.");
+                    }
+                    else {
+                        modShipList = true;
+                        alert("The Improved Ship List Mod is now Active.");
+                    }
+                    console.log("Ship List Mod is now: " + modShipList);
+                });
+            
+                $('#CloakPECheck').click(function () {
+                    console.log("CloakPE CLICKED");
+                    if (modShipListCloakPE == true) {
+                        modShipListCloakPE = false;
+                        set_cookie("modShipListCloakPE", 0, 2099, 1, 1);
+                        alert("No longer warning on cloaked ships with PE set. Setting saved.");
+                    }
+                    else {
+                        modShipListCloakPE = true;
+                        set_cookie("modShipListCloakPE", 1, 2099, 1, 1);
+                        alert("Now warning on cloaked ships with PE set. Setting saved.");
+                    }
+                    console.log("CloakPE warning is now: " + modShipListCloakPE);
+                });
+            }
 
+/*             var settingshtml = "";
+            if (view == 7) {
+                modShipListCloakPE = get_cookie("modShipListCloakPE");
+                settingshtml += "<h3>Custom Settings for Improved Ship List Mod</h3>";
+                // settingshtml += "<div style='width:250px;'></div>";
+                settingshtml += "<div id='ShipListModTable'><table>";
+                settingshtml += "<td><div id='LaunchSim' onclick='changeShipListMod();' align='left' title='Default is: Active.'>Activate or Deactivate Mod</div></td>";
+                settingshtml += "<br><td><div id='LaunchSim' onclick='changeCloakPE();' align='left' title='Default is: InActive.'>Warn on Cloaked Ship with PE</div></td></tr></table>";
+                html += settingshtml;
 
+                $(html).appendTo("#Settings");
+            } */
 
             $("#ShipTable").tablesorter();
             this.pane.jScrollPane();
@@ -815,7 +894,7 @@ function wrapper() { // wrapper for injection
         //oldShowSettings.apply(this,arguments);
         var new_html = "";
         modShipListCloakPE = get_cookie("modShipListCloakPE");
-        new_html += "<br><h3>Custom Settings for Improved Ship List Mod</h3>";
+        new_html += "<tr><h3>Custom Settings for Improved Ship List Mod</h3>";
         new_html += "<div style='width:250px;'></div>";
         new_html += "<div id='ShipListModTable'><table>";
         new_html += "<td><div id='LaunchSim' onclick='changeShipListMod();' title='Default is: Active.'>Activate or Deactivate Mod</div></td>";
@@ -836,29 +915,6 @@ function wrapper() { // wrapper for injection
 
     };
 
-    changeShipListMod = function () {
-        if (modShipList == true) {
-            modShipList = false;
-            alert("The Improved Ship List Mod is now Deactivated.");
-        }
-        else {
-            modShipList = true;
-            alert("The Improved Ship List Mod is now Active.");
-        }
-    };
-
-    changeCloakPE = function () {
-        if (modShipListCloakPE == true) {
-            modShipListCloakPE = false;
-            set_cookie("modShipListCloakPE", 0, 2099, 1, 1);
-            alert("No longer warning on cloaked ships with PE set. Setting saved.");
-        }
-        else {
-            modShipListCloakPE = true;
-            set_cookie("modShipListCloakPE", 1, 2099, 1, 1);
-            alert("Now warning on cloaked ships with PE set. Setting saved.");
-        }
-    };
     setFleetDest = function (ship__ship) {
         var ship_length = ship__ship.id.length;
         var ship_output = ship__ship.id.substring(6, ship_length);
@@ -942,7 +998,7 @@ function wrapper() { // wrapper for injection
         vgap.map.draw();
     };
 
-    setMission = function (ms__ms) {
+    /* setMission = function (ms__ms) {
         var ms_length = ms__ms.id.length;
         var ms_ID = ms__ms.id.substring(8, ms_length);
         var command = 0;
@@ -963,6 +1019,28 @@ function wrapper() { // wrapper for injection
             vgap.dash.showShips(5);
         if (vgaPlanets.prototype.version < 3)
             vgap.map.updateZoom();
+        vgap.map.draw();
+    }; */
+
+    setShipMission = function (selectElement) {
+        const selectedIndex = selectElement.selectedIndex;
+        let shipIndex = parseInt(selectElement.id.replace("Dropdown", ""));
+        const command = 0;
+        if (shipIndex.charAt(0) == 'A') {
+            shipIndex = parseInt(selectElement.id.replace("DropdownA", ""));
+            command = 1;
+        }
+        const ship = vgap.myships[shipIndex];
+        const mission_list = returnMissionArray(ship);
+        ship.mission = mission_list[selectedIndex]?.id;
+        ship.changed = 1;
+        if (command == 0)
+            vgap.dash.showShips(2);
+        else
+            vgap.dash.showShips(5);
+        if (vgaPlanets.prototype.version < 3)
+            vgap.map.updateZoom();
+        vgap.save();
         vgap.map.draw();
     };
 
@@ -1015,107 +1093,261 @@ function wrapper() { // wrapper for injection
     };
 
     returnMissionArray = function (ship) {
-        var missions = new Array();
 
-        missions.push("Exploration");
-        missions.push("Mine Sweep");
-        if (ship.torps > 0)
-            missions.push("Lay Mines");
-        else
-            missions.push("Invalid");
+        const missions = new Array();
+        const hull = vgap.getHull(ship.hullid);
+        const owner = vgap.getPlayer(ship.ownerid);
 
-        missions.push("Kill!!");
-        if (ship.hullid == 84 || ship.hullid == 96 || ship.hullid == 9)
-            missions.push("Bio Scan");
+        //explore
+        missions.push({ id: 0, name: nu.t.exploration, shortname: "Explore", desc: nu.t.exploredef, helpKey: "mis-exploration" });
+
+        //minesweep
+        if (vgap.gameUsesMinefields()) {
+            var desc = nu.t.minesweepdef;
+            if (ship.clans || ship.beamid) {
+                var beamid = vgap.sh.isHorwaspShip(ship) ? Math.floor((ship.clans / vgap.getHull(ship.hullid).cargo) * 9) + 1 : ship.beamid;
+                desc = "Sweep " + ship.beams * beamid * beamid * 4 + " mines and " + ship.beams * beamid * beamid * 3 + " web mines";
+            }
+            missions.push({ id: 1, name: nu.t.minesweep, desc: desc, helpKey: "mis-mine-sweep" });
+
+            if (vgap.gameUsesAmmo()) {
+
+                //laymines
+                if (ship.torps > 0 && owner.raceid != 12 && vgap.advActive(49))
+                    missions.push({ id: 2, name: nu.t.laymines, desc: nu.t.layminesdef, helpKey: "mis-lay-mines" });
+
+                // privateer lay hidden minefield
+                if (ship.torps > 0 && owner.raceid == 5 && vgap.advActive(85)) {
+                    missions.push({ id: 28, name: nu.t.layhiddenmines, desc: nu.t.layhiddenminesdef, helpKey: "mis-lay-hidden-minefield" });
+                }
+            }
+        }
+        //kill
+        missions.push({ id: 3, name: nu.t.kill, desc: nu.t.killdef, helpKey: "mis-kill" });
+
+        //sensor sweep/bioscan/deep scan
+        if (ship.hullid == 84 || ship.hullid == 1084 || ship.hullid == 96 || ship.hullid == 9)
+            missions.push({ id: 4, name: nu.t.bioscan, desc: nu.t.bioscandef, helpKey: "mis-bioscan" });
+        else if (ship.hullid == 1057 && vgap.targetPlanet(ship.x, ship.y) == null && vgap.isSamePoint(ship.x, ship.y, ship.targetx, ship.targety))
+            missions.push({ id: 4, name: "Deep Scan", desc: "Scan for moving ships.", helpKey: "mis-deep-scan" });
         else
-            missions.push("Sensor Sweep");
-        missions.push("Land and Disassemble");
-        missions.push("Try to Tow");
-        missions.push("Try to Intercept");
+            missions.push({ id: 4, name: nu.t.sensorsweep, desc: nu.t.sensorsweepdef, helpKey: "mis-sensor-sweep" });
+
+        //colonize
+        missions.push({ id: 5, name: nu.t.landanddisassemble, shortname: "Land", desc: nu.t.colonizedef, helpKey: "mis-land-and-disassemble" });
+
+        //tow
+        if (vgap.myships.length > 1 && hull.engines > 1)
+            missions.push({ id: 6, name: nu.t.trytotow, desc: nu.t.towdef, helpKey: "mis-tow" });
+
+        //intercept
+        if (hull.engines > 0)
+            missions.push({ id: 7, name: nu.t.trytointercept, desc: nu.t.interceptdef, helpKey: "mis-intercept" });
 
         //special race missions
-        if (vgap.player.raceid == 1)
-            missions.push("Super Refit");
-        else if (vgap.player.raceid == 2 && ship.beams > 0)
-            missions.push("Hisssss!");
-        else if (vgap.player.raceid == 2)
-            missions.push("Invalid");
-        else if (vgap.player.raceid == 3)
-            missions.push("Super Spy");
-        else if (vgap.player.raceid == 4 && ship.beams > 0)
-            missions.push("Pillage Planet");
-        else if (vgap.player.raceid == 4)
-            missions.push("Invalid");
-        else if (vgap.player.raceid == 5)
-            missions.push("Rob Ship");
-        else if (vgap.player.raceid == 6)
-            missions.push("Self Repair");
-        else if (vgap.player.raceid == 7 && ship.torps > 0)
-            missions.push("Lay Web Mines");
-        else if (vgap.player.raceid == 7)
-            missions.push("Invalid");
-        else if (vgap.player.raceid == 8)
-            missions.push("Dark Sense");
-        else if ((vgap.player.raceid == 9 || vgap.player.raceid == 11) && ship.bays > 0)
-            missions.push("Build Fighters");
-        else if ((vgap.player.raceid == 9 || vgap.player.raceid == 11))
-            missions.push("Invalid");
-        else if (vgap.player.raceid == 10)
-            missions.push("Rebel Ground Attack");
+        if (owner.raceid == 1)
+            missions.push({ id: 8, name: nu.t.superrefit, desc: "Upgrade ship parts at a starbase.", helpKey: "mis-super-refit" });
+        else if (owner.raceid == 2 && ship.beams > 0 && (!vgap.settings.racehullsonlyhiss || vgap.isRaceHull(ship)))
+            missions.push({ id: 8, name: nu.t.hiss, desc: nu.t.hissdef, helpKey: "mis-hisssss" });
+        else if (owner.raceid == 3) {
+            // let hull = vgap.getHull(ship.hullid)
+            let superSpy = { id: 8, name: nu.t.superspy, desc: hull.cancloak ? nu.t.superspydef : "Spy planet info and try to change FC", helpKey: "mis-super-spy" };
+            missions.push(superSpy);
+            let cloakFuel = vgap.cloakFuel(ship);
+            if (cloakFuel > 0) superSpy.detail = cloakFuel + " fuel / turn";
+        } else if (owner.raceid == 4 && ship.beams > 0)
+            missions.push({ id: 8, name: nu.t.pillageplanet, desc: nu.t.pillagedef, helpKey: "mis-pillage" });
+        else if (owner.raceid == 5 && ship.beams > 0)
+            missions.push({ id: 8, name: nu.t.robship, detail: vgap.sh.freeFuelTank(ship) + " fuel and " + vgap.sh.freeCargo(ship) + " cargo", desc: nu.t.robdef, helpKey: "mis-rob-ship" });
+        else if (owner.raceid == 6)
+            missions.push({ id: 8, name: nu.t.selfrepair, desc: nu.t.selfrepairdef, helpKey: "mis-repair-self" });
+        else if (owner.raceid == 7 && ship.torps > 0 && vgap.gameUsesAmmo())
+            missions.push({ id: 8, name: nu.t.laywebmines, desc: nu.t.laywebminesdef, helpKey: "mis-lay-web-mines" });
+        else if (owner.raceid == 8)
+            missions.push({ id: 8, name: nu.t.darksense, desc: nu.t.darksensedef, helpKey: "mis-dark-sense" });
+        else if ((owner.raceid == 9 || owner.raceid == 11) && ship.bays > 0 && vgap.gameUsesAmmo())
+            missions.push({ id: 8, name: nu.t.buildfighters, desc: nu.t.buildfightersdef, helpKey: "mis-build-fighters" });
+        else if (owner.raceid == 10)
+            missions.push({ id: 8, name: nu.t.rebelgroundattack, desc: nu.t.rgadef, helpKey: "mis-rebel-ground-attack" });
+        else if (owner.raceid == 12 && this.hull.id == 115)
+            missions.push({ id: 8, name: "Swarm", desc: "Destroy this hive to send all clans to planets within 100ly.", helpKey: "mis-swarm" });
 
-        var hull = vgap.getHull(ship.hullid);
-        if (hull.cancloak)
-            missions.push("Cloak");
-        else
-            missions.push("Invalid");
+        //call
+        if (owner.raceid == 12 && this.hull.id == 115 && vgap.advActive(86))
+            missions.push({ id: 29, name: "Call", desc: "Call to this hive 1% of clans from planets within 100ly.", helpKey: "mis-call" });
 
-        missions.push("Beam up Fuel");
-        missions.push("Beam up Duranium");
-        missions.push("Beam up Tritanium");
-        missions.push("Beam up Molybdenum");
-        missions.push("Beam up Supplies");
-
-        if (ship.hullid == 1090)
-            missions.push("Repair Ship");
-        else
-            missions.push("Invalid");
-
-        if (ship.hullid == 70 && vgap.advActive(44))
-            missions.push("Destroy Planet");
-        else
-            missions.push("Invalid");
-
-        return missions;
-
-    };
-
-    set_cookie = function (name, value, exp_y, exp_m, exp_d, path, domain, secure)
-    //name=cookie name (required)
-    //value=cookie value (required)
-    //exp_y,M,d is expiration year, month, day (if blank cookie will delete when browser closes)
-    //path=path within site this applies to (can be blank)
-    //domain=apply only to websites in this domain (can be blank)
-    //secure=use SSL (leave blank)	
-
-    {
-        var cookie_string = name + "=" + escape(value);
-
-        if (exp_y) {
-            var expires = new Date(exp_y, exp_m, exp_d);
-            cookie_string += "; expires=" + expires.toGMTString();
+        //cloak
+        if (hull.cancloak) {
+            let cloak = { id: 9, name: nu.t.cloak, desc: nu.t.cloakdef, helpKey: "mis-cloak" };
+            missions.push(cloak);
+            let cloakFuel = vgap.cloakFuel(ship);
+            if (cloakFuel > 0) cloak.detail = cloakFuel + " fuel / turn"
         }
 
-        if (path)
-            cookie_string += "; path=" + escape(path);
+        //repair ships
+        if (ship.hullid == 1090 || (ship.hullid == 90 && vgap.settings.sageclassfrigatecanrepair))
+            missions.push({ id: 15, name: nu.t.repairship, desc: nu.t.repairshipdef, helpKey: "mis-repair-ship" });
 
-        if (domain)
-            cookie_string += "; domain=" + escape(domain);
+        //special ship missions
+        if (ship.hullid == 70 && vgap.advActive(44))
+            missions.push({ id: 16, name: nu.t.destroyplanet, desc: nu.t.destroyplanetdef, helpKey: "mis-destroy-planet" });
 
-        if (secure)
-            cookie_string += "; secure";
+        if (ship.hullid == 70 && vgap.advActive(57)) {
+            missions.push({ id: 18, name: nu.t.sendfighters, desc: nu.t.sendfightersdef, helpKey: "mis-send-fighters" });
+            missions.push({ id: 19, name: nu.t.receivefighters, desc: nu.t.receivefightersdef, helpKey: "mis-receive-fighters" });
+        }
 
-        document.cookie = cookie_string;
-    };
+        if (ship.hullid == 111)
+            missions.push({ id: 17, name: nu.t.tantrum, desc: nu.t.tantrumdef, helpKey: "mis-tantrum" });
+
+
+        if (ship.hullid == 171 || ship.hullid == 172) {
+            missions.push({ id: 31, name: "Send Megacredits", desc: "Send megacredits to starbases and trade stations.", helpKey: "mis-sendmoney" });
+            missions.push({ id: 32, name: "Receive Megacredits", desc: "Receive megacredits from starbases and trade stations.", helpKey: "mis-sendmoney" });
+        }
+
+        if (hull.cancloak && vgap.advActive(63) && (!vgap.settings.racehullsonlycloakandintercept || vgap.isRaceHull(ship)))
+            missions.push({ id: 20, name: "Cloak and Intercept", desc: "Intercept the target ship while remaining cloaked.", helpKey: "mis-cloak-and-intercept" });
+
+        if (ship.hullid == 113) {
+            missions.push({ id: 21, name: "Push Minefield", desc: "Push a minefield based on your warp setting.", helpKey: "mis-pull-push-minefield" });
+            missions.push({ id: 22, name: "Pull Minefield", desc: "Pull a minefield based on your warp setting.", helpKey: "mis-pull-push-minefield" });
+        }
+
+        if (this.combineableShips && this.combineableShips.length > 0)
+            missions.push({ id: 30, name: "Stack Ships", desc: "Combine this ship with another ship at this location.", helpKey: "mis-stack-ships" });
+
+        if (vgap.settings.maxwormholes > 0)
+            missions.push({ id: 23, name: "Enter Wormhole", desc: "Travel through a wormhole at your destination.", helpKey: "mis-enter-wormhole" });
+
+        // TODO: Load Artifact and Transfer Artifact work
+        /*   if (this.planet && this.planet.artifacts)
+              missions.push({ id: 24, name: "Load Artifact", desc: "Load an artifact from " + this.planet.name, helpKey: "mis-load-artifact" });
+          if (ship.artifacts && (this.planet != null || vgap.shipsAt(ship.x, ship.y).length > 1))
+              missions.push({ id: 25, name: "Transfer Artifact", desc: "Send an artifact to another ship or planet.", helpKey: "mis-transfer-artifact"});
+   */
+
+        //hide in warp well
+        if (hull.mass < 60 && vgap.advActive(73))
+            missions.push({ id: 27, name: "Hide in Warp Well", desc: "Ship is only visible 1 ly away when ending the turn in a warp well.", helpKey: "mis-hide-in-warp-well" });
+
+        //build robots
+        if (vgap.advActive(71))
+            missions.push({ id: 26, name: "Build Robots", desc: "Build robot clans from supplies and minerals.", helpKey: "mis-build-clans" });
+
+        //gather missions
+        if (vgap.planetAt(ship.x, ship.y)) {
+            if (vgap.gameUsesFuel()) missions.push({ id: 10, name: "Beam Up Fuel", desc: "Beam Up Fuel from planet" });
+            missions.push({ id: 11, name: "Beam Up Dur", desc: "Beam Up Duranium from planet" });
+            missions.push({ id: 12, name: "Beam Up Tri", desc: "Beam Up Tritanium from planet" });
+            missions.push({ id: 13, name: "Beam Up Mol", desc: "Beam Up Molibdenum from planet" });
+            if (vgap.gameUsesSupplies()) missions.push({ id: 14, name: "Beam Up Sup", desc: "Beam Up Supplies from planet" });
+        }
+        return missions;
+    },
+
+        /* returnMissionArray = function (ship) {
+            var missions = new Array();
+    
+            missions.push("Exploration");
+            missions.push("Mine Sweep");
+            if (ship.torps > 0)
+                missions.push("Lay Mines");
+            else
+                missions.push("Invalid");
+    
+            missions.push("Kill!!");
+            if (ship.hullid == 84 || ship.hullid == 96 || ship.hullid == 9)
+                missions.push("Bio Scan");
+            else
+                missions.push("Sensor Sweep");
+            missions.push("Land and Disassemble");
+            missions.push("Try to Tow");
+            missions.push("Try to Intercept");
+    
+            //special race missions
+            if (vgap.player.raceid == 1)
+                missions.push("Super Refit");
+            else if (vgap.player.raceid == 2 && ship.beams > 0)
+                missions.push("Hisssss!");
+            else if (vgap.player.raceid == 2)
+                missions.push("Invalid");
+            else if (vgap.player.raceid == 3)
+                missions.push("Super Spy");
+            else if (vgap.player.raceid == 4 && ship.beams > 0)
+                missions.push("Pillage Planet");
+            else if (vgap.player.raceid == 4)
+                missions.push("Invalid");
+            else if (vgap.player.raceid == 5)
+                missions.push("Rob Ship");
+            else if (vgap.player.raceid == 6)
+                missions.push("Self Repair");
+            else if (vgap.player.raceid == 7 && ship.torps > 0)
+                missions.push("Lay Web Mines");
+            else if (vgap.player.raceid == 7)
+                missions.push("Invalid");
+            else if (vgap.player.raceid == 8)
+                missions.push("Dark Sense");
+            else if ((vgap.player.raceid == 9 || vgap.player.raceid == 11) && ship.bays > 0)
+                missions.push("Build Fighters");
+            else if ((vgap.player.raceid == 9 || vgap.player.raceid == 11))
+                missions.push("Invalid");
+            else if (vgap.player.raceid == 10)
+                missions.push("Rebel Ground Attack");
+    
+            var hull = vgap.getHull(ship.hullid);
+            if (hull.cancloak)
+                missions.push("Cloak");
+            else
+                missions.push("Invalid");
+    
+            missions.push("Beam up Fuel");
+            missions.push("Beam up Duranium");
+            missions.push("Beam up Tritanium");
+            missions.push("Beam up Molybdenum");
+            missions.push("Beam up Supplies");
+    
+            if (ship.hullid == 1090)
+                missions.push("Repair Ship");
+            else
+                missions.push("Invalid");
+    
+            if (ship.hullid == 70 && vgap.advActive(44))
+                missions.push("Destroy Planet");
+            else
+                missions.push("Invalid");
+    
+            return missions;
+    
+        }; */
+
+        set_cookie = function (name, value, exp_y, exp_m, exp_d, path, domain, secure)
+        //name=cookie name (required)
+        //value=cookie value (required)
+        //exp_y,M,d is expiration year, month, day (if blank cookie will delete when browser closes)
+        //path=path within site this applies to (can be blank)
+        //domain=apply only to websites in this domain (can be blank)
+        //secure=use SSL (leave blank)	
+
+        {
+            var cookie_string = name + "=" + escape(value);
+
+            if (exp_y) {
+                var expires = new Date(exp_y, exp_m, exp_d);
+                cookie_string += "; expires=" + expires.toGMTString();
+            }
+
+            if (path)
+                cookie_string += "; path=" + escape(path);
+
+            if (domain)
+                cookie_string += "; domain=" + escape(domain);
+
+            if (secure)
+                cookie_string += "; secure";
+
+            document.cookie = cookie_string;
+        };
 
     get_cookie = function (cookie_name) {
         var results = document.cookie.match('(^|;) ?' + cookie_name + '=([^;]*)(;|$)');
