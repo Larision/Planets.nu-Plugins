@@ -189,9 +189,10 @@ function wrapper1() { // wrapper for injection
 
 				if (vgap.player.raceid != 12) { // Does not work for Horwasp!
 					// Display Options
-					html += "<table><td valign='top' style='width:20%'>";
+					html += "<table><tr>";
 					html += "<p><span style='font-size:20px;'>Options:</span>";
-					html += "</td><td valign='top'>";
+					html += "<td valign='top' style='width:40%'>";
+					
 					//html += "<ul><li><input type='checkbox' name='MngPlCheck' id='ManagePlanetsCheck' value ='c' checked disabled />Manage planet building and taxing</li>";
 					html += "<ul>";
 					if (plg.unloadMegacredits == true) {
@@ -245,7 +246,14 @@ function wrapper1() { // wrapper for injection
 					} else {
 						html += "<li><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' />Manage planetary friendly codes</li>";
 					}
-					// Agrega casilla de Home Sector a settings
+
+					html += "</ul>";
+					html += "</td>";
+
+					// Agrega casilla de Home Sector a settings en otra columna
+					html += "<td valign='top' stype='width:40%'>";
+					html += "<ul>";
+
 					if (vgap.isHomeSector()) {
 						html += "<li><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</li>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
@@ -262,7 +270,9 @@ function wrapper1() { // wrapper for injection
 						html += "</ul>"; //Fin de opciones anidadas
 						html += "</li>"; //cierra home sector list item
 					}
-					html += "</td></table>";
+					html += "</ul>";
+					html += "</td>";
+					html += "</tr></table>";
 
 					// Display run button
 					html += "<table cellpadding='5'>";
