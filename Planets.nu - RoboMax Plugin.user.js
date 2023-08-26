@@ -495,11 +495,11 @@ function wrapper1() { // wrapper for injection
 			if (plg.unloadCargo) plg.roboUnloadCargo("all");
 			if (plg.unloadMegacredits) plg.roboUnloadMegacredits("all");
 
-			// Build factories
-			if (plg.buildFactoriesAndMines) plg.roboBuildFactories();
-
-			// Build mines, basic defenses, and improved defenses
-			if (plg.buildFactoriesAndMines) plg.roboBuildMines();
+			// Build factories, mines, basic defenses, and improved defenses
+			if (plg.buildFactoriesAndMines) {
+				plg.roboBuildFactories();
+				plg.roboBuildMines();
+			}
 			if (plg.buildDefenses) plg.roboBuildDefenses();
 
 			// Assign taxes

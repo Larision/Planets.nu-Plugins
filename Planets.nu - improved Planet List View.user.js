@@ -46,7 +46,11 @@ function wrapper() { // wrapper for injection
 		html += "<table id='PlanetTable' align='left' class='CleanTable' border='0' width='100%' style='cursor:pointer;'><thead>";
 		html += "<th></th><th align='left'>Id</th><th align='left'>Name</th>";
 		if (view == 1) {
-			html += "<th title='Megacredits' align='left'>MC</th><th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Ground Neutronium (unmined)' align='left'>GN</th><th title='Ground Duranium (unmined)' align='left'>GD</th><th title='Ground Tritanium (unmined)' align='left'>GT</th><th title='Ground Molybdenum (unmined)' align='left'>GM</th><th title='Neutronium Density' align='left'>DN</th><th title='Duranium Density' align='left'>DD</th><th title='Tritanium Density' align='left'>DT</th><th title='Molybdenum Density' align='left'>DM</th>";
+			if (vgap.isHomeSector()) {
+				html += "<th title='Starbase Mission' align='left'>HS SB Mission</th>";
+			}
+			html += "<th title='Megacredits' align='left'>MC</th>";
+			html += "<th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Ground Neutronium (unmined)' align='left'>GN</th><th title='Ground Duranium (unmined)' align='left'>GD</th><th title='Ground Tritanium (unmined)' align='left'>GT</th><th title='Ground Molybdenum (unmined)' align='left'>GM</th><th title='Neutronium Density' align='left'>DN</th><th title='Duranium Density' align='left'>DD</th><th title='Tritanium Density' align='left'>DT</th><th title='Molybdenum Density' align='left'>DM</th>";
 		}
 		if ((view == 0) || (view == 5)) {
 			html += "<th title='Starbase' align='left'>SB</th>";
@@ -72,21 +76,41 @@ function wrapper() { // wrapper for injection
 		for (var i = 0; i < vgap.myplanets.length; i++) {
 			var planet = vgap.myplanets[i];
 			//var base = vgap.getStarbase(planet.id) != null ? "X" : "";
-			var base;
 			var show = 0; //for what's interesting view
 			var html = "";
 			var temphtml = "";
 			temphtml += "<tr class='RowSelect'><td><img class='TinyIcon' src='" + planet.img + "'/></td><td>" + planet.id + "</td><td>" + planet.name + "</td>";
 			if (view == 1) {
-				//-------------------MC to Develop-----------------------
-				if (vgap.isHomeSector() && canDevelop(planet)) {
-					temphtml += "<td style='color:green' title='Can raise Dev level'>" + planet.megacredits + "</td>";
-					show = 1;
-				} else {
-					temphtml += "<td>" + planet.megacredits + "</td>";
+				//-------------------Home Sector-------------------------
+				if (vgap.isHomeSector()) {
+					//-------------------Starbase Mission Dropdown-------------	
+					if (vgap.getStarbase(planet.id) != null) {
+						var starbase = vgap.getStarbase(planet.id);
+						var mission_list = returnSBMissionArray(starbase);
+						temphtml += "<td><select id='Dropdown" + i + "' onChange='setSBMission(this)'>";
+						for (var k = 0; k < mission_list.length; k++) {
+							if (starbase.mission == mission_list[k].id)
+								temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
+							else
+								temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
+						}
+						temphtml += "</select></td>";
+					} else {
+						temphtml += "<td></td>";
+					}
+					//-------------------Starbase Mission Dropdown-------------
+					//-------------------MC to Develop-----------------------
+					if (canDevelop(planet)) {
+						temphtml += "<td style='color:green' title='Can raise Dev level'>" + planet.megacredits + "</td>";
+						show = 1;
+					} else {
+						temphtml += "<td>" + planet.megacredits + "</td>";
+					}
+					//-------------------MC to Develop-----------------------
 				}
-				//-------------------MC to Develop-----------------------
+
 				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
+				
 				if (planet.groundneutronium < 10)
 					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
 				else
@@ -315,7 +339,7 @@ function wrapper() { // wrapper for injection
 					if (((planet.nativehappypoints < 70) && (planet.nativehappychange < 0)) || (planet.nativehappypoints < 40)) show = 1;
 					if (planet.nativehappypoints < 40)
 						temphtml += "<td style='color:red' title='Natives are destroying the planet!'>" + planet.nativehappypoints + "</td>";
-					if (planet.nativehappypoints < 70)
+					else if (planet.nativehappypoints < 70)
 						temphtml += "<td style='color:yellow' title='Natives are getting dangerously unhappy, and will no longer grow in population'>" + planet.nativehappypoints + "</td>";
 					else
 						temphtml += "<td>" + planet.nativehappypoints + "</td>";
@@ -324,6 +348,7 @@ function wrapper() { // wrapper for injection
 				} else {
 					temphtml += "<td></td><td></td><td></td><td></td><td></td><td></td>";
 				}
+				//-------------------Starbase Mission Dropdown-------------	
 				if (vgap.getStarbase(planet.id) != null) {
 					var starbase = vgap.getStarbase(planet.id);
 					var mission_list = returnSBMissionArray(starbase);
@@ -338,6 +363,7 @@ function wrapper() { // wrapper for injection
 				} else {
 					temphtml += "<td></td>";
 				}
+				//-------------------Starbase Mission Dropdown-------------
 				temphtml += "<td>" + (planet.readystatus > 0 ? (planet.readystatus == 1 ? "-" : "+") : "") + "</td></tr>";
 			}
 
