@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name           Planets.nu - improved Planet List View
 // @description    Miscellaneous Improvements to the Planet List View
-// @include        https://planets.nu/home
-// @include        https://play.planets.nu/*
-// @include        https://planets.nu/*
-// @include	       https://test.planets.nu/*
+// @match           http://*.planets.nu/*
+// @match           https://*.planets.nu/*
+// @match           http://planets.nu/*
+// @match           https://planets.nu/*
 // @version 0.51
 // @namespace https://greasyfork.org/users/2860
 // ==/UserScript==
