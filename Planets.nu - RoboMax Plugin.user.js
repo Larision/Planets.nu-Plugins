@@ -51,7 +51,7 @@ function wrapper1() { // wrapper for injection
 
 			// Add RoboMax Button
 			var menu = document.getElementById("DashboardMenu").childNodes[2]; //insert in middle
-			$("<li style=\"color:#FFF000\">RoboMax »</li>").tclick(function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(); }).appendTo(menu);
+			$("<li style=\"color:#FFF000\">RoboMax »</li>").tclick(function () {vgap.plugins["roboMaxPlugin"].displayRoboMax();}).appendTo(menu);
 
 		},
 
@@ -88,7 +88,7 @@ function wrapper1() { // wrapper for injection
 				//node.setAttribute("style", "color:#FFF000");
 				node.setAttribute("style", "color:#85bb65");
 				node.innerHTML = "<div class=\"iconholder\"><img src=\"https://planets.nu/img/icons/blacksquares/planets.png\"/></div>" + "RoboMax";
-				node.onclick = function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(); };
+				node.onclick = function () {vgap.plugins["roboMaxPlugin"].displayRoboMax();};
 
 				var starbase_entry = summary_list.children[4];
 				summary_list.insertBefore(node, starbase_entry);
@@ -143,7 +143,7 @@ function wrapper1() { // wrapper for injection
 
 		setColonistTaxes: true,
 		noTaxWithBadClimate: false,
-		// setNativeTaxes: true,
+		setNativeTaxes: true,
 		buildFactoriesAndMines: true,
 		destroyBuildings: true,
 		fcrandomize: true,
@@ -175,9 +175,9 @@ function wrapper1() { // wrapper for injection
 			if (!view) view = 0;
 			//console.log("Entered displayRoboMax");
 			var filterMenu = $("<ul class='FilterMenu'></ul>").appendTo(vgap.dash.content);
-			$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">RoboMax Command Center</li>").tclick(function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(0); }).appendTo(filterMenu);
+			$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">RoboMax Command Center</li>").tclick(function () {vgap.plugins["roboMaxPlugin"].displayRoboMax(0);}).appendTo(filterMenu);
 			// $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Planet Needs and Surpluses</li>").tclick(function() { vgap.plugins["roboMaxPlugin"].displayRoboMax(3); }).appendTo(filterMenu);
-			$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">RoboMax Help</li>").tclick(function () { vgap.plugins["roboMaxPlugin"].displayRoboMax(2); }).appendTo(filterMenu);
+			$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">RoboMax Help</li>").tclick(function () {vgap.plugins["roboMaxPlugin"].displayRoboMax(2);}).appendTo(filterMenu);
 
 			html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 70) + "px;'>";
 
@@ -192,86 +192,87 @@ function wrapper1() { // wrapper for injection
 					html += "<table><tr>";
 					html += "<p><span style='font-size:20px;'>Options:</span>";
 					html += "<td valign='top' style='width:40%'>";
-					
+
 					//html += "<ul><li><input type='checkbox' name='MngPlCheck' id='ManagePlanetsCheck' value ='c' checked disabled />Manage planet building and taxing</li>";
 					html += "<ul>";
 					if (plg.unloadMegacredits == true) {
-						html += "<li><input type='checkbox' name='ULMegacreditsCheck' id='UnloadMegacreditsCheck' value ='c' checked />Automatically unload megacredits</li>";
+						html += "<li><label><input type='checkbox' name='ULMegacreditsCheck' id='UnloadMegacreditsCheck' value ='c' checked />Automatically unload megacredits</label></li>";
 					} else {
-						html += "<li><input type='checkbox' name='ULMegacreditsCheck' id='UnloadMegacreditsCheck' value ='c' />Automatically unload megacredits</li>";
+						html += "<li><label><input type='checkbox' name='ULMegacreditsCheck' id='UnloadMegacreditsCheck' value ='c' />Automatically unload megacredits</label></li>";
 					}
 					if (plg.unloadCargo == true) {
-						html += "<li><input type='checkbox' name='ULCargoCheck' id='UnloadCargoCheck' value ='c' checked />Automatically unload cargo</li>";
+						html += "<li><label><input type='checkbox' name='ULCargoCheck' id='UnloadCargoCheck' value ='c' checked />Automatically unload cargo</label></li>";
 					} else {
-						html += "<li><input type='checkbox' name='ULCargoCheck' id='UnloadCargoCheck' value ='c' />Automatically unload cargo</li>";
+						html += "<li><label><input type='checkbox' name='ULCargoCheck' id='UnloadCargoCheck' value ='c' />Automatically unload cargo</label></li>";
 					}
 					if (plg.buildDefenses == true) {
-						html += "<li><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' checked />Automatically build defense posts where needed</li>";
+						html += "<li><label><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' checked />Automatically build defense posts where needed</label></li>";
 					} else {
-						html += "<li><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' />Automatically build defense posts where needed</li>";
+						html += "<li><label><input type='checkbox' name='BldDPCheck' id='BuildDPsCheck' value ='c' />Automatically build defense posts where needed</label></li>";
 					}
 					if (plg.buildFactoriesAndMines == true) {
-						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' checked />Build factories and mines</li>";
-						html += "<ul id='decreaseBuildings'>"; // opciones anidadas para factories y mines
+						html += "<li><label><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' checked />Build factories and mines</label>";
+						html += "<ul id='decreaseBuildings'>"; // opciones avanzadas para factories y mines
 						if (plg.destroyBuildings == true) {
-							html += "<li><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' checked />Decrease Mines and Factories to Target</li>";
+							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' checked />Decrease Mines and Factories to Target</label></li>";
 						} else {
-							html += "<li><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' />Decrease Mines and Factories to Target</li>";
+							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' />Decrease Mines and Factories to Target</label></li>";
 						}
-						html += "</ul>"; // fin opciones anidadas
+						html += "</ul>"; // fin opciones avanzadas
 						html += "</li>"; // cierra list item
 					} else {
-						html += "<li><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' />Build factories and mines</li>";
+						html += "<li><label><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' />Build factories and mines</label></li>";
 					}
 					if (plg.setColonistTaxes == true) {
-						html += "<li><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' checked />Set Colonist taxes</li>";
-						html += "<ul id='climateTaxes'>"; //opciones anidadas a colonist taxes
+						html += "<li><label><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' checked />Set Colonist taxes</label>";
+						html += "<ul id='climateTaxes'>"; // Opciones avanzadas para colonist taxes
 						if (plg.noTaxWithBadClimate == true) {
-							html += "<li><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' checked />No tax Colonist with bad climate</li>";
+							html += "<li><label><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' checked />No tax Colonist with bad climate</label></li>";
 						} else {
-							html += "<li><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' />No tax Colonist with bad climate</li>";
+							html += "<li><label><input type='checkbox' name='noTaxWithBadClimateCheck' id='noTaxWithBadClimateCheck' value ='c' />No tax Colonist with bad climate</label></li>";
 						}
-						html += "</ul>"; //fin de opciones anidadas de colonist taxes
-						html += "</li>"; //cierra setColonistTaxes list item
+						html += "</ul>";
+						html += "</li>";
 					} else {
-						html += "<li><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' />Set Colonist taxes</li>";
+						html += "<li><label><input type='checkbox' name='setColonistTaxCheck' id='setColonistTaxesCheck' value ='c' />Set Colonist taxes</label></li>";
 					}
-					//					if (plg.setNativeTaxes == true) {
-					//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' checked />Set Native taxes</li>";
-					//					} else {
-					//						html += "<li><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' />Set Native taxes</li>";
-					//					}
-					if (plg.fcrandomize == true) {
-						html += "<li><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' checked />Manage planetary friendly codes</li>";
+					if (plg.setNativeTaxes == true) {
+						html += "<li><label><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' checked />Set Native taxes</label></li>";
 					} else {
-						html += "<li><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' />Manage planetary friendly codes</li>";
+						html += "<li><label><input type='checkbox' name='setNativeTaxCheck' id='setNativeTaxesCheck' value ='c' />Set Native taxes</label></li>";
+					}
+					if (plg.fcrandomize == true) {
+						html += "<li><label><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' checked />Manage planetary friendly codes</label></li>";
+					} else {
+						html += "<li><label><input type='checkbox' name='MngFCCheck' id='ManagePlanetFCsCheck' value ='c' />Manage planetary friendly codes</label></li>";
 					}
 
 					html += "</ul>";
 					html += "</td>";
 
 					// Agrega casilla de Home Sector a settings en otra columna
-					html += "<td valign='top' stype='width:40%'>";
+					html += "<td valign='top' style='width:40%'>";
 					html += "<ul>";
 
 					if (vgap.isHomeSector()) {
-						html += "<li><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</li>";
+						html += "<li><label><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</label>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
 						if (plg.growthPriority == true) {
-							html += "<li><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' checked />Growth priority</li>";
+							html += "<li><label><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' checked />Growth priority</label></li>";
 						} else {
-							html += "<li><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' />Growth priority</li>";
+							html += "<li><label><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' />Growth priority</label></li>";
 						}
 						if (plg.taxPriority == true) {
-							html += "<li><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' checked />Tax Priority</li>";
+							html += "<li><label><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' checked />Tax Priority</label></li>";
 						} else {
-							html += "<li><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' />Tax Priority</li>";
+							html += "<li><label><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' />Tax Priority</label></li>";
 						}
 						html += "</ul>"; //Fin de opciones anidadas
 						html += "</li>"; //cierra home sector list item
 					}
 					html += "</ul>";
 					html += "</td>";
+
 					html += "</tr></table>";
 
 					// Display run button
@@ -325,6 +326,16 @@ function wrapper1() { // wrapper for injection
 						climateTaxes.style.display = 'block';
 					}
 					console.log("setColonistTaxes is now: " + plg.setColonistTaxes);
+				});
+
+				$('#setNativeTaxesCheck').click(function () {
+					console.log("setNativeTaxesCheck CLICKED");
+					if (plg.setNativeTaxes == true) {
+						plg.setNativeTaxes = false;
+					} else {
+						plg.setNativeTaxes = true;
+					}
+					console.log("setNativeTaxes is now: " + plg.setNativeTaxes);
 				});
 
 				// Cambia settings al clickar
@@ -411,15 +422,15 @@ function wrapper1() { // wrapper for injection
 					//   setTimeout(function(){plg.roboStatusUpdate(0,acknowledgement.substring(0,i));},200);
 					// }
 					plg.roboStatusUpdate(0, "By your command");
-					setTimeout(function () { plg.roboStatusUpdate(0, "RoboMax is running..."); }, 600);
+					setTimeout(function () {plg.roboStatusUpdate(0, "RoboMax is running...");}, 600);
 					//plg.roboStatusUpdate(0,"RoboMax is running...");
-					setTimeout(function () { plg.runRoboMax(); }, 200);
+					setTimeout(function () {plg.runRoboMax();}, 200);
 					var identifier = "#RoboMaxRun";
 					//console.log("SELECTOR: " + identifier);
 					plg.roboFinished = true;
 				});
 
-				$("#ResetTurnButton").tclick(function () { vgap.resetTurn(); });
+				$("#ResetTurnButton").tclick(function () {vgap.resetTurn();});
 
 				// Opciones de home sector
 				$('#GrowthPriorityCheck').click(function () {
@@ -484,52 +495,58 @@ function wrapper1() { // wrapper for injection
 			if (col == 1) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #006400;'><b>" + msg + "</b></td>");
 		},
 
-		runRoboMax: function () {
-			// This function runs when the button is clicked
-			var plg = vgap.plugins["roboMaxPlugin"];
-			console.log("");
-			console.log("Running RoboMax!");
-			vgap.playSound("button");
+runRoboMax: function () {
+	// This function runs when the button is clicked
+	var plg = vgap.plugins["roboMaxPlugin"];
+	console.log("Running RoboMax!");
+	vgap.playSound("button");
 
-			// Unload ship cargo
-			if (plg.unloadCargo) plg.roboUnloadCargo("all");
-			if (plg.unloadMegacredits) plg.roboUnloadMegacredits("all");
+	// Unload ship cargo
+	if (plg.unloadCargo) {
+		plg.roboUnloadCargo("all");
+	}
+	if (plg.unloadMegacredits) {
+		plg.roboUnloadMegacredits("all");
+	}
+	// Build factories, mines, basic defenses, and improved defenses
+	if (plg.buildFactoriesAndMines) {
+		plg.roboBuildFactories();
+		plg.roboBuildMines();
+	}
+	if (plg.buildDefenses) {
+		plg.roboBuildDefenses();
+	}
+	// Assign taxes
+	if (plg.setColonistTaxes) {
+		plg.roboPlanetSetAllColonistTaxes();
+	}
+	if (plg.setNativeTaxes) {
+		plg.roboPlanetSetAllNativeTaxes();
+	}
 
-			// Build factories, mines, basic defenses, and improved defenses
-			if (plg.buildFactoriesAndMines) {
-				plg.roboBuildFactories();
-				plg.roboBuildMines();
-			}
-			if (plg.buildDefenses) plg.roboBuildDefenses();
-
-			// Assign taxes
-			// if (plg.setTaxes) plg.roboPlanetSetTaxes();
-			if (plg.setColonistTaxes) plg.roboPlanetSetAllColonistTaxes();
-			//			if (plg.setNativeTaxes) plg.roboPlanetSetAllNativeTaxes();
-
-			// Manage planetary friendly codes, and permute ship friendly codes
-			if (plg.fcrandomize) plg.roboMaxRandomizePlanetFcodes();
-
-			// Home Sector
-			if (plg.homeSector) console.log("Running Home sector optimizations");
-
-			// We're finished giving orders, so initiate save
-			vgap.save(); // Save all our changes at the end
-			plg.roboStatusUpdate(0, "Saving changes...");
-
-			// Check save, and end the function
-			var checkInterval = setInterval(function () {
-				if (vgap.saveInProgress == 2) {
-					// We are still saving, check again in a little bit
-					return;
-				} else {
-					clearInterval(checkInterval);
-					plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
-					vgap.loadWaypoints();
-					console.log("RoboMax is finished giving orders.");
-				}
-			}, 500);
-		},
+	// Manage planetary friendly codes, and permute ship friendly codes
+	if (plg.fcrandomize) {
+		plg.roboMaxRandomizePlanetFcodes();
+	}
+	// Home Sector
+	if (plg.homeSector) {
+		console.log("Running Home sector optimizations");
+	}
+	// We're finished giving orders, so initiate save
+	vgap.save();
+	// Check save, and end the function
+	var checkInterval = setInterval(function () {
+		if (vgap.saveInProgress == 2) {
+			// We are still saving, check again in a little bit
+			return;
+		} else {
+			clearInterval(checkInterval);
+			plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
+			vgap.loadWaypoints();
+			console.log("RoboMax is finished giving orders.");
+		}
+	}, 500);
+},
 
 		checkIfMobileVersion: function () {
 			// This function adapted from Kedalion's Enemy ship list plugin:
@@ -674,28 +691,28 @@ function wrapper1() { // wrapper for injection
 			return;
 		},
 
-		/* 		roboPlanetSetAllNativeTaxes: function() {
-					// Main function for setting taxes for colonists and natives
-		
-					var plg = vgap.plugins["roboMaxPlugin"];
-					plg.roboStatusUpdate(0,"Setting taxes");
-					//var raceId = vgap.player.raceid;
-		
-					for (var i = 0; i < vgap.myplanets.length; i++) {
-						var planet = vgap.myplanets[i];
-						var HISSeffect = plg.roboHISSeffect(planet);
-		
-						// Tax colonists:
-						// plg.roboSetColonistTax(planet,HISSeffect);
-		
-						// Tax natives:
-						if (planet.nativeclans > 0) {
-							plg.roboSetNativeTax(planet,HISSeffect);
-						}
-					}
-					return;
-				},
-		 */
+		roboPlanetSetAllNativeTaxes: function () {
+			// Main function for setting taxes for colonists and natives
+
+			var plg = vgap.plugins["roboMaxPlugin"];
+			plg.roboStatusUpdate(0, "Setting taxes");
+			//var raceId = vgap.player.raceid;
+
+			for (var i = 0; i < vgap.myplanets.length; i++) {
+				var planet = vgap.myplanets[i];
+				var HISSeffect = plg.roboHISSeffect(planet);
+
+				// Tax colonists:
+				// plg.roboSetColonistTax(planet,HISSeffect);
+
+				// Tax natives:
+				if (planet.nativeclans > 0) {
+					plg.roboSetNativeTax(planet, HISSeffect);
+				}
+			}
+			return;
+		},
+
 		roboSetColonistTax: function (planet, HISSeffect) {
 			// This function was inspired by tax management code from Dotman's
 			// Planetary Management Plugin (version 1.20).
@@ -841,16 +858,63 @@ function wrapper1() { // wrapper for injection
 					if (colTax == 0) return 0; // Don't tax if taxing yields no money
 					return rate - 1; // Otherwise, we have found our tax rate
 				}
-
+				// MAX INCOME IS 5000!!! colonist + natives cant be more than 5000
 				// Make sure that we don't tax more than we can collect:
 				//colTax = colTax * taxbonus;
-				if (colTax > 5000)
-					return rate - 1;
+				var nattax = this.nativeTaxAmount(planet);
+				if (nattax <= 0) {
+					if (colTax > 5000)
+						return rate - 1;
+				} else {
+					if (colTax + this.nativeTaxAmount(planet) > 5000)
+						return rate;
+				}
 			}
 			if (plg.roboColonistHappyChange(planet, 100) > maxHappyChange)
 				return 100
 			else
 				return 0;
+		},
+
+		nativeTaxAmount: function (planet) {
+			if (planet.nativeclans <= 0)
+				return 0;
+
+			var player = vgap.getPlayer(planet.ownerid);
+			var raceId = player.raceid;
+
+			//amorph none
+			if (planet.nativetype == 5)
+				return 0;
+
+			//cyborg max 20%
+			var nativetaxrate = planet.nativetaxrate;
+			if (player != null) {
+				var maxBorgRate = 20;
+				if (vgap.settings && vgap.settings.cyborgmaxnativetaxrateadjustment && vgap.settings.cyborgmaxnativetaxrateadjustment > 0)
+					maxBorgRate = vgap.settings.cyborgmaxnativetaxrateadjustment;
+				if (raceId == 6 && nativetaxrate > maxBorgRate)
+					nativetaxrate = maxBorgRate;
+			}
+
+			var val = Math.round(nativetaxrate * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+
+			if (val > planet.clans)
+				val = planet.clans;
+
+			//player tax rate (fed bonus)
+			var taxbonus = vgap.taxBonus(planet);
+
+			val = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
+
+			//insectoid bonus
+			if (planet.nativetype == 6)
+				val = val * 2;
+
+			if (val > 5000)
+				val = 5000;
+
+			return val;
 		},
 
 		roboColonistHappyChange: function (planet, r) {
@@ -887,6 +951,7 @@ function wrapper1() { // wrapper for injection
 			var minNatHappiness = 70;
 			var minNatClansForTaxing = 2500; // Don't tax if less than this number
 			var zeroTaxHappyChange = plg.roboNativeHappyChange(planet, 0);
+			console.log("zeroTaxHappyChange is", zeroTaxHappyChange);
 			var nativeGrowthIsPossible = true;
 
 			// Decide on a native tax strategy
@@ -918,7 +983,7 @@ function wrapper1() { // wrapper for injection
 				// No more native growth is possible, so tax even more aggressively
 				nativeGrowthIsPossible = false;
 				useGrowthTaxforNatives = false;
-				minNatHappiness = 40;
+				minNatHappiness = 70;
 				//console.log("Planet " + planet.name + ": Assigning max tax");
 				if (vgap.player.raceid == 1 && (planet.temp < 15 || planet.temp > 84)) {
 					// Feds might terraform these, so don't tax so aggressively
@@ -1010,7 +1075,7 @@ function wrapper1() { // wrapper for injection
 
 				// Make sure that we don't tax more than we can collect:
 				var maxCanCollect = planet.clans;
-				var nativeTax = Math.round(rate * planet.nativegovernment * 20 / 100 * planet.nativeclans / 1000);
+				var nativeTax = Math.round(rate * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
 				//var taxbonus = 1; //player tax rate
 				if (vgap.advActive(2)) { // Fed 2X bonus
 					//taxbonus = 2;
@@ -1051,6 +1116,12 @@ function wrapper1() { // wrapper for injection
 			if (vgap.getNebulaIntensity(planet.x, planet.y) >= 80) //50ly visibility
 				change += 5;
 
+			if (planet.ispleasureplanet)
+				change -= 3;
+
+			if (planet.artifacts)
+				change += 5 * planet.artifacts.length;
+
 			return change;
 		},
 
@@ -1084,66 +1155,8 @@ function wrapper1() { // wrapper for injection
 		},
 
 		getMaxColonists: function (planet) {
-			/* // This code was adapted from the maxPop function in the planets.nu client.
-			var player = vgap.getPlayer(planet.ownerid);
-			var raceId = vgap.player.raceid;
-
-			var climateDeathRate = 10;
-			var maxSupported = 0;
-			var colGrowth = 0;
-
-			//crystal calculation
-			if (raceId == 7)
-				maxSupported = planet.temp * 1000;
-			else {
-				//all others
-				maxSupported = Math.round(Math.sin(3.14 * (100 - planet.temp) / 100) * 100000);
-				if (planet.temp > 84)
-					maxSupported = Math.floor((20099.9 - (200 * planet.temp)) / climateDeathRate);
-				else if (planet.temp < 15)
-					maxSupported = Math.floor((299.9 + (200 * planet.temp)) / climateDeathRate);
-			}
-
-			//Fascist, Robots, Rebels, Colonies can support a small colony of 60 clans on planets over 80 degrees
-			if (raceId == 4 || raceId == 9 || raceId == 10 || raceId == 11) {
-				if (planet.temp > 80)
-					maxSupported = Math.max(maxSupported, 60);
-			}
-
-			//rebel arctic planet advantage
-			if (planet.temp <= 19 && raceId == 10)
-				maxSupported = Math.max(maxSupported, 90000);
-
-			//planetoids do not have an atmosphere
-			if (planet.debrisdisk > 0) {
-				maxSupported = 0;
-				if (vgap.getStarbase(planet.id) != null)
-					maxSupported = 500;
-			}
-			//Robot Internal temp regulation advantage
-			if (raceId == 9 && vgap.player.activeadvantages.includes(76)) {
-				maxSupported = 100000;
-			}
-			// Me ayudo en clanCapacityDetails de nu.js
-			if (planet.developmentlevel > 0) */
 			maxSupported = vgap.pl.clanCapacityDetails(planet).totalCapacity;
-
-			//if (!getGrowth)
 			return maxSupported;
-
-			// NOTE: This next part doesn't make much sense. Delete it????
-
-			//determine how much we are overpopulated
-			// var overPopulation = Math.ceil((planet.clans - maxSupported) * (climateDeathRate / 100));
-			// if (overPopulation > 0) {
-			// //recalculate maxsupported/overpopulation
-			// maxSupported = maxSupported + Math.round(planet.supplies * 10 / 40);
-			// overPopulation = Math.ceil((planet.clans - maxSupported) * (climateDeathRate / 100));
-
-			// //update population
-			// colGrowth = -1 * Math.max(0, overPopulation);
-			// }
-			// return colGrowth;
 		},
 
 		roboColGrowthIsPossible: function (planet) {

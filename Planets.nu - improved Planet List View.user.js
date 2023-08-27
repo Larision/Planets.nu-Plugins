@@ -32,13 +32,13 @@ function wrapper() { // wrapper for injection
 			view = 0;
 
 		var filterMenu = $("<ul class='FilterMenu'></ul>").appendTo(this.content);
-		$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">Colony View</li>").tclick(function () { vgap.dash.showPlanets(0); }).appendTo(filterMenu);
-		$("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Resource View</li>").tclick(function () { vgap.dash.showPlanets(1); }).appendTo(filterMenu);
+		$("<li " + (view == 0 ? "class='SelectedFilter'" : "") + ">Colony View</li>").tclick(function () {vgap.dash.showPlanets(0);}).appendTo(filterMenu);
+		$("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Resource View</li>").tclick(function () {vgap.dash.showPlanets(1);}).appendTo(filterMenu);
 		if (vgap.player.raceid == 12)
-			$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Ship Building</li>").tclick(function () { vgap.dash.showPlanets(12); }).appendTo(filterMenu);
-		$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () { vgap.dash.showPlanets(2); }).appendTo(filterMenu);
-		$("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Production View</li>").tclick(function () { vgap.dash.showPlanets(3); }).appendTo(filterMenu);
-		$("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">What's Interesting</li>").tclick(function () { vgap.dash.showPlanets(5); }).appendTo(filterMenu);
+			$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Ship Building</li>").tclick(function () {vgap.dash.showPlanets(12);}).appendTo(filterMenu);
+		$("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () {vgap.dash.showPlanets(2);}).appendTo(filterMenu);
+		$("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Production View</li>").tclick(function () {vgap.dash.showPlanets(3);}).appendTo(filterMenu);
+		$("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">What's Interesting</li>").tclick(function () {vgap.dash.showPlanets(5);}).appendTo(filterMenu);
 
 		//loop through all planets and show the ones owned by this player
 		html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 70) + "px;'>";
@@ -47,17 +47,17 @@ function wrapper() { // wrapper for injection
 		html += "<th></th><th align='left'>Id</th><th align='left'>Name</th>";
 		if (view == 1) {
 			if (vgap.isHomeSector()) {
-				html += "<th title='Starbase Mission' align='left'>HS SB Mission</th>";
+				html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
 			}
 			html += "<th title='Megacredits' align='left'>MC</th>";
-			html += "<th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Ground Neutronium (unmined)' align='left'>GN</th><th title='Ground Duranium (unmined)' align='left'>GD</th><th title='Ground Tritanium (unmined)' align='left'>GT</th><th title='Ground Molybdenum (unmined)' align='left'>GM</th><th title='Neutronium Density' align='left'>DN</th><th title='Duranium Density' align='left'>DD</th><th title='Tritanium Density' align='left'>DT</th><th title='Molybdenum Density' align='left'>DM</th>";
+			html += "<th title='Supplies' align='left'>Sup</th><th title='Neutronium' align='left'>Neu</th><th title='Duranium' align='left'>Dur</th><th title='Tritanium' align='left'>Tri</th><th title='Molybdenum' align='left'>Mol</th><th title='Ground Neutronium (unmined)' align='left'>GNeu</th><th title='Ground Duranium (unmined)' align='left'>GDur</th><th title='Ground Tritanium (unmined)' align='left'>GTri</th><th title='Ground Molybdenum (unmined)' align='left'>GMol</th><th title='Neutronium Density' align='left'>DNeu</th><th title='Duranium Density' align='left'>DDur</th><th title='Tritanium Density' align='left'>DTri</th><th title='Molybdenum Density' align='left'>DMol</th>";
 		}
 		if ((view == 0) || (view == 5)) {
 			html += "<th title='Starbase' align='left'>SB</th>";
 			if (vgap.isHomeSector()) {
 				html += "<th title='DevelopmentLevel' align='left'>DevLevel</th>";
 			}
-			html += "<th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Temperature' align='left'>T</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th>";
+			html += "<th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Temperature' align='left'>Temp</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th>";
 			html += "<th title='Colonist Tax Rate' align='left'>Tx</th><th title='Colonist Happiness' align='left'>Hp</th><th title='Colonist Happiness Change' align='left'>+/-</th><th title='Natives' align='left'>Natives</th><th title='Native Government' align='left'>Gov</th><th title='Native Population' align='left'>Pop</th><th title='Native Tax Rate' align='left'>Tx</th><th title='Native Happiness' align='left'>Hp</th><th title='Native Happiness Change' align='left'>+/-</th>";
 			html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
 			html += "<th title='Ready Checkbox Status' align='left'>R</th>";
@@ -110,7 +110,7 @@ function wrapper() { // wrapper for injection
 				}
 
 				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
-				
+
 				if (planet.groundneutronium < 10)
 					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
 				else
@@ -372,7 +372,7 @@ function wrapper() { // wrapper for injection
 			//Añadir la función de clic a las celdas que no sean menu desplegable de las filas cuando view == 0
 			if ((view != 5) || (show == 1)) {
 				var rowHtml = $(temphtml); // Convertir el HTML en un objeto jQuery
-				var select = function (id) { return function () { vgap.map.selectPlanet(id); }; };
+				var select = function (id) {return function () {vgap.map.selectPlanet(id);};};
 				rowHtml.find("td:not(:has(select))").click(select(planet.id));
 				rowHtml.appendTo("#PlanetRows");
 			}
@@ -471,43 +471,43 @@ function wrapper() { // wrapper for injection
 		var missions = new Array();
 		var planet = vgap.getPlanet(starbase.planetid);
 
-		missions.push({ id: 0, name: "Nothing" });
-		missions.push({ id: 1, name: "Refuel" });
-		missions.push({ id: 2, name: "Max Defense" });
-		missions.push({ id: 3, name: "Load Torps" });
-		missions.push({ id: 4, name: "unload Freigthers" });
-		missions.push({ id: 5, name: "Repair Base" });
-		missions.push({ id: 6, name: "Force Surrender" });
+		missions.push({id: 0, name: "Nothing"});
+		missions.push({id: 1, name: "Refuel"});
+		missions.push({id: 2, name: "Max Defense"});
+		missions.push({id: 3, name: "Load Torps"});
+		missions.push({id: 4, name: "unload Freigthers"});
+		missions.push({id: 5, name: "Repair Base"});
+		missions.push({id: 6, name: "Force Surrender"});
 
 		if (vgap.advActive(38) || vgap.tradeStationNearby(planet)) {
-			missions.push({ id: 7, name: "Send MC" });
-			missions.push({ id: 8, name: "Receive MC" });
+			missions.push({id: 7, name: "Send MC"});
+			missions.push({id: 8, name: "Receive MC"});
 		}
 
 		if (vgap.tradeStationNearby(planet)) {
-			missions.push({ id: 16, name: "Send Dur" });
-			missions.push({ id: 17, name: "Receive Dur" });
-			missions.push({ id: 18, name: "Send Tri" });
-			missions.push({ id: 19, name: "Receive Tri" });
-			missions.push({ id: 20, name: "Send Mol" });
-			missions.push({ id: 21, name: "Receive Mol" });
+			missions.push({id: 16, name: "Send Dur"});
+			missions.push({id: 17, name: "Receive Dur"});
+			missions.push({id: 18, name: "Send Tri"});
+			missions.push({id: 19, name: "Receive Tri"});
+			missions.push({id: 20, name: "Send Mol"});
+			missions.push({id: 21, name: "Receive Mol"});
 			if (vgap.gameUsesSupplies()) {
-				missions.push({ id: 22, name: "Send Supplies" });
-				missions.push({ id: 23, name: "Receive Supplies" });
+				missions.push({id: 22, name: "Send Supplies"});
+				missions.push({id: 23, name: "Receive Supplies"});
 			}
 		}
 
 		if (vgap.advActive(39))
-			missions.push({ id: 9, name: "Lay Mines" });
+			missions.push({id: 9, name: "Lay Mines"});
 		if (vgap.advActive(39) && vgap.player.raceid == 7)
-			missions.push({ id: 10, name: "Lay Web Mines" });
+			missions.push({id: 10, name: "Lay Web Mines"});
 
 		if (vgap.advActive(40) || vgap.advActive(41))
-			missions.push({ id: 11, name: "Mine Sweep" });
+			missions.push({id: 11, name: "Mine Sweep"});
 
 		if (vgap.advActive(57) && vgap.pl.isOwnedByEmpire(planet)) {
-			missions.push({ id: 12, name: "Enviar Figthers", desc: nu.t.sendfightersdef });
-			missions.push({ id: 13, name: "Recibir Figthers", desc: nu.t.recfightersdef });
+			missions.push({id: 12, name: "Enviar Figthers", desc: nu.t.sendfightersdef});
+			missions.push({id: 13, name: "Recibir Figthers", desc: nu.t.recfightersdef});
 		}
 
 		if (vgap.isHomeSector()) {
@@ -518,27 +518,27 @@ function wrapper() { // wrapper for injection
 					homeworldFound = true;
 			}
 			if (!homeworldFound)
-				missions.push({ id: 15, name: "Hacer Homeworld", desc: "Make this starbase and planet your Homeworld." });
+				missions.push({id: 15, name: "Hacer Homeworld", desc: "Make this starbase and planet your Homeworld."});
 			else {
 				let section = vgap.getArray(vgap.homesector.sections, 18);
 				if (section && section.isunlocked && !vgap.getCommandCenter()) {
-					missions.push({ id: 14, name: "Upgrade", desc: "Make this starbase and planet your Central Command Center." });
+					missions.push({id: 14, name: "Upgrade", desc: "Make this starbase and planet your Central Command Center."});
 				}
 			}
 		}
 		return missions;
 	};
 
-setSBMission = function (selectElement) {
-    const selectedIndex = selectElement.selectedIndex;
-    const starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
-    const starbase = vgap.mystarbases[starbaseIndex];
-    const mission_list = returnSBMissionArray(starbase);
-    starbase.mission = mission_list[selectedIndex]?.id;
-    vgap.getPlanet(starbase.planetid).changed = 1;
-    vgap.save();
-    vgap.map.draw();
-};
+	setSBMission = function (selectElement) {
+		const selectedIndex = selectElement.selectedIndex;
+		const starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
+		const starbase = vgap.mystarbases[starbaseIndex];
+		const mission_list = returnSBMissionArray(starbase);
+		starbase.mission = mission_list[selectedIndex]?.id;
+		vgap.getPlanet(starbase.planetid).changed = 1;
+		vgap.save();
+		vgap.map.draw();
+	};
 
 } //wrapper for injection
 
