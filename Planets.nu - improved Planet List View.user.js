@@ -468,66 +468,84 @@ function wrapper() { // wrapper for injection
 
 	// List of SB missions
 	returnSBMissionArray = function (starbase) {
-		var missions = new Array();
-		var planet = vgap.getPlanet(starbase.planetid);
+        var missions = [
+            { id: 0, name: "Nothing" },
+            { id: 1, name: "Refuel" },
+            { id: 2, name: "Max Defense" },
+            { id: 3, name: "Load Torps" },
+            { id: 4, name: "Unload Freigthers" },
+            { id: 5, name: "Repair Base" },
+            { id: 6, name: "Force Surrender" }
+        ];
 
-		missions.push({id: 0, name: "Nothing"});
-		missions.push({id: 1, name: "Refuel"});
-		missions.push({id: 2, name: "Max Defense"});
-		missions.push({id: 3, name: "Load Torps"});
-		missions.push({id: 4, name: "unload Freigthers"});
-		missions.push({id: 5, name: "Repair Base"});
-		missions.push({id: 6, name: "Force Surrender"});
+        var planet = vgap.getPlanet(starbase.planetid);
 
-		if (vgap.advActive(38) || vgap.tradeStationNearby(planet)) {
-			missions.push({id: 7, name: "Send MC"});
-			missions.push({id: 8, name: "Receive MC"});
-		}
+        if (vgap.advActive(38) || vgap.tradeStationNearby(planet)) {
+            missions.push(
+                { id: 7, name: "Send MC" },
+                { id: 8, name: "Receive MC" }
+            );
+        }
 
-		if (vgap.tradeStationNearby(planet)) {
-			missions.push({id: 16, name: "Send Dur"});
-			missions.push({id: 17, name: "Receive Dur"});
-			missions.push({id: 18, name: "Send Tri"});
-			missions.push({id: 19, name: "Receive Tri"});
-			missions.push({id: 20, name: "Send Mol"});
-			missions.push({id: 21, name: "Receive Mol"});
-			if (vgap.gameUsesSupplies()) {
-				missions.push({id: 22, name: "Send Supplies"});
-				missions.push({id: 23, name: "Receive Supplies"});
-			}
-		}
+        if (vgap.tradeStationNearby(planet)) {
+            missions.push(
+                { id: 16, name: "Send Dur" },
+                { id: 17, name: "Receive Dur" },
+                { id: 18, name: "Send Tri" },
+                { id: 19, name: "Receive Tri" },
+                { id: 20, name: "Send Mol" },
+                { id: 21, name: "Receive Mol" }
+            );
 
-		if (vgap.advActive(39))
-			missions.push({id: 9, name: "Lay Mines"});
-		if (vgap.advActive(39) && vgap.player.raceid == 7)
-			missions.push({id: 10, name: "Lay Web Mines"});
+            if (vgap.gameUsesSupplies()) {
+                missions.push(
+                    { id: 22, name: "Send Supplies" },
+                    { id: 23, name: "Receive Supplies" }
+                );
+            }
+        }
 
-		if (vgap.advActive(40) || vgap.advActive(41))
-			missions.push({id: 11, name: "Mine Sweep"});
+        if (vgap.advActive(39)) {
+            missions.push({ id: 9, name: "Lay Mines" });
+        }
 
-		if (vgap.advActive(57) && vgap.pl.isOwnedByEmpire(planet)) {
-			missions.push({id: 12, name: "Enviar Figthers", desc: nu.t.sendfightersdef});
-			missions.push({id: 13, name: "Recibir Figthers", desc: nu.t.recfightersdef});
-		}
+        if (vgap.advActive(39) && vgap.player.raceid == 7) {
+            missions.push({ id: 10, name: "Lay Web Mines" });
+        }
 
-		if (vgap.isHomeSector()) {
+        if (vgap.advActive(40) || vgap.advActive(41)) {
+            missions.push({ id: 11, name: "Mine Sweep" });
+        }
 
-			let homeworldFound = false;
-			for (let i = 0; i < vgap.myplanets.length; i++) {
-				if (vgap.myplanets[i].flag == 1)
-					homeworldFound = true;
-			}
-			if (!homeworldFound)
-				missions.push({id: 15, name: "Hacer Homeworld", desc: "Make this starbase and planet your Homeworld."});
-			else {
-				let section = vgap.getArray(vgap.homesector.sections, 18);
-				if (section && section.isunlocked && !vgap.getCommandCenter()) {
-					missions.push({id: 14, name: "Upgrade", desc: "Make this starbase and planet your Central Command Center."});
-				}
-			}
-		}
-		return missions;
-	};
+        if (vgap.advActive(57) && vgap.pl.isOwnedByEmpire(planet)) {
+            missions.push(
+                { id: 12, name: "Enviar Figthers", desc: nu.t.sendfightersdef },
+                { id: 13, name: "Recibir Figthers", desc: nu.t.recfightersdef }
+            );
+        }
+
+        if (vgap.isHomeSector()) {
+            let homeworldFound = false;
+
+            for (let i = 0; i < vgap.myplanets.length; i++) {
+                if (vgap.myplanets[i].flag == 1) {
+                    homeworldFound = true;
+                }
+            }
+
+            if (!homeworldFound) {
+                missions.push({ id: 15, name: "Hacer Homeworld", desc: "Make this starbase and planet your Homeworld." });
+            } else {
+                let section = vgap.getArray(vgap.homesector.sections, 18);
+
+                if (section && section.isunlocked && !vgap.getCommandCenter()) {
+                    missions.push({ id: 14, name: "Upgrade", desc: "Make this starbase and planet your Central Command Center." });
+                }
+            }
+        }
+
+        return missions;
+    };
 
 	setSBMission = function (selectElement) {
 		const selectedIndex = selectElement.selectedIndex;
