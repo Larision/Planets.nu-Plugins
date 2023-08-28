@@ -55,7 +55,7 @@ function wrapper() { // wrapper for injection
 		if ((view == 0) || (view == 5)) {
 			html += "<th title='Starbase' align='left'>SB</th>";
 			if (vgap.isHomeSector()) {
-				html += "<th title='DevelopmentLevel' align='left'>DevLevel</th>";
+				html += "<th title='DevelopmentLevel' align='left'>DLvl</th>";
 			}
 			html += "<th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Temperature' align='left'>Temp</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th>";
 			html += "<th title='Colonist Tax Rate' align='left'>Tx</th><th title='Colonist Happiness' align='left'>Hp</th><th title='Colonist Happiness Change' align='left'>+/-</th><th title='Natives' align='left'>Natives</th><th title='Native Government' align='left'>Gov</th><th title='Native Population' align='left'>Pop</th><th title='Native Tax Rate' align='left'>Tx</th><th title='Native Happiness' align='left'>Hp</th><th title='Native Happiness Change' align='left'>+/-</th>";
@@ -450,20 +450,12 @@ function wrapper() { // wrapper for injection
 		return temphtml;
 	};
 
-	function canDevelop(planet) {
-		var dev = planet.developmentlevel;
-		var clanstodev;
-		if (dev != 0) {
-			clanstodev = 50000 + (50000 * dev);
-		} else {
-			clanstodev = 50000;
-		}
-		var moneyneed = 100000 * 2 * (2 ** (dev - 1));
-		if (planet.megacredits > moneyneed && planet.clans > clanstodev) {
-			return true;
-		} else {
-			return false;
-		}
+	const canDevelop = function (planet) {
+	const dev = planet.developmentlevel;
+	const clanstodev = dev !== 0 ? 50000 + (50000 * dev) : 50000;
+	const moneyneed = 100000 * 2 * Math.pow(2, dev - 1);
+
+	return planet.megacredits > moneyneed && planet.clans > clanstodev;
 	};
 
 	// List of SB missions

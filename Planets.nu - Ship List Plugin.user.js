@@ -220,7 +220,7 @@ const ShipList = function (vgap) {
 
         try {
             let menu = document.getElementById("DashboardMenu").childNodes[2];
-            $("<li>Ship List »</li>").tclick(_ => { app.showShips(1); }).appendTo(menu);
+            $("<li>Ship List »</li>").tclick(_ => {app.showShips(1);}).appendTo(menu);
         } catch (e) {
             console.log('[' + vgap.game.turn + '] (loaddashboard)');
             console.error(e);
@@ -299,7 +299,7 @@ const ShipList = function (vgap) {
                         if (vgap.game.turn == app.nowTurn)
                             app
                                 .sendMessages()
-                                .catch(e => { console.error(e); });
+                                .catch(e => {console.error(e);});
                     }
 
                     if (app.doLoop) {
@@ -345,7 +345,7 @@ const ShipList = function (vgap) {
                 '</div>', shipCount, ' Enemy Ships</span>',
             ]
                 .join(''))
-                .click(_ => { app.showShips(1); });
+                .click(_ => {app.showShips(1);});
 
             if (vgap.isMobileVersion()) {
                 $('<span></span>').append(icon).insertBefore($('#TurnSummary').find(':nth-child(5)'));
@@ -382,12 +382,12 @@ const ShipList = function (vgap) {
         try {
             this.updateShipsFromIntercepts();
         }
-        catch (e) { console.error(e); }
+        catch (e) {console.error(e);}
 
         try {
             this.updateShipsFromTowCaptureReports();
         }
-        catch (e) { console.error(e); }
+        catch (e) {console.error(e);}
 
         const vcr = new vcrPlayer();
 
@@ -396,7 +396,7 @@ const ShipList = function (vgap) {
 
                 let ship;
                 let shipIdx;
-                let shipIds = this.ships.map((ship) => { return ship.id; });
+                let shipIds = this.ships.map((ship) => {return ship.id;});
 
                 vcr.runReport(vgap.vcrs[i]);
 
@@ -414,7 +414,7 @@ const ShipList = function (vgap) {
                 if (vgap.vcrs[i].battletype == 1) continue;
 
                 // refresh ship ids
-                shipIds = this.ships.map((ship) => { return ship.id; });
+                shipIds = this.ships.map((ship) => {return ship.id;});
 
                 shipIdx = shipIds.indexOf(vgap.vcrs[i].right.objectid);
 
@@ -427,35 +427,35 @@ const ShipList = function (vgap) {
                     }
                 }
             }
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
         // before adding vgap ships
         try {
             this.updateShipsFromMinehitReports();
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
         // visible ships
         try {
             this.updateShipsFromVgap();
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
         // Minehits damage
         try {
             this.updateShipsDamageFromMinehitReports();
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
         //Glory Device damage
         try {
             this.updateShipsDamageFromGloryDeviceReports();
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
         // visible planets
         try {
             this.updatePlanetsFromVgap();
-        } catch (e) { console.error(e); }
+        } catch (e) {console.error(e);}
 
-        this.planets.sort((a, b) => { return (a.id - b.id); });
-        this.ships.sort((a, b) => { return (a.id - b.id); });
+        this.planets.sort((a, b) => {return (a.id - b.id);});
+        this.ships.sort((a, b) => {return (a.id - b.id);});
         this.lastTurn = vgap.game.turn;
         this.save();
         return this;
@@ -465,9 +465,9 @@ const ShipList = function (vgap) {
         // if in history, abort - only end-of-turn data available
         if (vgap.inHistory) return this;
 
-        const shipIds = this.ships.map((ship) => { return ship.id; });
+        const shipIds = this.ships.map((ship) => {return ship.id;});
 
-        const vgapShipIds = vgap.ships.map((ship) => { return ship.id; });
+        const vgapShipIds = vgap.ships.map((ship) => {return ship.id;});
 
         for (let i = this.intercepts.length - 1; i >= 0; i--) {
             const intercept = this.intercepts[i];
@@ -505,7 +505,7 @@ const ShipList = function (vgap) {
      */
     this.updateShipsFromMinehitReports = function () {
         let ships = [];
-        let shipIds = this.ships.map((ship) => { return ship.id; });
+        let shipIds = this.ships.map((ship) => {return ship.id;});
 
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
@@ -539,7 +539,7 @@ const ShipList = function (vgap) {
      */
     this.updateShipsDamageFromMinehitReports = function () {
         let ships = [];
-        let shipIds = this.ships.map((ship) => { return ship.id; });
+        let shipIds = this.ships.map((ship) => {return ship.id;});
 
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
@@ -588,7 +588,7 @@ const ShipList = function (vgap) {
 
     this.updateShipsDamageFromGloryDeviceReports = function () {
         let ships = [];
-        let shipIds = this.ships.map((ship) => { return ship.id; });
+        let shipIds = this.ships.map((ship) => {return ship.id;});
 
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
@@ -627,7 +627,7 @@ const ShipList = function (vgap) {
 
     this.updateShipsFromTowCaptureReports = function () {
         let ships = [];
-        let shipIds = this.ships.map((ship) => { return ship.id; });
+        let shipIds = this.ships.map((ship) => {return ship.id;});
 
         for (let i = vgap.messages.length - 1; i >= 0; i--) {
             const message = vgap.messages[i];
@@ -730,7 +730,7 @@ const ShipList = function (vgap) {
             this.ships[i].visible = false;
         }
 
-        let shipIds = this.ships.map((ship) => { return ship.id; });
+        let shipIds = this.ships.map((ship) => {return ship.id;});
 
         // loop through vgap ship list
         for (let i = vgap.ships.length - 1; i >= 0; i--) {
@@ -804,7 +804,7 @@ const ShipList = function (vgap) {
         }
 
         // get ids of vgap ships
-        const vgapShipIds = vgap.ships.map((ship) => { return ship.id; });
+        const vgapShipIds = vgap.ships.map((ship) => {return ship.id;});
 
         // delete own ships / from share intel / full allies that aren't visible
         for (let i = this.ships.length - 1; i >= 0; i--) {
@@ -823,7 +823,7 @@ const ShipList = function (vgap) {
      */
     this.updatePlanetsFromVgap = function () {
 
-        let planetIds = this.planets.map((planet) => { return planet.id; });
+        let planetIds = this.planets.map((planet) => {return planet.id;});
 
         // loop through vgap planet list
         for (let i = vgap.planets.length - 1; i >= 0; i--) {
@@ -910,7 +910,7 @@ const ShipList = function (vgap) {
         }
 
         // get ids of vgap planets
-        const vgapPlanetIds = vgap.planets.map((planet) => { return planet.id; });
+        const vgapPlanetIds = vgap.planets.map((planet) => {return planet.id;});
 
         // delete own planets / from share intel / full allies that aren't visible
         for (let i = this.planets.length - 1; i >= 0; i--) {
@@ -1039,7 +1039,7 @@ const ShipList = function (vgap) {
 
         switch (this.view) {
             case 1:
-                this.ractive.attachChild(new ShipListOverviewPane(), { target: 'main' });
+                this.ractive.attachChild(new ShipListOverviewPane(), {target: 'main'});
                 return this;
             case 2:
             //this.ractive.attachChild(new ShipListSelectionPaneComplete(), {target: 'main'});
@@ -1053,27 +1053,27 @@ const ShipList = function (vgap) {
                 //return this;
                 break;
             case 7:
-                this.ractive.attachChild(new ShipListSettingsPane(), { target: 'main' });
+                this.ractive.attachChild(new ShipListSettingsPane(), {target: 'main'});
                 return this;
             case 8:
-                this.ractive.attachChild(new ShipListStoragePane(), { target: 'main' });
+                this.ractive.attachChild(new ShipListStoragePane(), {target: 'main'});
                 return this;
             case 9:
-                this.ractive.attachChild(new ShipListFleetsPane(), { target: 'main' });
+                this.ractive.attachChild(new ShipListFleetsPane(), {target: 'main'});
                 return this;
         }
 
         let pane = $('#dashPane');
 
         console.time('showShips');
-        if (this.view == 2) this.ractive.attachChild(new ShipListSelectionPaneComplete(), { target: 'main' });
+        if (this.view == 2) this.ractive.attachChild(new ShipListSelectionPaneComplete(), {target: 'main'});
         //if (view == 2) this.showSelectionPaneComplete(pane, view, playerId);
-        if (this.view == 4) this.ractive.attachChild(new ShipListSelectionPaneAllied(), { target: 'main' });
+        if (this.view == 4) this.ractive.attachChild(new ShipListSelectionPaneAllied(), {target: 'main'});
 
         //if (view == 4) this.showSelectionPaneAllied(pane, view, playerId);
         if (this.view == 6) {
             //this.showSelectionPaneSingle(pane, view, playerId);
-            this.ractive.attachChild(new ShipListSelectionPaneSingle(), { target: 'main' });
+            this.ractive.attachChild(new ShipListSelectionPaneSingle(), {target: 'main'});
             this.showShipForm($('#newShipForm'), this.view, this.playerId);
         }
         if (this.ships.length) this.showShipTableHeader(pane, this.view, this.playerId);
@@ -1230,7 +1230,7 @@ const ShipList = function (vgap) {
         //add freighters and warships to end of list
         this.showUnknownShipsSingle(this.view, this.playerId, shipRows, freighterRows);
 
-        $('#ShipTable').tablesorter({ cssChildRow: 'tablesorter-childRow' });
+        $('#ShipTable').tablesorter({cssChildRow: 'tablesorter-childRow'});
         shipRows.find('td:nth-child(2)').addClass('capitalize');
 
         if (this.view == 6) {
@@ -1238,7 +1238,7 @@ const ShipList = function (vgap) {
             freighterRows.find('td:nth-child(2)').addClass('capitalize');
         }
 
-        pane.jScrollPane({ animateScroll: true, hideFocus: true });
+        pane.jScrollPane({animateScroll: true, hideFocus: true});
         // fix annoying scroll up behavior
         $('#newShipForm *').off('focus');
         // remove focus handler on textareas
@@ -1306,7 +1306,7 @@ const ShipList = function (vgap) {
 
         if (ships) {
             for (let i = ships.length - 1; i >= 0; i--) {
-                const shipIds = this.ships.map((ship) => { return ship.id; });
+                const shipIds = this.ships.map((ship) => {return ship.id;});
 
                 let ship = ships[i];
                 let shipIdx = shipIds.indexOf(ship.id);
@@ -1353,7 +1353,7 @@ const ShipList = function (vgap) {
 
                     ship.history = ship.history.concat(listShip.history);
 
-                    ship.history.sort((a, b) => { return (b.turn - a.turn); });
+                    ship.history.sort((a, b) => {return (b.turn - a.turn);});
 
                     let prev = 0;
 
@@ -1375,7 +1375,7 @@ const ShipList = function (vgap) {
 
         if (planets) {
             for (let i = planets.length - 1; i >= 0; i--) {
-                const planetIds = this.planets.map((planet) => { return planet.id; });
+                const planetIds = this.planets.map((planet) => {return planet.id;});
 
                 let planet = planets[i];
                 let planetIdx = planetIds.indexOf(planet.id);
@@ -1706,11 +1706,11 @@ const ShipList = function (vgap) {
         if (!(view == 6) || !this.editMode) return this;
 
         let engineTypes = [...vgap.engines];
-        engineTypes.unshift({ id: 0, name: 'Unknown' });
+        engineTypes.unshift({id: 0, name: 'Unknown'});
         let beamTypes = [...vgap.beams];
-        beamTypes.unshift({ id: 0, name: 'Unknown' });
+        beamTypes.unshift({id: 0, name: 'Unknown'});
         let torpTypes = [...vgap.torpedos];
-        torpTypes.unshift({ id: 0, name: 'Unknown' });
+        torpTypes.unshift({id: 0, name: 'Unknown'});
 
         target.append([
             '<div id="ShipEditPane">',
@@ -1719,15 +1719,15 @@ const ShipList = function (vgap) {
             '<tr><td><select id="id"><optgroup id="optGroupOwn" label="Owned Ships"/><optgroup id="optGroupNew" label="Unknown Ships"/></select></td><td><select id="hullid"/></td><td><input id="name" size="30"></td></tr>',
             '<tr><th></th><th>Engine(s)</th></tr>',
             '<tr><td rowspan="3"><input id="visible" type="hidden" value="false"><input id="history" type="hidden" value="[]"><input id="ownerid" type="hidden" value="' + playerId + '"><img id="hullImg"/></td><td>',
-            this.templater.get('selectBox', { id: 'engineid', options: engineTypes }),
+            this.templater.get('selectBox', {id: 'engineid', options: engineTypes}),
             '</td></tr>',
             '<tr><th>Beam Type</th><th>Beam #</th></tr>',
             '<tr><td>',
-            this.templater.get('selectBox', { id: 'beamid', options: beamTypes }),
+            this.templater.get('selectBox', {id: 'beamid', options: beamTypes}),
             '</td><td><input id="beams" size="4"></td></tr>',
             '<tr><th></th><th>Torp Type</th><th>Tube #</th></tr>',
             '<tr><td></td><td>',
-            this.templater.get('selectBox', { id: 'torpedoid', options: torpTypes }),
+            this.templater.get('selectBox', {id: 'torpedoid', options: torpTypes}),
             '</td><td><input id="torps" size="4"></td></tr>',
             '<tr><th rowspan="2"></th><td colspan="2"><table id="ShipMiscTable">',
             '<tr><th>Turn</th><th>X</th><th>Y</th><th>Heading</th><th>Warp</th><th>Ammo</th><th>Mass</th><th>Crew</th><th>Dmg</th></tr>',
@@ -1825,7 +1825,7 @@ const ShipList = function (vgap) {
             idSelect.val(optGroupNew.find(':first').val());
             // hidden fields don't reset
             $('#history').val('[]');
-            newShip = { overwrite: false, ship: {} };
+            newShip = {overwrite: false, ship: {}};
             // update hull and name
             shipHullSelect.trigger('change');
         });
@@ -1835,7 +1835,7 @@ const ShipList = function (vgap) {
 
     this.fillShipForm = function (e, shipId, playerId) {
 
-        const shipIds = this.ships.map((ship) => { return ship.id; });
+        const shipIds = this.ships.map((ship) => {return ship.id;});
 
         shipId = parseInt(shipId);
 
@@ -2099,7 +2099,7 @@ const ShipList = function (vgap) {
     this.fromStorage = function (key) {
         if ($.isPlainObject(key)) {
             const self = this;
-            $.each(key, (k, v) => { v = localStorage.getItem(self.storagePath + k); });
+            $.each(key, (k, v) => {v = localStorage.getItem(self.storagePath + k);});
             return key;
         }
         return localStorage.getItem(this.storagePath + key);
@@ -2169,7 +2169,7 @@ const ShipList = function (vgap) {
             let chunks = match.length;
 
             let note = vgap.getNote(noteId--, this.noteType);
-            note.body = JSON.stringify({ chunks: chunks });
+            note.body = JSON.stringify({chunks: chunks});
             note.changed = 1;
 
             for (let i = 0; i < chunks; i++) {
@@ -2282,7 +2282,7 @@ const ShipList = function (vgap) {
             }
         }
 
-        let blob = new Blob([JSON.stringify(appData)], { type: 'text/json;charset=utf-8' });
+        let blob = new Blob([JSON.stringify(appData)], {type: 'text/json;charset=utf-8'});
         /** @namespace window.URL.createObjectURL */
         let url = window.URL.createObjectURL(blob);
         let a = $('<a style="display:none" href="' + url + '" download="ShipList.json"></a>')
@@ -2323,7 +2323,7 @@ const ShipList = function (vgap) {
                         name: file.name,
                         width: 400
                     },
-                    partials: { main: Ractive.partials['gameInvalidJson'] }
+                    partials: {main: Ractive.partials['gameInvalidJson']}
                 });
                 /*
                 nu.info([
@@ -2362,7 +2362,7 @@ const ShipList = function (vgap) {
             if (err) {
                 self.deleteAllGames();
                 self.enabled = true;
-                $.each(appData, (key, val) => { localStorage.setItem(key, val); });
+                $.each(appData, (key, val) => {localStorage.setItem(key, val);});
 
                 new ShipListInfoDialog({
                     data: {
@@ -2370,7 +2370,7 @@ const ShipList = function (vgap) {
                         name: file.name,
                         width: 400
                     },
-                    partials: { main: Ractive.partials['gameInvalidData'] }
+                    partials: {main: Ractive.partials['gameInvalidData']}
                 });
                 /*
                 nu.info([
@@ -2465,7 +2465,7 @@ const ShipList = function (vgap) {
      * @returns {ShipList}
      */
     this.saveShip = function (ship, update) {
-        const shipIds = this.ships.map((ship) => { return ship.id; });
+        const shipIds = this.ships.map((ship) => {return ship.id;});
 
         const shipIdx = shipIds.indexOf(ship.id);
 
@@ -2474,7 +2474,7 @@ const ShipList = function (vgap) {
 
         this.ships.push(ship);
 
-        this.ships.sort((a, b) => { return (a.id - b.id); });
+        this.ships.sort((a, b) => {return (a.id - b.id);});
 
         this.save();
 
@@ -2488,7 +2488,7 @@ const ShipList = function (vgap) {
      * @returns {ShipList}
      */
     this.savePlanet = function (planet, update) {
-        const planetIds = this.planets.map((planet) => { return planet.id; });
+        const planetIds = this.planets.map((planet) => {return planet.id;});
 
         const planetIdx = planetIds.indexOf(planet.id);
 
@@ -2497,7 +2497,7 @@ const ShipList = function (vgap) {
 
         this.planets.push(planet);
 
-        this.planets.sort((a, b) => { return (a.id - b.id); });
+        this.planets.sort((a, b) => {return (a.id - b.id);});
 
         this.save();
 
@@ -2520,11 +2520,11 @@ const ShipListCss = Ractive.extend({
 
         return "rgba(" + red + ", " + green + ", " + blue + ", " + alpha + ")";
     },
-    cutHex(h) { return (h.charAt(0) == "#") ? h.substring(1, 7) : h },
+    cutHex(h) {return (h.charAt(0) == "#") ? h.substring(1, 7) : h},
     el: 'head',
-    hexToR(h) { return parseInt((cutHex(h)).substring(0, 2), 16) },
-    hexToG(h) { return parseInt((cutHex(h)).substring(2, 4), 16) },
-    hexToB(h) { return parseInt((cutHex(h)).substring(4, 6), 16) },
+    hexToR(h) {return parseInt((cutHex(h)).substring(0, 2), 16)},
+    hexToG(h) {return parseInt((cutHex(h)).substring(2, 4), 16)},
+    hexToB(h) {return parseInt((cutHex(h)).substring(4, 6), 16)},
     on: {
         init() {
             if ($('#shipListCss').length)
@@ -2599,7 +2599,7 @@ const ShipListInfoDialog = Ractive.extend({
     el: 'body',
     on: {
         render() {
-            $(this.find('.popup')).width(this.get('width')).center().drags({ handle: "header" });
+            $(this.find('.popup')).width(this.get('width')).center().drags({handle: "header"});
         },
         ok() {
             this.teardown();
@@ -2630,15 +2630,15 @@ const ShipListMenu = Ractive.extend({
     data: _ => {
         return {
             items: [
-                { view: 1, title: 'Summary' },
-                { view: 9, title: 'Fleets' },
-                { view: 2, title: 'All Ships' },
-                { view: 3, title: 'Other Players' },
-                { view: 4, title: 'Allies' },
-                { view: 5, title: 'Enemies' },
-                { view: 6, title: 'Single Player' },
-                { view: 7, title: 'Settings' },
-                { view: 8, title: 'Storage' }
+                {view: 1, title: 'Summary'},
+                {view: 9, title: 'Fleets'},
+                {view: 2, title: 'All Ships'},
+                {view: 3, title: 'Other Players'},
+                {view: 4, title: 'Allies'},
+                {view: 5, title: 'Enemies'},
+                {view: 6, title: 'Single Player'},
+                {view: 7, title: 'Settings'},
+                {view: 8, title: 'Storage'}
             ]
         };
     },
@@ -2666,7 +2666,7 @@ const ShipListModalDialog = Ractive.extend({
     el: 'body',
     on: {
         render() {
-            $(this.find('.popup')).width(this.get('width')).center().drags({ handle: "header" });
+            $(this.find('.popup')).width(this.get('width')).center().drags({handle: "header"});
         },
         no() {
             this.teardown();
@@ -2698,7 +2698,7 @@ const ShipListFleetsPane = Ractive.extend({
         complete() {
             $('#FreighterTable').tablesorter();
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({ hideFocus: true });
+            $('#dashPane').jScrollPane({hideFocus: true});
             $('#newShipForm *').off('focus');
 
         },
@@ -2711,7 +2711,7 @@ const ShipListFleetsPane = Ractive.extend({
             this.parseFleets();
             $('#FreighterTable').tablesorter();
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({ hideFocus: true });
+            $('#dashPane').jScrollPane({hideFocus: true});
             $('#newShipForm *').off('focus');
         }
     },
@@ -2802,7 +2802,7 @@ const ShipListOverviewPane = Ractive.extend({
     on: {
         complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({ hideFocus: true });
+            $('#dashPane').jScrollPane({hideFocus: true});
         },
         render() {
             const players = this.get('vgap').players;
@@ -3008,7 +3008,7 @@ const ShipListSettingsPane = Ractive.extend({
     on: {
         complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({ hideFocus: true });
+            $('#dashPane').jScrollPane({hideFocus: true});
             if (this.get('app').lastTurn == this.get('vgap').nowTurn) {
                 $('#updateMissingTurns').prop('disabled', true);
             }
@@ -3167,7 +3167,7 @@ const ShipListStoragePane = Ractive.extend({
     on: {
         complete() {
             $('#ShipTable').tablesorter();
-            $('#dashPane').jScrollPane({ hideFocus: true });
+            $('#dashPane').jScrollPane({hideFocus: true});
             $('.ConfigTable *').off('focus');
         },
         delete(ctx, gameId, playerId) {
@@ -3435,7 +3435,7 @@ const DrawHelper = function (vgap, settings) {
             if (vgap.game.turn < ship.infoturn) continue;
 
             if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
-                this.drawShipCircle(ship.x, ship.y, this.drawRadius, { stroke: this.playerColors[ship.ownerid] }, null);
+                this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
             }
         }
 
@@ -3445,7 +3445,7 @@ const DrawHelper = function (vgap, settings) {
                 const ship = vgap.ships[i];
 
                 if (this.playerToggles[0] || this.playerToggles[ship.ownerid]) {
-                    this.drawShipCircle(ship.x, ship.y, this.drawRadius, { stroke: this.playerColors[ship.ownerid] }, null);
+                    this.drawShipCircle(ship.x, ship.y, this.drawRadius, {stroke: this.playerColors[ship.ownerid]}, null);
                 }
             }
         }
@@ -4497,7 +4497,7 @@ Ractive.partials = {
 };
 
 function omit(obj, ...props) {
-    const result = { ...obj };
+    const result = {...obj};
     props.forEach(function (prop) {
         delete result[prop];
     });
