@@ -90,6 +90,8 @@ function wrapper() { // wrapper for injection
             $("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Cargo View</li>").tclick(function () {vgap.dash.showShips(1);}).appendTo(filterMenu);
             $("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Command View</li>").tclick(function () {vgap.dash.showShips(2);}).appendTo(filterMenu);
             $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () {vgap.dash.showShips(3);}).appendTo(filterMenu);
+            // Añadida pestaña de ajustes
+            $("<li " + (view == 7 ? "class='SelectedFilter'" : "") + ">Settings </li>").tclick(function () {vgap.dash.showShips(7);}).appendTo(filterMenu);            
             //---------------START NEW CODE-----------------------
             if (modShipList) {
                 $("<li " + (view == 4 ? "class='SelectedFilter'" : "") + ">Complete Ship List</li>").tclick(function () {vgap.dash.showShips(4);}).appendTo(filterMenu);
@@ -97,9 +99,6 @@ function wrapper() { // wrapper for injection
                 $("<li " + (view == 6 ? "class='SelectedFilter'" : "") + ">What's Interesting </li>").tclick(function () {vgap.dash.showShips(6);}).appendTo(filterMenu);
             }
             //---------------END NEW CODE-----------------------
-            // Añadida pestaña de ajustes
-            $("<li " + (view == 7 ? "class='SelectedFilter'" : "") + ">Settings </li>").tclick(function () {vgap.dash.showShips(7);}).appendTo(filterMenu);
-
 
             //loop through all ships and show the ones owned by this player
             html += "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 30) + "px;'>";
@@ -777,7 +776,7 @@ function wrapper() { // wrapper for injection
 
                 settingsHtml += "<td valign='top' style='width:20%'>";
                 settingsHtml += "<ul>";
-                if (showDestination == 1) {
+                if (modShipList) {
                     settingsHtml += "<br /><li><font size=4><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' checked />Mod Ship List Active</li></font><br />";
                 } else {
                     settingsHtml += "<li><font size=4><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' />Mod Ship List Active</li></font><br />";
