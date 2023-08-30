@@ -52,7 +52,6 @@
 function wrapper() { // wrapper for injection
 
     var modShipList = true;
-    var modShipListCloakPE = 0;
     var showShip = [true, true, true, true, true, true, true, true, true, true, true, true];
 
     var oldShowShips = vgapDashboard.prototype.showShips;
@@ -73,7 +72,6 @@ function wrapper() { // wrapper for injection
             showDestination = get_cookie("showDestination");
             //alert(showDestination);
             if (showDestination == null) showDestination = 0;
-            modShipListCloakPE = get_cookie("modShipListCloakPE");
             vgap.playSound("button");
             vgap.closeSecond();
 
@@ -90,15 +88,10 @@ function wrapper() { // wrapper for injection
             $("<li " + (view == 1 ? "class='SelectedFilter'" : "") + ">Cargo View</li>").tclick(function () {vgap.dash.showShips(1);}).appendTo(filterMenu);
             $("<li " + (view == 2 ? "class='SelectedFilter'" : "") + ">Command View</li>").tclick(function () {vgap.dash.showShips(2);}).appendTo(filterMenu);
             $("<li " + (view == 3 ? "class='SelectedFilter'" : "") + ">Notes View</li>").tclick(function () {vgap.dash.showShips(3);}).appendTo(filterMenu);
-            // Añadida pestaña de ajustes
-            $("<li " + (view == 7 ? "class='SelectedFilter'" : "") + ">Settings </li>").tclick(function () {vgap.dash.showShips(7);}).appendTo(filterMenu);            
-            //---------------START NEW CODE-----------------------
-            if (modShipList) {
-                $("<li " + (view == 4 ? "class='SelectedFilter'" : "") + ">Complete Ship List</li>").tclick(function () {vgap.dash.showShips(4);}).appendTo(filterMenu);
-                $("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">Fleet View (experimental) </li>").tclick(function () {vgap.dash.showShips(5);}).appendTo(filterMenu);
-                $("<li " + (view == 6 ? "class='SelectedFilter'" : "") + ">What's Interesting </li>").tclick(function () {vgap.dash.showShips(6);}).appendTo(filterMenu);
-            }
-            //---------------END NEW CODE-----------------------
+            // New tabs
+            $("<li " + (view == 4 ? "class='SelectedFilter'" : "") + ">Complete Ship List</li>").tclick(function () {vgap.dash.showShips(4);}).appendTo(filterMenu);
+            $("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">Fleet View (experimental) </li>").tclick(function () {vgap.dash.showShips(5);}).appendTo(filterMenu);
+            $("<li " + (view == 6 ? "class='SelectedFilter'" : "") + ">What's Interesting </li>").tclick(function () {vgap.dash.showShips(6);}).appendTo(filterMenu);
 
             //loop through all ships and show the ones owned by this player
             html += "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 30) + "px;'>";
@@ -127,11 +120,7 @@ function wrapper() { // wrapper for injection
             html += "<table id='ShipTable' align='left' border='0' width='100%' style='cursor:pointer;'><thead>";
 
             //---------------START NEW CODE-----------------------
-
-            // Pestaña de ajustes
-            if (view == 7)
-                html += "<th title:'Settings' align='left'>Settings</th>";
-            else if (view == 5) {
+            if (view == 5) {
                 //html += "<th align='left'>Fleet Name</th><th align='left'>Fleet Size</th><th align='left'> Flagship Hull</th><th align='left'> Flagship Id</th><th align='left'>Flagship Hull</th><th align='left'>Flagship Name</th><th title='Destination' align='left'>Destination</th><th title='Current Coordinates' align='left'>X-Y</th><th title='Distance to Target' align='left'>D</th><th title='Warp Speed'  align='left'>W</th>";
                 html += "<th align='left'>Fleet Name</th><th align='left'>Fleet Size</th><th align='left'>FS Destination</th><th align='left'>Hull</th><th align='left'>ID</th><th align='left'>Shipname</th><th align='left'>Mission</th>";
                 html += "<th title='Battle value' align='left'>Battle Value</th><th title = 'Primary Enemy' align='left'>PE</th><th title='Current Coordinates' align='left'>X-Y</th><th title='Distance to Target' align='left'>D</th><th title='Warp Speed'  align='left'>W</th><th title='Neutronium Fuel' align='left'>N</th>";
@@ -142,11 +131,8 @@ function wrapper() { // wrapper for injection
             }
             else if (view == 4)
                 html += "<th align='left'>Race ID</th><th align='left'>Race Name</th><th align='left'>Id</th><th align='left'>Hull</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th>";
-            else if (modShipList)
+            else
                 html += "<th align='left'>Hull</th><th align='left'>Id</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th><th title='Ship Mission' align='left'>Mission</th>";
-            else	//original code
-                //---------------END NEW CODE-----------------------
-                html += "<th align='left'>Hull</th><th align=left>Id</th>";
 
             if (view == 1)
                 html += "<th title='Megacredits' align='left'>MC</th><th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Torpedos or Fighters' align='left'>Ammo</th>";
@@ -173,13 +159,8 @@ function wrapper() { // wrapper for injection
 
 
             html += "</thead>";
-            if (view != 7) {
-                html += "<tbody id='ShipRows' align=left  >";
-                html += "</tbody>";
-            } else {
-                html += "<tbody id='ModSettings' align=left  >";
-                html += "</tbody>";
-            }
+            html += "<tbody id='ShipRows' align=left  >";
+            html += "</tbody>";
             html += "</table>";
             html += "</div>";
 
@@ -196,121 +177,109 @@ function wrapper() { // wrapper for injection
                 var html = "";
                 //-----------------START NEW CODE------------------
                 if ((view != 4) && (view != 5)) {
-                    if (modShipList) {
-                        var hyp = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
-                        var cloak = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
-                        var destination = "Deep Space";
-                        var dest = vgap.getDest(ship);
-                        var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
+                    var hyp = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
+                    var cloak = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
+                    var destination = "Deep Space";
+                    var dest = vgap.getDest(ship);
+                    var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
 
-                        if (view == 2)
-                            temphtml += '<tr><td onclick="vgap.map.selectShip(' + ship.id + ');"><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td onclick="vgap.map.selectShip(' + ship.id + ');">' + ship.id + '</td>';
+                    if (view == 2)
+                        temphtml += '<tr><td onclick="vgap.map.selectShip(' + ship.id + ');"><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td onclick="vgap.map.selectShip(' + ship.id + ');">' + ship.id + '</td>';
+                    else
+                        temphtml += '<tr><td><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td>' + ship.id + '</td>';
+
+
+                    if (hull.cancloak) {
+                        if (ship.iscloaked) {
+                            if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
+                                cloak = 3 //cloaked now, will be cloaked.
+                            else
+                                cloak = 1 //cloaked now, but won't be cloaked.
+                        }
+                        else if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
+                            cloak = 4; //not cloaked now, but will be cloaked
                         else
-                            temphtml += '<tr><td><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td>' + ship.id + '</td>';
+                            cloak = 2; //not cloaked now, won't be cloaking
+                    }
 
+                    if ((hull.cancloak) && (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8)) && ship.enemy) cloak = 5;
 
-                        if (hull.cancloak) {
-                            if (ship.iscloaked) {
-                                if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
-                                    cloak = 3 //cloaked now, will be cloaked.
-                                else
-                                    cloak = 1 //cloaked now, but won't be cloaked.
-                            }
-                            else if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
-                                cloak = 4; //not cloaked now, but will be cloaked
+                    if ((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) {
+                        if ((ship.friendlycode == "HYP") || (ship.friendlycode == "hyp") || (ship.friendlycode.toUpperCase() == "HYP")) {
+                            if (distance == 0) hyp = 5;
+                            else if ((distance < 20) && (ship.neutronium >= 50)) hyp = 1;
+                            else if (((distance < 340) || (distance > 360)) && (ship.neutronium >= 50)) hyp = 2;
+                            else if ((distance >= 340) && (ship.neutronium < 50)) hyp = 6
+                            else hyp = 3;
+                        }
+                        else {
+                            if ((distance >= 340) && (distance <= 360))
+                                hyp = 2;
                             else
-                                cloak = 2; //not cloaked now, won't be cloaking
+                                hyp = 4;
                         }
+                    }
 
-                        if ((hull.cancloak) && (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8)) && ship.enemy && (modShipListCloakPE == true)) cloak = 5;
-
-                        if ((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) {
-                            if ((ship.friendlycode == "HYP") || (ship.friendlycode == "hyp") || (ship.friendlycode.toUpperCase() == "HYP")) {
-                                if (distance == 0) hyp = 5;
-                                else if ((distance < 20) && (ship.neutronium >= 50)) hyp = 1;
-                                else if (((distance < 340) || (distance > 360)) && (ship.neutronium >= 50)) hyp = 2;
-                                else if ((distance >= 340) && (ship.neutronium < 50)) hyp = 6
-                                else hyp = 3;
-                            }
-                            else {
-                                if ((distance >= 340) && (distance <= 360))
-                                    hyp = 2;
-                                else
-                                    hyp = 4;
-                            }
-                        }
-
-                        if (hyp > 0) switch (hyp) {
-                            case 1: temphtml += "<td style='color:yellow' title='FC is HYP and destination less than 20 LY'>";
-                                show = 1;
-                                break;
-                            case 2: temphtml += "<td style='color:red' title='Warning: Check Friendly Code and Destination Distance'>";
-                                show = 1;
-                                break;
-                            case 3: temphtml += "<td style='color:green' title='No HYP problems seen'>";
-                                break;
-                            case 4: temphtml += "<td style='color:lightblue' title='Ship not set to HYP'>";
-                                break;
-                            case 5: temphtml += "<td style='color:aqua' title='Ship set to HYP, no destination set'>";
-                                break;
-                            case 6: temphtml += "<td style='color:orange' title='Ship set to HYP with valid destination, but not enough fuel'>";
-                                show = 1;
-                                break;
-                            default: temphtml += "<td>";
-                        }
-                        else if (cloak > 0) switch (cloak) {
-                            case 1: temphtml += "<td style='color:yellow' title='Ship is cloaked now. No cloak mission set for next turn'>";
-                                break;
-                            case 2: temphtml += "<td style='color:red' title='Ship is uncloaked now. No cloak mission set for next turn'>";
-                                break;
-                            case 3: temphtml += "<td style='color:green' title='Ship is cloaked now. Cloak mission is set for next turn'>";
-                                break;
-                            case 4: temphtml += "<td style='color:lightblue' title='Ship is uncloaked now. Cloak mission set for next turn'>";
-                                break;
-                            case 5: temphtml += "<td style='color:orange' title='Ship is set to cloak, and PE is set'>";
-                                show = 1;
-                                break;
-                            default: temphtml += "<td>";
-                        }
-                        else temphtml += "<td>";
-
-
-                        temphtml += ship.name + "</td>";
-
-
-                        var output = betterWarpWell(dest.x, dest.y);
-
-                        if (output != "0")
-                            destination = output;
-
-                        if (ship.target != null) {
-                            if (ship.x == dest.x && ship.y == dest.y)
-                                destination = "Not Moving";
-                            else
-                                destination = ship.target.id + " " + ship.target.name.substr(0, 20);
-                        }
-                        var hypCheck = 0;
-                        if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
-
-                        if (output.search("Outside ") != -1) {
-                            temphtml += "<td style='color:orange' title='Destination is outside the Warp Well'>" + destination + "</td>";
+                    if (hyp > 0) switch (hyp) {
+                        case 1: temphtml += "<td style='color:yellow' title='FC is HYP and destination less than 20 LY'>";
                             show = 1;
-                        }
-                        else if (ship.waypoints.length > 0) {
-                            if ((vgap.warpWell(ship.targetx, ship.targety)) && (distance <= 3)) {
-                                temphtml += "<td style='color:red' title='First waypoint of multi-leg journey is local warpwell'>" + destination + "</td>";
-                                show = 1;
-                            }
-                            else if ((distance > 3) && (ship.warp == 1) && (hypCheck == 0)) {
-                                temphtml += "<td style='color:yellow' title='Ship is trying to go more than 3 LY at warp 1 '>" + destination + "</td>";
-                                show = 1;
-                            }
-                            else if ((output.search("Warpwell") != -1) && (ship.warp > 1) && (distance < 2) && (hypCheck == 0)) {
-                                temphtml += "<td style='color:orange' title='Ship is trying to move 1 LY in a warpwell at greater than warp 1 '>" + destination + "</td>";
-                                show = 1;
-                            }
-                            else
-                                temphtml += "<td>" + destination + "</td>";
+                            break;
+                        case 2: temphtml += "<td style='color:red' title='Warning: Check Friendly Code and Destination Distance'>";
+                            show = 1;
+                            break;
+                        case 3: temphtml += "<td style='color:green' title='No HYP problems seen'>";
+                            break;
+                        case 4: temphtml += "<td style='color:lightblue' title='Ship not set to HYP'>";
+                            break;
+                        case 5: temphtml += "<td style='color:aqua' title='Ship set to HYP, no destination set'>";
+                            break;
+                        case 6: temphtml += "<td style='color:orange' title='Ship set to HYP with valid destination, but not enough fuel'>";
+                            show = 1;
+                            break;
+                        default: temphtml += "<td>";
+                    }
+                    else if (cloak > 0) switch (cloak) {
+                        case 1: temphtml += "<td style='color:yellow' title='Ship is cloaked now. No cloak mission set for next turn'>";
+                            break;
+                        case 2: temphtml += "<td style='color:red' title='Ship is uncloaked now. No cloak mission set for next turn'>";
+                            break;
+                        case 3: temphtml += "<td style='color:green' title='Ship is cloaked now. Cloak mission is set for next turn'>";
+                            break;
+                        case 4: temphtml += "<td style='color:lightblue' title='Ship is uncloaked now. Cloak mission set for next turn'>";
+                            break;
+                        case 5: temphtml += "<td style='color:orange' title='Ship is set to cloak, and PE is set'>";
+                            show = 1;
+                            break;
+                        default: temphtml += "<td>";
+                    }
+                    else temphtml += "<td>";
+
+
+                    temphtml += ship.name + "</td>";
+
+
+                    var output = betterWarpWell(dest.x, dest.y);
+
+                    if (output != "0")
+                        destination = output;
+
+                    if (ship.target != null) {
+                        if (ship.x == dest.x && ship.y == dest.y)
+                            destination = "Not Moving";
+                        else
+                            destination = ship.target.id + " " + ship.target.name.substr(0, 20);
+                    }
+                    var hypCheck = 0;
+                    if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
+
+                    if (output.search("Outside ") != -1) {
+                        temphtml += "<td style='color:orange' title='Destination is outside the Warp Well'>" + destination + "</td>";
+                        show = 1;
+                    }
+                    else if (ship.waypoints.length > 0) {
+                        if ((vgap.warpWell(ship.targetx, ship.targety)) && (distance <= 3)) {
+                            temphtml += "<td style='color:red' title='First waypoint of multi-leg journey is local warpwell'>" + destination + "</td>";
+                            show = 1;
                         }
                         else if ((distance > 3) && (ship.warp == 1) && (hypCheck == 0)) {
                             temphtml += "<td style='color:yellow' title='Ship is trying to go more than 3 LY at warp 1 '>" + destination + "</td>";
@@ -320,134 +289,134 @@ function wrapper() { // wrapper for injection
                             temphtml += "<td style='color:orange' title='Ship is trying to move 1 LY in a warpwell at greater than warp 1 '>" + destination + "</td>";
                             show = 1;
                         }
-                        else {
+                        else
                             temphtml += "<td>" + destination + "</td>";
-                        }
-                        var SelfAssault = 0;
-                        if ((vgap.player.raceid == 4) || (vgap.player.raceid == 10)) {
-                            if (ship.mission == 8) {
-                                var AssaultTarget = idWarpWell(dest.x, dest.y);
-                                var targetPlanet;
-                                if (AssaultTarget != -1)
-                                    targetPlanet = vgap.getPlanet(AssaultTarget);
-
-                                if ((targetPlanet != null) && (targetPlanet.ownerid == ship.ownerid))
-                                    SelfAssault = 1;
-                                else if ((targetPlanet != null) && vgap.allied(targetPlanet.ownerid))
-                                    SelfAssault = 2;
-                                else if (targetPlanet != null)
-                                    SelfAssault = 3;
-                            }
-                        }
-                        var towproblem = 0;
-                        if (ship.mission == 6 && ship.mission1target != 0) {
-                            var towship = vgap.getShip(ship.mission1target);
-                            var AssaultTarget = idWarpWell(dest.x, dest.y);
-                            if ((towship.neutronium == 0) && (AssaultTarget != -1)) {
-                                var targetPlanet = vgap.getPlanet(AssaultTarget);
-                                var friendlycode = targetPlanet.friendlycode;
-                                if (friendlycode.toUpperCase() == "NUK")
-                                    towproblem = 1;
-                            }
-                        }
-                        var interceptProblem = 0;
-                        if (ship.mission == 7 && ship.mission1target != 0) {
-                            var missionTarget = vgap.getShip(ship.mission1target);
-                            if (ship.enemy != missionTarget.ownerid)
-                                interceptProblem = 1;
-                            if (vgap.allied(missionTarget.ownerid))
-                                interceptProblem = 0;
-                            if (missionTarget.ownerid == ship.ownerid)
-                                interceptProblem = 0;
-                        }
-
-
-                        if (view != 2) {
-                            const mission_list = returnMissionArray(ship);
-                            if (SelfAssault == 1) {
-                                temphtml += "<td style='color:red' title='Your ship is set to RGA/Pillage your own planet'>";
-                                show = 1;
-                            }
-                            else if (SelfAssault == 2) {
-                                temphtml += "<td style='color:yellow' title='Your ship is set to RGA/Pillage an ally. Is that the best way to treat a friend?'>";
-                                show = 1;
-                            }
-                            else if (SelfAssault == 3) temphtml += "<td style='color:green' title='Your ship is set to RGA/Pillage an enemy planet.'>";
-                            else if (towproblem == 1) {
-                                temphtml += "<td style='color:red' title='You are about to tow an unfueled ship to a planet set to NUK'>";
-                                show = 1;
-                            }
-                            else if (interceptProblem == 1) {
-                                temphtml += "<td style='color:orange' title='You are intercepting an enemy ship without PE set'>";
-                                show = 1;
-                            }
-                            else temphtml += "<td>";
-                            for (const mission of mission_list) {
-                                if (ship.mission === mission.id) {
-                                    const missionName = mission.name;
-                                    temphtml += missionName + "</td>";
-                                }
-                            }
-
-                        }
-
                     }
-                    //---------------END NEW CODE-----------------------
-                    else	//original code
-                        temphtml += '<tr class="RowSelect" title="' + ship.name + '"><td><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td>' + ship.id + '</td>';
+                    else if ((distance > 3) && (ship.warp == 1) && (hypCheck == 0)) {
+                        temphtml += "<td style='color:yellow' title='Ship is trying to go more than 3 LY at warp 1 '>" + destination + "</td>";
+                        show = 1;
+                    }
+                    else if ((output.search("Warpwell") != -1) && (ship.warp > 1) && (distance < 2) && (hypCheck == 0)) {
+                        temphtml += "<td style='color:orange' title='Ship is trying to move 1 LY in a warpwell at greater than warp 1 '>" + destination + "</td>";
+                        show = 1;
+                    }
+                    else {
+                        temphtml += "<td>" + destination + "</td>";
+                    }
+                    var SelfAssault = 0;
+                    if ((vgap.player.raceid == 4) || (vgap.player.raceid == 10)) {
+                        if (ship.mission == 8) {
+                            var AssaultTarget = idWarpWell(dest.x, dest.y);
+                            var targetPlanet;
+                            if (AssaultTarget != -1)
+                                targetPlanet = vgap.getPlanet(AssaultTarget);
+
+                            if ((targetPlanet != null) && (targetPlanet.ownerid == ship.ownerid))
+                                SelfAssault = 1;
+                            else if ((targetPlanet != null) && vgap.allied(targetPlanet.ownerid))
+                                SelfAssault = 2;
+                            else if (targetPlanet != null)
+                                SelfAssault = 3;
+                        }
+                    }
+                    var towproblem = 0;
+                    if (ship.mission == 6 && ship.mission1target != 0) {
+                        var towship = vgap.getShip(ship.mission1target);
+                        var AssaultTarget = idWarpWell(dest.x, dest.y);
+                        if ((towship.neutronium == 0) && (AssaultTarget != -1)) {
+                            var targetPlanet = vgap.getPlanet(AssaultTarget);
+                            var friendlycode = targetPlanet.friendlycode;
+                            if (friendlycode.toUpperCase() == "NUK")
+                                towproblem = 1;
+                        }
+                    }
+                    var interceptProblem = 0;
+                    if (ship.mission == 7 && ship.mission1target != 0) {
+                        var missionTarget = vgap.getShip(ship.mission1target);
+                        if (ship.enemy != missionTarget.ownerid)
+                            interceptProblem = 1;
+                        if (vgap.allied(missionTarget.ownerid))
+                            interceptProblem = 0;
+                        if (missionTarget.ownerid == ship.ownerid)
+                            interceptProblem = 0;
+                    }
+
+
+                    if (view != 2) {
+                        const mission_list = returnMissionArray(ship);
+                        if (SelfAssault == 1) {
+                            temphtml += "<td style='color:red' title='Your ship is set to RGA/Pillage your own planet'>";
+                            show = 1;
+                        }
+                        else if (SelfAssault == 2) {
+                            temphtml += "<td style='color:yellow' title='Your ship is set to RGA/Pillage an ally. Is that the best way to treat a friend?'>";
+                            show = 1;
+                        }
+                        else if (SelfAssault == 3) temphtml += "<td style='color:green' title='Your ship is set to RGA/Pillage an enemy planet.'>";
+                        else if (towproblem == 1) {
+                            temphtml += "<td style='color:red' title='You are about to tow an unfueled ship to a planet set to NUK'>";
+                            show = 1;
+                        }
+                        else if (interceptProblem == 1) {
+                            temphtml += "<td style='color:orange' title='You are intercepting an enemy ship without PE set'>";
+                            show = 1;
+                        }
+                        else temphtml += "<td>";
+                        for (const mission of mission_list) {
+                            if (ship.mission === mission.id) {
+                                const missionName = mission.name;
+                                temphtml += missionName + "</td>";
+                            }
+                        }
+                    }
                 }
 
                 if (view == 1)
                     temphtml += "<td>" + ship.megacredits + "</td><td>" + ship.supplies + "</td><td>" + ship.neutronium + "</td><td>" + ship.duranium + "</td><td>" + ship.tritanium + "</td><td>" + ship.molybdenum + "</td><td>" + ship.ammo + "</td></tr>";
+
                 if ((view == 0) || (view == 6)) {
                     var hull = vgap.getHull(ship.hullid);
 
-                    //---------------START NEW CODE-----------------------
-                    if (modShipList) {
-                        var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
-                        var speed = vgap.getSpeed(ship.warp, ship.hullid);
+                    var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
+                    var speed = vgap.getSpeed(ship.warp, ship.hullid);
 
-                        var warp7 = 49;
-                        var warp8 = 64;
-                        var warp9 = 81;
-                        if (ship.hullid == 44 || ship.hullid == 45 || ship.hullid == 46) {
-                            warp7 = 98; warp8 = 128; warp9 = 162;
-                        }
-                        var fuelCheck = 0;
-                        var speedCheck = 0;
-                        var hypCheck = 0;
-                        if (ship.neutronium < checkFuel(ship)) fuelCheck = 1;
-                        //if distance==(warp7+0.5)||(warp8+0.5)||(warp9+0.5) distance-=0.1;
-                        if (((speed == warp8) && ((distance > (warp8 + 0.5)) && (distance < (warp9 + 0.5)))) || ((speed == warp7) && ((distance > (warp7 + 0.5)) && (distance < (warp9 + 0.5)))) || ((speed == warp9) && ((distance > (warp9 + 0.5)) && (distance < (warp9 + 8))))) speedCheck = 1;
-                        if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
+                    var warp7 = 49;
+                    var warp8 = 64;
+                    var warp9 = 81;
+                    if (ship.hullid == 44 || ship.hullid == 45 || ship.hullid == 46) {
+                        warp7 = 98; warp8 = 128; warp9 = 162;
+                    }
+                    var fuelCheck = 0;
+                    var speedCheck = 0;
+                    var hypCheck = 0;
+                    if (ship.neutronium < checkFuel(ship)) fuelCheck = 1;
+                    //if distance==(warp7+0.5)||(warp8+0.5)||(warp9+0.5) distance-=0.1;
+                    if (((speed == warp8) && ((distance > (warp8 + 0.5)) && (distance < (warp9 + 0.5)))) || ((speed == warp7) && ((distance > (warp7 + 0.5)) && (distance < (warp9 + 0.5)))) || ((speed == warp9) && ((distance > (warp9 + 0.5)) && (distance < (warp9 + 8))))) speedCheck = 1;
+                    if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
 
 
-                        if (fuelCheck == 1 && speedCheck == 1 && hypCheck == 0) {
-                            temphtml += "<td>" + hull.name + "</td><td style='color:red' title='Ship does not have enough fuel to reach destination AND is moving too slow to reach destination in one turn. Check Speed/Destination and fuel'>" + vgap.getEngine(ship.engineid).name + "</td>";
-                            show = 1;
-                        }
-                        else if (fuelCheck == 1 && hypCheck == 0) {
-                            temphtml += "<td>" + hull.name + "</td><td style='color:orange' title='Ship does not have enough fuel to reach destination'>" + vgap.getEngine(ship.engineid).name + "</td>";
-                            show = 1;
-                        }
-                        else
-                            if (speedCheck == 1 && hypCheck == 0) {
-                                temphtml += "<td>" + hull.name + "</td><td style='color:yellow' title='Ship moving too slow to reach destination in one turn, check speed/destination'>" + vgap.getEngine(ship.engineid).name + "</td>";
-                                show = 1;
-                            }
-                            else
-                                temphtml += "<td>" + hull.name + "</td><td>" + vgap.getEngine(ship.engineid).name + "</td>";
-
-                        if ((ship.friendlycode.toUpperCase() == "NTP") || (ship.friendlycode.toUpperCase() == "BDM"))
-                            temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td style='color:orange' title='Potentially Dangerous Friendly Code'>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
-                        else
-                            temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
-
+                    if (fuelCheck == 1 && speedCheck == 1 && hypCheck == 0) {
+                        temphtml += "<td>" + hull.name + "</td><td style='color:red' title='Ship does not have enough fuel to reach destination AND is moving too slow to reach destination in one turn. Check Speed/Destination and fuel'>" + vgap.getEngine(ship.engineid).name + "</td>";
+                        show = 1;
+                    }
+                    else if (fuelCheck == 1 && hypCheck == 0) {
+                        temphtml += "<td>" + hull.name + "</td><td style='color:orange' title='Ship does not have enough fuel to reach destination'>" + vgap.getEngine(ship.engineid).name + "</td>";
+                        show = 1;
                     }
                     else
-                        //---------------END NEW CODE-----------------------
-                        temphtml += "<td>" + hull.name + "</td><td>" + vgap.getEngine(ship.engineid).name + "</td><td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
+                        if (speedCheck == 1 && hypCheck == 0) {
+                            temphtml += "<td>" + hull.name + "</td><td style='color:yellow' title='Ship moving too slow to reach destination in one turn, check speed/destination'>" + vgap.getEngine(ship.engineid).name + "</td>";
+                            show = 1;
+                        }
+                        else
+                            temphtml += "<td>" + hull.name + "</td><td>" + vgap.getEngine(ship.engineid).name + "</td>";
+
+                    if ((ship.friendlycode.toUpperCase() == "NTP") || (ship.friendlycode.toUpperCase() == "BDM"))
+                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td style='color:orange' title='Potentially Dangerous Friendly Code'>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
+                    else
+                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
                 }
+
                 if (view == 2) {
                     var dest = vgap.getDest(ship);
                     var mission_list = returnMissionArray(ship);
@@ -471,6 +440,7 @@ function wrapper() { // wrapper for injection
 
 
                 }
+                
                 if (view == 3) {
                     var note = vgap.getNote(ship.id, 2);
                     if (note != null) {
@@ -769,57 +739,6 @@ function wrapper() { // wrapper for injection
                 $(html).click(select(ship.id)).appendTo("#ShipRows");
             }
             //---------------END NEW CODE-----------------------
-            //---------------SETTINGS TAB-----------------------
-            var settingsHtml = "";
-            if (view == 7) {
-                modShipListCloakPE = get_cookie("modShipListCloakPE");
-
-                settingsHtml += "<td valign='top' style='width:20%'>";
-                settingsHtml += "<ul>";
-                if (modShipList) {
-                    settingsHtml += "<br /><li><font size=4><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' checked />Mod Ship List Active</li></font><br />";
-                } else {
-                    settingsHtml += "<li><font size=4><input type='checkbox' name='ActivateModShipList' id='modShipListCheck' value ='c' />Mod Ship List Active</li></font><br />";
-                }
-                if (modShipListCloakPE == 1) {
-                    settingsHtml += "<li><font size=4><input type='checkbox' name='CloakPEWarning' id='CloakPECheck' value ='c' checked />Cloak and PE warning Active</li></font><br />";
-                } else {
-                    settingsHtml += "<li><font size=4><input type='checkbox' name='CloakPEWarning' id='CloakPECheck' value ='c' />Cloak and PE warning Active</li></font><br />";
-                }
-                settingsHtml += "</ul></li>";
-                settingsHtml += "</td>";
-                $(settingsHtml).appendTo("#ModSettings");
-
-                $('#modShipListCheck').click(function () {
-                    console.log("Ship List Mod CLICKED");
-                    if (modShipList) {
-                        modShipList = false;
-                        alert("The Improved Ship List Mod is now Deactivated.");
-                    }
-                    else {
-                        modShipList = true;
-                        alert("The Improved Ship List Mod is now Active.");
-                    }
-                    console.log("Ship List Mod is now: " + modShipList);
-                });
-
-                $('#CloakPECheck').click(function () {
-                    console.log("CloakPE CLICKED");
-                    if (modShipListCloakPE == 1) {
-                        modShipListCloakPE = 0;
-                        set_cookie("modShipListCloakPE", 0, 2099, 1, 1);
-                        alert("No longer warning on cloaked ships with PE set. Setting saved.");
-                    }
-                    else {
-                        modShipListCloakPE = 1;
-                        set_cookie("modShipListCloakPE", 1, 2099, 1, 1);
-                        alert("Now warning on cloaked ships with PE set. Setting saved.");
-                    }
-                    console.log("CloakPE warning is now: " + modShipListCloakPE);
-                });
-            }
-            //---------------SETTINGS TAB-----------------------
-
             $("#ShipTable").tablesorter();
             this.pane.jScrollPane();
 
@@ -1324,83 +1243,83 @@ function wrapper() { // wrapper for injection
     },
 
 
-        getFuelUsage2 = function (ship, x1, y1, x2, y2) {
-            var engine = vgap.getEngine(ship.engineid);
-            var distance = vgap.map.getDist(x1, y1, x2, y2);
+    getFuelUsage2 = function (ship, x1, y1, x2, y2) {
+        var engine = vgap.getEngine(ship.engineid);
+        var distance = vgap.map.getDist(x1, y1, x2, y2);
 
-            if (ship.warp == 0)
-                return 0;
+        if (ship.warp == 0)
+            return 0;
 
-            var xv = 0;
-            switch (ship.warp) {
-                case 1:
-                    xv = engine.warp1;
-                    break;
-                case 2:
-                    xv = engine.warp2;
-                    break;
-                case 3:
-                    xv = engine.warp3;
-                    break;
-                case 4:
-                    xv = engine.warp4;
-                    break;
-                case 5:
-                    xv = engine.warp5;
-                    break;
-                case 6:
-                    xv = engine.warp6;
-                    break;
-                case 7:
-                    xv = engine.warp7;
-                    break;
-                case 8:
-                    xv = engine.warp8;
-                    break;
-                case 9:
-                    xv = engine.warp9;
-                    break;
-            }
-            //Save fuel value to update during the calculation
-            var currentfuel = ship.neutronium;
-
-            var fuel = 0;
-            var turndistance = vgap.getSpeed(ship.warp, ship.hullid);
-
-            var distanceremaining = distance;
-            var mass = vgapShipScreen.prototype.getMass(ship, true);
-
-            //tow
-            if (ship.mission == 6 && ship.mission1target != 0) {
-                var towship = vgap.getShip(ship.mission1target);
-                if (towship != null)
-                    mass += vgapShipScreen.prototype.getMass(towship, true);
-            }
-
-            var warp = ship.warp;
-            while (distanceremaining > turndistance) {
-                distanceremaining -= turndistance;
-                var turnfuel = turnFuel2(turndistance, mass, xv, turndistance, ship);
-                fuel += turnfuel;
-                ship.neutronium -= turnfuel;
-                if (ship.neutronium < 0) {
-                    turnfuel = ship.neutronium;
-                    ship.neutronium = 0;
-                }
-                mass -= turnfuel;
-                var pa = vgap.planetAt(x2, y2);
-                if (distanceremaining < 3 && pa != null) {
-                    distanceremaining = 0;
-                }
-            }
-            if (distanceremaining > 0)
-                fuel += turnFuel2(distanceremaining, mass, xv, turndistance, ship);
-
-            //Return fuel back to correct value
-            ship.neutronium = currentfuel;
-
-            return fuel;
+        var xv = 0;
+        switch (ship.warp) {
+            case 1:
+                xv = engine.warp1;
+                break;
+            case 2:
+                xv = engine.warp2;
+                break;
+            case 3:
+                xv = engine.warp3;
+                break;
+            case 4:
+                xv = engine.warp4;
+                break;
+            case 5:
+                xv = engine.warp5;
+                break;
+            case 6:
+                xv = engine.warp6;
+                break;
+            case 7:
+                xv = engine.warp7;
+                break;
+            case 8:
+                xv = engine.warp8;
+                break;
+            case 9:
+                xv = engine.warp9;
+                break;
         }
+        //Save fuel value to update during the calculation
+        var currentfuel = ship.neutronium;
+
+        var fuel = 0;
+        var turndistance = vgap.getSpeed(ship.warp, ship.hullid);
+
+        var distanceremaining = distance;
+        var mass = vgapShipScreen.prototype.getMass(ship, true);
+
+        //tow
+        if (ship.mission == 6 && ship.mission1target != 0) {
+            var towship = vgap.getShip(ship.mission1target);
+            if (towship != null)
+                mass += vgapShipScreen.prototype.getMass(towship, true);
+        }
+
+        var warp = ship.warp;
+        while (distanceremaining > turndistance) {
+            distanceremaining -= turndistance;
+            var turnfuel = turnFuel2(turndistance, mass, xv, turndistance, ship);
+            fuel += turnfuel;
+            ship.neutronium -= turnfuel;
+            if (ship.neutronium < 0) {
+                turnfuel = ship.neutronium;
+                ship.neutronium = 0;
+            }
+            mass -= turnfuel;
+            var pa = vgap.planetAt(x2, y2);
+            if (distanceremaining < 3 && pa != null) {
+                distanceremaining = 0;
+            }
+        }
+        if (distanceremaining > 0)
+            fuel += turnFuel2(distanceremaining, mass, xv, turndistance, ship);
+
+        //Return fuel back to correct value
+        ship.neutronium = currentfuel;
+
+        return fuel;
+    }
 
     getFuelUsage3 = function (ship, x1, y1, x2, y2) {
         var engine = vgap.getEngine(ship.engineid);
