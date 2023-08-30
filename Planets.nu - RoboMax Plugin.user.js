@@ -151,8 +151,8 @@ function wrapper1() { // wrapper for injection
 		unloadCargo: false,
 		buildDefenses: false,
 		homeSector: false,
-		maxGrowthPriority: true,
-		growthAndTaxPriority: false,
+		maxGrowthPriority: false,
+		growthAndTaxPriority: true,
 
 		// Main Display Function
 
