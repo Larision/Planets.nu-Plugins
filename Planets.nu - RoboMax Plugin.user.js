@@ -151,8 +151,8 @@ function wrapper1() { // wrapper for injection
 		unloadCargo: false,
 		buildDefenses: false,
 		homeSector: false,
-		growthPriority: true,
-		taxPriority: false,
+		maxGrowthPriority: true,
+		growthAndTaxPriority: false,
 
 		// Main Display Function
 
@@ -190,7 +190,8 @@ function wrapper1() { // wrapper for injection
 				if (vgap.player.raceid != 12) { // Does not work for Horwasp!
 					// Display Options
 					html += "<table><tr>";
-					html += "<p><span style='font-size:20px;'>Options:</span>";
+					html += "<p><span style='font-size:20px;'>Options:</span></p>";
+					html += "<table><tbody><tr>";
 					html += "<td valign='top' style='width:40%'>";
 
 					//html += "<ul><li><input type='checkbox' name='MngPlCheck' id='ManagePlanetsCheck' value ='c' checked disabled />Manage planet building and taxing</li>";
@@ -257,15 +258,15 @@ function wrapper1() { // wrapper for injection
 					if (vgap.isHomeSector()) {
 						html += "<li><label><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</label>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
-						if (plg.growthPriority == true) {
-							html += "<li><label><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' checked />Growth priority</label></li>";
+						if (plg.maxGrowthPriority == true) {
+							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' checked />Max Growth priority</label></li>";
 						} else {
-							html += "<li><label><input type='checkbox' name='growthPriorityCheck' id='GrowthPriorityCheck' value='c' />Growth priority</label></li>";
+							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' />Max Growth priority</label></li>";
 						}
-						if (plg.taxPriority == true) {
-							html += "<li><label><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' checked />Tax Priority</label></li>";
+						if (plg.growthAndTaxPriority == true) {
+							html += "<li><label><input type='checkbox' name='growthAndTaxPriorityCheck' id='growthAndTaxPriorityCheck' value='c' checked />Growth-Tax Priority</label></li>";
 						} else {
-							html += "<li><label><input type='checkbox' name='taxPriorityCheck' id='TaxPriorityCheck' value='c' />Tax Priority</label></li>";
+							html += "<li><label><input type='checkbox' name='growthAndTaxPriorityCheck' id='growthAndTaxPriorityCheck' value='c' />Growth-Tax Priority</label></li>";
 						}
 						html += "</ul>"; //Fin de opciones anidadas
 						html += "</li>"; //cierra home sector list item
@@ -273,7 +274,7 @@ function wrapper1() { // wrapper for injection
 					html += "</ul>";
 					html += "</td>";
 
-					html += "</tr></table>";
+					html += "</tr></tbody></table>";
 
 					// Display run button
 					html += "<table cellpadding='5'>";
@@ -433,32 +434,32 @@ function wrapper1() { // wrapper for injection
 				$("#ResetTurnButton").tclick(function () {vgap.resetTurn();});
 
 				// Opciones de home sector
-				$('#GrowthPriorityCheck').click(function () {
+				$('#maxGrowthPriorityCheck').click(function () {
 					console.log("Growth Priority CLICKED");
-					if (plg.growthPriority == true) {
-						plg.growthPriority = false;
-						plg.taxPriority = true;
-						$('#TaxPriorityCheck').prop("checked", true); // Marcar "Tax Priority"
+					if (plg.maxGrowthPriority == true) {
+						plg.maxGrowthPriority = false;
+						plg.growthAndTaxPriority = true;
+						$('#growthAndTaxPriorityCheck').prop("checked", true); // Marcar "Tax Priority"
 					} else {
-						plg.growthPriority = true;
-						plg.taxPriority = false;
-						$('#TaxPriorityCheck').prop("checked", false); // Desmarcar "Tax Priority"
+						plg.maxGrowthPriority = true;
+						plg.growthAndTaxPriority = false;
+						$('#growthAndTaxPriorityCheck').prop("checked", false); // Desmarcar "Tax Priority"
 					}
-					console.log("Growth Priority " + plg.growthPriority + " Tax Priority " + plg.taxPriority);
+					console.log("Growth Priority " + plg.maxGrowthPriority + " Tax Priority " + plg.growthAndTaxPriority);
 				});
 
-				$('#TaxPriorityCheck').click(function () {
+				$('#growthAndTaxPriorityCheck').click(function () {
 					console.log("Tax Priority CLICKED");
-					if (plg.taxPriority == true) {
-						plg.taxPriority = false;
-						plg.growthPriority = true;
-						$('#GrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
+					if (plg.growthAndTaxPriority == true) {
+						plg.growthAndTaxPriority = false;
+						plg.maxGrowthPriority = true;
+						$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
 					} else {
-						plg.taxPriority = true;
-						plg.growthPriority = false;
-						$('#GrowthPriorityCheck').prop("checked", false); // Desmarcar "Growth Priority"
+						plg.growthAndTaxPriority = true;
+						plg.maxGrowthPriority = false;
+						$('#maxGrowthPriorityCheck').prop("checked", false); // Desmarcar "Growth Priority"
 					}
-					console.log("Growth Priority " + plg.growthPriority + " Tax Priority " + plg.taxPriority);
+					console.log("Growth Priority " + plg.maxGrowthPriority + " Tax Priority " + plg.growthAndTaxPriority);
 				});
 			}
 
@@ -758,13 +759,18 @@ runRoboMax: function () {
 			//if (planet.clans >= plg.getMaxColonists(planet)) {
 			if (!plg.roboColGrowthIsPossible(planet)) {
 				//colonistGrowthIsPossible = false;
-				//If home sector development level > 0 safe tax to 70 so they growth a bit
+				//if home sector colonist still growth always so if max growth we don't tax them
 				if (planet.developmentlevel > 0) {
-					if (plg.growthPriority == true)
+					if (plg.maxGrowthPriority == true) {
+						planet.colonisttaxrate = 0;
+						minColHappiness = 100;
+						planet.changed = 1;
+						return;
+					} else {
+						// We still let them growth taxing to 70 happy
 						useGrowthTaxforColonists = true;
-					else
-						useGrowthTaxforColonists = false;
-					minColHappiness = 70;
+						minColHappiness = 70;
+					}
 				} else {
 					useGrowthTaxforColonists = false;
 					minColHappiness = 40;
