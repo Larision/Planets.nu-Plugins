@@ -130,9 +130,9 @@ function wrapper() { // wrapper for injection
                 html += "<th title='Ready Checkbox Status' align='left'>R</th>";
             }
             else if (view == 4)
-                html += "<th align='left'>Race ID</th><th align='left'>Race Name</th><th align='left'>Id</th><th align='left'>Hull</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th>";
+                html += "<th title='Race ID' align='left'>Race ID</th><th align='left'>Race Name</th><th align='left'>Id</th><th align='left'>Hull</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th>";
             else
-                html += "<th align='left'>Hull</th><th align='left'>Id</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th><th title='Ship Mission' align='left'>Mission</th>";
+                html += "<th title='Hull' align='left'>Hull</th><th align='left'>Id</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th><th title='Ship Mission' align='left'>Mission</th>";
 
             if (view == 1)
                 html += "<th title='Megacredits' align='left'>MC</th><th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Torpedos or Fighters' align='left'>Ammo</th>";
@@ -159,7 +159,7 @@ function wrapper() { // wrapper for injection
 
 
             html += "</thead>";
-            html += "<tbody id='ShipRows' align=left  >";
+            html += "<tbody id='ShipRows' align=left position=relative  >";
             html += "</tbody>";
             html += "</table>";
             html += "</div>";
@@ -740,7 +740,9 @@ function wrapper() { // wrapper for injection
             }
             //---------------END NEW CODE-----------------------
             $("#ShipTable").tablesorter();
-            this.pane.jScrollPane();
+            this.pane.jScrollPane({animateScroll: true, hideFocus: true});
+            // fix annoying scroll up behavior. Thanks Space Pirate Harlock for this!
+            $('#ShipTable *').off('focus');
 
 
             // vgap.action added for the assistant (Alex):

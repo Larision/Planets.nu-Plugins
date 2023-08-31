@@ -380,7 +380,9 @@ function wrapper() { // wrapper for injection
 
 		//this.content.fadeIn();
 		$("#PlanetTable").tablesorter();
-		this.pane.jScrollPane();
+		this.pane.jScrollPane({animateScroll: true, hideFocus: true});
+        // fix annoying scroll up behavior. Thanks Space Pirate Harlock for this!
+        $('#PlanetTable *').off('focus');
 
 		// vgap.action added for the assistant (Alex):
 		vgap.CurrentView = "showPlanets";
