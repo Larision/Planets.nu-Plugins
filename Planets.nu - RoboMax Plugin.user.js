@@ -143,12 +143,12 @@ function wrapper1() { // wrapper for injection
 
 		setColonistTaxes: true,
 		noTaxWithBadClimate: false,
-		setNativeTaxes: true,
+		setNativeTaxes: false, //false default becouse nu manage them 
 		buildFactoriesAndMines: true,
 		destroyBuildings: true,
 		fcrandomize: true,
 		unloadMegacredits: false,
-		unloadCargo: false,
+		unloadCargo: true,
 		buildDefenses: false,
 		homeSector: false,
 		maxGrowthPriority: false,
