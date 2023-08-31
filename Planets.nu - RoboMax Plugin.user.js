@@ -259,9 +259,9 @@ function wrapper1() { // wrapper for injection
 						html += "<li><label><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</label>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
 						if (plg.maxGrowthPriority == true) {
-							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' checked />Max Growth priority</label></li>";
+							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' checked />Max Growth priority (NO Taxes)</label></li>";
 						} else {
-							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' />Max Growth priority</label></li>";
+							html += "<li><label><input type='checkbox' name='maxGrowthPriorityCheck' id='maxGrowthPriorityCheck' value='c' />Max Growth priority (NO Taxes)</label></li>";
 						}
 						if (plg.growthAndTaxPriority == true) {
 							html += "<li><label><input type='checkbox' name='growthAndTaxPriorityCheck' id='growthAndTaxPriorityCheck' value='c' checked />Growth-Tax Priority</label></li>";
