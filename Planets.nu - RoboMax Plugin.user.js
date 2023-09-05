@@ -142,10 +142,10 @@ function wrapper1() { // wrapper for injection
 		// Variables
 
 		setColonistTaxes: true,
-		noTaxWithBadClimate: false,
-		setNativeTaxes: false, //false default becouse nu manage them 
+		noTaxWithBadClimate: false, // false default becouse special option
+		setNativeTaxes: false, // false default becouse nu manage them 
 		buildFactoriesAndMines: true,
-		destroyBuildings: true,
+		destroyBuildings: false, // false default becouse special option
 		fcrandomize: true,
 		unloadMegacredits: false,
 		unloadCargo: true,
@@ -496,58 +496,58 @@ function wrapper1() { // wrapper for injection
 			if (col == 1) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #006400;'><b>" + msg + "</b></td>");
 		},
 
-runRoboMax: function () {
-	// This function runs when the button is clicked
-	var plg = vgap.plugins["roboMaxPlugin"];
-	console.log("Running RoboMax!");
-	vgap.playSound("button");
+		runRoboMax: function () {
+			// This function runs when the button is clicked
+			var plg = vgap.plugins["roboMaxPlugin"];
+			console.log("Running RoboMax!");
+			vgap.playSound("button");
 
-	// Unload ship cargo
-	if (plg.unloadCargo) {
-		plg.roboUnloadCargo("all");
-	}
-	if (plg.unloadMegacredits) {
-		plg.roboUnloadMegacredits("all");
-	}
-	// Build factories, mines, basic defenses, and improved defenses
-	if (plg.buildFactoriesAndMines) {
-		plg.roboBuildFactories();
-		plg.roboBuildMines();
-	}
-	if (plg.buildDefenses) {
-		plg.roboBuildDefenses();
-	}
-	// Assign taxes
-	if (plg.setColonistTaxes) {
-		plg.roboPlanetSetAllColonistTaxes();
-	}
-	if (plg.setNativeTaxes) {
-		plg.roboPlanetSetAllNativeTaxes();
-	}
+			// Unload ship cargo
+			if (plg.unloadCargo) {
+				plg.roboUnloadCargo();
+			}
+			if (plg.unloadMegacredits) {
+				plg.roboUnloadMegacredits();
+			}
+			// Build factories, mines, basic defenses, and improved defenses
+			if (plg.buildFactoriesAndMines) {
+				plg.roboBuildFactories();
+				plg.roboBuildMines();
+			}
+			if (plg.buildDefenses) {
+				plg.roboBuildDefenses();
+			}
+			// Assign taxes
+			if (plg.setColonistTaxes) {
+				plg.roboPlanetSetAllColonistTaxes();
+			}
+			if (plg.setNativeTaxes) {
+				plg.roboPlanetSetAllNativeTaxes();
+			}
 
-	// Manage planetary friendly codes, and permute ship friendly codes
-	if (plg.fcrandomize) {
-		plg.roboMaxRandomizePlanetFcodes();
-	}
-	// Home Sector
-	if (plg.homeSector) {
-		console.log("Running Home sector optimizations");
-	}
-	// We're finished giving orders, so initiate save
-	vgap.save();
-	// Check save, and end the function
-	var checkInterval = setInterval(function () {
-		if (vgap.saveInProgress == 2) {
-			// We are still saving, check again in a little bit
-			return;
-		} else {
-			clearInterval(checkInterval);
-			plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
-			vgap.loadWaypoints();
-			console.log("RoboMax is finished giving orders.");
-		}
-	}, 500);
-},
+			// Manage planetary friendly codes, and permute ship friendly codes
+			if (plg.fcrandomize) {
+				plg.roboMaxRandomizePlanetFcodes();
+			}
+			// Home Sector
+			if (plg.homeSector) {
+				console.log("Running Home sector optimizations");
+			}
+			// We're finished giving orders, so initiate save
+			vgap.save();
+			// Check save, and end the function
+			var checkInterval = setInterval(function () {
+				if (vgap.saveInProgress == 2) {
+					// We are still saving, check again in a little bit
+					return;
+				} else {
+					clearInterval(checkInterval);
+					plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
+					vgap.loadWaypoints();
+					console.log("RoboMax is finished giving orders.");
+				}
+			}, 500);
+		},
 
 		checkIfMobileVersion: function () {
 			// This function adapted from Kedalion's Enemy ship list plugin:
@@ -566,7 +566,7 @@ runRoboMax: function () {
 		//// Unload Cargo Section
 		///////////////////////////////////////////////////////////////////////////////////
 
-		roboUnloadMegacredits: function (shiptype) {
+		roboUnloadMegacredits: function () {
 			// Unloads megacredits from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
 			console.log("Unloading megacredits from ships");
@@ -578,8 +578,7 @@ runRoboMax: function () {
 				for (var j = 0; j < plships.length; j++) {
 					var ship = plships[j];
 					if (plships[j].ownerid != planet.ownerid) continue; // Skip ships that aren't owned
-					if (shiptype == "freighter" && !plg.roboIsFreighter(ship)) continue; // Skip ships that aren't freighters
-					if (shiptype == "alchemy" && !plg.roboIsRefinery(ship)) continue; // Skip ships that aren't alchemy/refinery
+					if (plg.roboIsFreighter(ship) == false || plg.roboIsRefinery(ship) == false) continue; // Skip ships that aren't freighters
 
 					planet.megacredits = planet.megacredits + plships[j].megacredits;
 					plships[j].megacredits = 0;
@@ -591,7 +590,7 @@ runRoboMax: function () {
 			//vgap.save();
 		},
 
-		roboUnloadCargo: function (shiptype) {
+		roboUnloadCargo: function () {
 			// Unloads cargo from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
 			console.log("Unloading cargo from ships");
@@ -603,29 +602,29 @@ runRoboMax: function () {
 				for (var j = 0; j < plships.length; j++) {
 					var ship = plships[j];
 					if (plships[j].ownerid != planet.ownerid) continue; // Skip ships that aren't owned
-					if (shiptype == "freighter" && !plg.roboIsFreighter(ship)) continue; // Skip ships that aren't freighters
-					if (shiptype == "alchemy" && !plg.roboIsRefinery(ship)) continue; // Skip ships that aren't alchemy/refinery
+					if (plg.roboIsFreighter(ship) || plg.roboIsRefinery(ship)) {
 
-					//console.log("Unloading ship",plships[j].id);
-					planet.clans = planet.clans + plships[j].clans;
-					plships[j].clans = 0;
-					if (!vgap.settings.nosupplies) {
-						planet.supplies = planet.supplies + plships[j].supplies;
-						plships[j].supplies = 0;
+						console.log("Unloading ship", plships[j].id);
+						planet.clans = planet.clans + plships[j].clans;
+						plships[j].clans = 0;
+						if (!vgap.settings.nosupplies) {
+							planet.supplies = planet.supplies + plships[j].supplies;
+							plships[j].supplies = 0;
+						}
+						// planet.megacredits = planet.megacredits + plships[j].megacredits;
+						// plships[j].megacredits = 0;
+						// planet.neutronium = planet.neutronium + plships[j].neutronium;
+						// plships[j].neutronium = 0;
+						planet.duranium = planet.duranium + plships[j].duranium;
+						plships[j].duranium = 0;
+						planet.tritanium = planet.tritanium + plships[j].tritanium;
+						plships[j].tritanium = 0;
+						planet.molybdenum = planet.molybdenum + plships[j].molybdenum;
+						plships[j].molybdenum = 0;
+
+						planet.changed = 1;
+						plships[j].changed = 1;
 					}
-					// planet.megacredits = planet.megacredits + plships[j].megacredits;
-					// plships[j].megacredits = 0;
-					// planet.neutronium = planet.neutronium + plships[j].neutronium;
-					// plships[j].neutronium = 0;
-					planet.duranium = planet.duranium + plships[j].duranium;
-					plships[j].duranium = 0;
-					planet.tritanium = planet.tritanium + plships[j].tritanium;
-					plships[j].tritanium = 0;
-					planet.molybdenum = planet.molybdenum + plships[j].molybdenum;
-					plships[j].molybdenum = 0;
-
-					planet.changed = 1;
-					plships[j].changed = 1;
 				}
 			}
 			//vgap.save();
@@ -763,7 +762,7 @@ runRoboMax: function () {
 				if (planet.developmentlevel > 0) {
 					if (plg.maxGrowthPriority == true) {
 						planet.colonisttaxrate = 0;
-						minColHappiness = 100;
+						planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
 						planet.changed = 1;
 						return;
 					} else {
@@ -776,9 +775,9 @@ runRoboMax: function () {
 					minColHappiness = 40;
 				}
 				//new option no tax in bad climate
-				if (plg.noTaxWithBadClimate == true && (planet.temp < 15 || planet.temp > 84)) {
+				if (plg.noTaxWithBadClimate && (planet.temp < 15 || planet.temp > 84)) {
 					planet.colonisttaxrate = 0;
-					minColHappiness = 100;
+					planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
 					planet.changed = 1;
 					return;
 				}
@@ -794,13 +793,6 @@ runRoboMax: function () {
 					minColHappiness = 70 - zeroTaxHappyChange;
 				}
 			}
-			// Añadido para bajar factorias y minas al target
-			if (plg.destroyBuildings == true) {
-				if ((planet.targetmines != 0 && planet.mines > planet.targetmines) || (planet.targetfactories != 0 && planet.factories > planet.targetfactories)) {
-					useGrowthTaxforColonists = false;
-					minColHappiness = 39;
-				}
-			}
 
 			//console.log("Planet " + planet.name + ": Taxing Colonists with " +
 			//var maxFutureHappiness = planet.colonisthappypoints + 2*HISSeffect + zeroTaxHappyChange; // Happiness next turn if no tax
@@ -813,11 +805,18 @@ runRoboMax: function () {
 				planet.changed = 1;
 				return;
 			}
-			if (planet.debrisdisk) {
-				planet.colonisttaxrate = 0;
-				planet.colhappychange = plg.roboColonistHappyChange(planet, 0);
-				planet.changed = 1;
-				return;
+
+			if (planet.debrisdisk != 0) {
+				useGrowthTaxforColonists = false;
+				minColHappiness = 70;
+			}
+
+			// Añadido para bajar factorias y minas al target
+			if (plg.destroyBuildings == true) {
+				if ((planet.targetmines != 0 && planet.mines > planet.targetmines) || (planet.targetfactories != 0 && planet.factories > planet.targetfactories)) {
+					useGrowthTaxforColonists = false;
+					minColHappiness = 39;
+				}
 			}
 
 			if (useGrowthTaxforColonists) {
