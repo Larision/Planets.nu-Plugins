@@ -159,7 +159,7 @@ function wrapper() { // wrapper for injection
 
 
             html += "</thead>";
-            html += "<tbody id='ShipRows' align=left position=relative  >";
+            html += "<tbody id='ShipRows' align=left  >";
             html += "</tbody>";
             html += "</table>";
             html += "</div>";
@@ -172,55 +172,67 @@ function wrapper() { // wrapper for injection
                 var dam = (ship.damage > 0 ? "<span class='WarnText'>" + ship.damage + "%</span>" : ship.damage + "%");
                 var crew = (ship.crew < hull.crew ? "<span class='WarnText'>" + ship.crew + "</span>" : ship.crew);
 
+                // Definir constantes para valores utilizados en el código.
+                const HYP_NONE = 0;
+                const HYP_YELLOW = 1;
+                const HYP_RED = 2;
+                const HYP_GREEN = 3;
+                const HYP_BLUE = 4;
+                const HYP_AQUA = 5;
+                const HYP_ORANGE = 6;
+
+                const CLOAK_NONE = 0;
+                const CLOAK_YELLOW = 1;
+                const CLOAK_RED = 2;
+                const CLOAK_GREEN = 3;
+                const CLOAK_BLUE = 4;
+                const CLOAK_ORANGE = 5;
+
                 var show = 0;
                 var temphtml = "";
                 var html = "";
                 //-----------------START NEW CODE------------------
                 if ((view != 4) && (view != 5)) {
-                    var hyp = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
-                    var cloak = 0;//0=none, 1=yellow, 2=red, 3=green, 4=blue
+                    var hyp = HYP_NONE;
+                    var cloak = CLOAK_NONE;
                     var destination = "Deep Space";
                     var dest = vgap.getDest(ship);
                     var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
 
-                    if (view == 2)
-                        temphtml += '<tr><td onclick="vgap.map.selectShip(' + ship.id + ');"><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td onclick="vgap.map.selectShip(' + ship.id + ');">' + ship.id + '</td>';
-                    else
-                        temphtml += '<tr><td><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td>' + ship.id + '</td>';
-
+                    temphtml += '<tr><td><img class="TinyIcon" src="' + hullImg(ship.hullid) + '"/></td><td>' + ship.id + '</td>';
 
                     if (hull.cancloak) {
                         if (ship.iscloaked) {
                             if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
-                                cloak = 3 //cloaked now, will be cloaked.
+                                cloak = CLOAK_GREEN; //cloaked now, will be cloaked.
                             else
-                                cloak = 1 //cloaked now, but won't be cloaked.
+                                cloak = CLOAK_YELLOW; //cloaked now, but won't be cloaked.
                         }
                         else if (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8))
-                            cloak = 4; //not cloaked now, but will be cloaked
+                            cloak = CLOAK_BLUE; //not cloaked now, but will be cloaked
                         else
-                            cloak = 2; //not cloaked now, won't be cloaking
+                            cloak = CLOAK_RED; //not cloaked now, won't be cloaking
                     }
 
-                    if ((hull.cancloak) && (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8)) && ship.enemy) cloak = 5;
+                    if ((hull.cancloak) && (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8)) && ship.enemy) cloak = CLOAK_ORANGE;
 
                     if ((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) {
                         if ((ship.friendlycode == "HYP") || (ship.friendlycode == "hyp") || (ship.friendlycode.toUpperCase() == "HYP")) {
-                            if (distance == 0) hyp = 5;
-                            else if ((distance < 20) && (ship.neutronium >= 50)) hyp = 1;
-                            else if (((distance < 340) || (distance > 360)) && (ship.neutronium >= 50)) hyp = 2;
-                            else if ((distance >= 340) && (ship.neutronium < 50)) hyp = 6
-                            else hyp = 3;
+                            if (distance == 0) hyp = HYP_AQUA;
+                            else if ((distance < 20) && (ship.neutronium >= 50)) hyp = HYP_YELLOW;
+                            else if (((distance < 340) || (distance > 360)) && (ship.neutronium >= 50)) hyp = HYP_RED;
+                            else if ((distance >= 340) && (ship.neutronium < 50)) hyp = HYP_ORANGE;
+                            else hyp = HYP_GREEN;
                         }
                         else {
                             if ((distance >= 340) && (distance <= 360))
-                                hyp = 2;
+                                hyp = HYP_RED;
                             else
-                                hyp = 4;
+                                hyp = HYP_BLUE;
                         }
                     }
 
-                    if (hyp > 0) switch (hyp) {
+                    if (hyp > HYP_NONE) switch (hyp) {
                         case 1: temphtml += "<td style='color:yellow' title='FC is HYP and destination less than 20 LY'>";
                             show = 1;
                             break;
@@ -238,7 +250,7 @@ function wrapper() { // wrapper for injection
                             break;
                         default: temphtml += "<td>";
                     }
-                    else if (cloak > 0) switch (cloak) {
+                    else if (cloak > CLOAK_NONE) switch (cloak) {
                         case 1: temphtml += "<td style='color:yellow' title='Ship is cloaked now. No cloak mission set for next turn'>";
                             break;
                         case 2: temphtml += "<td style='color:red' title='Ship is uncloaked now. No cloak mission set for next turn'>";
@@ -369,6 +381,13 @@ function wrapper() { // wrapper for injection
                             }
                         }
                     }
+                    if (ship.readystatus === 0) {
+                        readyclass = 'far fa-square';
+                    } else if (ship.readystatus === 1) {
+                        readyclass = 'fas fa-check';
+                    } else if (ship.readystatus === 2) {
+                        readyclass = 'fas fa-check-double';
+                    }
                 }
 
                 if (view == 1)
@@ -412,9 +431,12 @@ function wrapper() { // wrapper for injection
                             temphtml += "<td>" + hull.name + "</td><td>" + vgap.getEngine(ship.engineid).name + "</td>";
 
                     if ((ship.friendlycode.toUpperCase() == "NTP") || (ship.friendlycode.toUpperCase() == "BDM"))
-                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td style='color:orange' title='Potentially Dangerous Friendly Code'>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
-                    else
-                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td>" + ship.friendlycode + "</td><td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
+                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td style='color:orange' title='Potentially Dangerous Friendly Code'>" + ship.friendlycode + "</td>";
+                    else {
+                        temphtml += "<td>" + (ship.beams > 0 ? vgap.getBeam(ship.beamid).name + " x" + ship.beams : "") + "</td><td>" + (ship.torps > 0 ? vgap.getTorpedo(ship.torpedoid).name + " x" + ship.torps : "") + (ship.bays > 0 ? " Bays x" + ship.bays : "") + (ship.bays > 0 || ship.torps > 0 ? " [" + ship.ammo + "]" : "") + "</td><td>" + dam + "</td><td>" + crew + "</td><td>" + ship.friendlycode + "</td>";
+                    }
+                    // Icono de estado
+                    temphtml += "<td class='toggle-cell'><i class='" + readyclass + "' id='Icon" + i + "' onclick='toggleReadyStatus(" + i + ");'></i></td>";  
                 }
 
                 if (view == 2) {
@@ -428,17 +450,13 @@ function wrapper() { // wrapper for injection
                             temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
                     }
                     temphtml += "</select></td>";
-                    //html += "<td>" + mission_list[ship.mission] + "</td>";
 
                     temphtml += "<td>" + vgap.getBattleValue(ship) + "</td><td>" + ship.x + "-" + ship.y + "</td><td>" + dest.x + "-" + dest.y + "</td><td>" + vgap.getTravelDist(ship).toFixed(1) + "</td><td>" + ship.warp + "</td><td>" + ship.neutronium + "</td>";
                     temphtml += "<td><input type='text' size='3' maxlength='3' id='Input" + i + "' onchange='setFC(this);' value='" + ship.friendlycode + "'/></td>";
                     temphtml += "<td><button type='button' id='Button" + i + "' onClick='setFleetDest(this);'>Set Flt Dest</button></td>";
-                    if (ship.readystatus > 0)
-                        temphtml += "<td><input type='checkbox' id='Check" + i + "' checked='checked' onchange='setCB(this);'/></td>";
-                    else
-                        temphtml += "<td><input type='checkbox' id='Check" + i + "' onchange='setCB(this);'/></td>";
 
-
+                    // Icono de estado
+                    temphtml += "<td class='toggle-cell'><i class='" + readyclass + "' id='Icon" + i + "' onclick='toggleReadyStatus(" + i + ");'></i></td>";                               
                 }
                 
                 if (view == 3) {
@@ -449,18 +467,21 @@ function wrapper() { // wrapper for injection
                     else {
                         temphtml += '<td></td>';
                     }
-                    temphtml += "<td>" + (ship.readystatus > 0 ? (ship.readystatus == 1 ? "-" : "+") : "") + "</td>";
+                    // Icono de estado
+                    temphtml += "<td class='toggle-cell'><i class='" + readyclass + "' id='Icon" + i + "' onclick='toggleReadyStatus(" + i + ");'></i></td>";
                 }
                 temphtml += "</tr>";
                 if ((view != 6) || (show == 1))
                     html += temphtml;
                 var select;
-                if (view == 2 || view == 4 || view == 5)
+                var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
+                if (view == 4 || view == 5)
                     select = function (id) {return function () { };};
                 else
                     select = function (id) {return function () {vgap.map.selectShip(id);};};
-                $(html).click(select(ship.id)).appendTo("#ShipRows");
-            }
+				rowHtml.find("td:not(.toggle-cell):not(:has(select, input, button))").click(select(ship.id));
+				rowHtml.appendTo("#ShipRows");
+			}
             //---------------START NEW CODE-----------------------
             if (view == 4) {
                 var colorsA = ["#F0F8FF", "#32CD32", "#CD5C5C", "#FFC0CB", "#98FB98", "#C0C0C0", "#FFFF00", "#EE82EE", "#D3D3D3", "#B0E0E6", "#87CEFA", "#7B68EE", "#F4A460", "#D2B48C", "#FF6347", "#F5DEB3", "#F08080", "#2F4F4F", "#008080", "#B22222", "#808000", "#9370DB", "#00FF00", "#4B0082", "#D2B48C", "#9ACD32", "#DAA520", "#F0F8FF", "#6B8E23", "#FF4500"];
@@ -534,11 +555,13 @@ function wrapper() { // wrapper for injection
                     }
                 }
                 var select;
-                if (view == 2 || view == 4)
+                var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
+                if (view == 4)
                     select = function (id) {return function () { };};
                 else
                     select = function (id) {return function () {vgap.map.selectShip(id);};};
-                $(html).click(select(ship.id)).appendTo("#ShipRows");
+				rowHtml.find("td:not(:has(select, input, button))").click(select(ship.id));
+				rowHtml.appendTo("#ShipRows");
             }
             if (view == 5) {
                 // var ShipID;
@@ -732,11 +755,13 @@ function wrapper() { // wrapper for injection
                 }
                 //html+="</tbody></table>";
                 var select;
-                if (view == 2 || view == 4 || view == 5)
+                var rowHtml = $(html); // Convertir el HTML en un objeto jQuery
+                if (view == 4 || view == 5)
                     select = function (id) {return function () { };};
                 else
                     select = function (id) {return function () {vgap.map.selectShip(id);};};
-                $(html).click(select(ship.id)).appendTo("#ShipRows");
+				rowHtml.find("td:not(:has(select, input, button))").click(select(ship.id));
+				rowHtml.appendTo("#ShipRows");
             }
             //---------------END NEW CODE-----------------------
             $("#ShipTable").tablesorter();
@@ -1119,33 +1144,33 @@ function wrapper() { // wrapper for injection
         return missions;
     },
 
-        set_cookie = function (name, value, exp_y, exp_m, exp_d, path, domain, secure)
-        //name=cookie name (required)
-        //value=cookie value (required)
-        //exp_y,M,d is expiration year, month, day (if blank cookie will delete when browser closes)
-        //path=path within site this applies to (can be blank)
-        //domain=apply only to websites in this domain (can be blank)
-        //secure=use SSL (leave blank)	
+    set_cookie = function (name, value, exp_y, exp_m, exp_d, path, domain, secure)
+    //name=cookie name (required)
+    //value=cookie value (required)
+    //exp_y,M,d is expiration year, month, day (if blank cookie will delete when browser closes)
+    //path=path within site this applies to (can be blank)
+    //domain=apply only to websites in this domain (can be blank)
+    //secure=use SSL (leave blank)	
 
-        {
-            var cookie_string = name + "=" + escape(value);
+    {
+        var cookie_string = name + "=" + escape(value);
 
-            if (exp_y) {
-                var expires = new Date(exp_y, exp_m, exp_d);
-                cookie_string += "; expires=" + expires.toGMTString();
-            }
+        if (exp_y) {
+            var expires = new Date(exp_y, exp_m, exp_d);
+            cookie_string += "; expires=" + expires.toGMTString();
+        }
 
-            if (path)
-                cookie_string += "; path=" + escape(path);
+        if (path)
+            cookie_string += "; path=" + escape(path);
 
-            if (domain)
-                cookie_string += "; domain=" + escape(domain);
+        if (domain)
+            cookie_string += "; domain=" + escape(domain);
 
-            if (secure)
-                cookie_string += "; secure";
+        if (secure)
+            cookie_string += "; secure";
 
-            document.cookie = cookie_string;
-        };
+        document.cookie = cookie_string;
+    };
 
     get_cookie = function (cookie_name) {
         var results = document.cookie.match('(^|;) ?' + cookie_name + '=([^;]*)(;|$)');
@@ -1376,6 +1401,23 @@ function wrapper() { // wrapper for injection
         return fuel;
     }
     //==========================END FUEL FUNCTIONS=======================================
+
+    // Double-check square
+    toggleReadyStatus = function(index) {
+        var icon = $("#Icon" + index);
+        var currentClass = icon.attr("class");
+    
+        if (currentClass === "far fa-square") {
+            icon.removeClass("far fa-square").addClass("fas fa-check");
+            vgap.myships[index].readystatus = 1;
+        } else if (currentClass === "fas fa-check") {
+            icon.removeClass("fas fa-check").addClass("fas fa-check-double");
+            vgap.myships[index].readystatus = 2;
+        } else if (currentClass === "fas fa-check-double") {
+            icon.removeClass("fas fa-check-double").addClass("far fa-square");
+            vgap.myships[index].readystatus = 0;
+        }
+    }
 
 } //wrapper for injection
 

@@ -63,7 +63,7 @@ function wrapper() { // wrapper for injection
 			html += "<th title='Ready Checkbox Status' align='left'>R</th>";
 		}
 		if (view == 2)
-			html += "<th title='Starbase' align='left'>SB</th><th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Colonists' align='left'>Cols</th><th title='Natives' align='left'>Natives</th><th title='Native Population' align='left'>Pop</th><th title='Notes' align='left'>Notes</th><th title='Ready Checkbox Status' align='left'>R</th>";
+			html += "<th title='Starbase' align='left'>SB</th><th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th><th title='Natives' align='left'>Natives</th><th title='Native Population' align='left'>Pop</th><th title='Notes' align='left'>Notes</th><th title='Ready Checkbox Status' align='left'>R</th>";
 		if (view == 3)
 			html += "<th title='Starbase' align='left'>SB</th><th title='Total MC Generated per Turn' align='left'>MC/T</th><th title='Total Supplies Generated per Turn' align='left'>Supplies/T</th><th title='Total Supplies + MC Generated per Turn' align='left'>S+MC/T</th><th title='Neutronium Produced per Turn' align='left'>Neut/T</th><th title='Duranium Produced per Turn' align='left'>Dur/T</th><th title='Tritanium Produced per Turn' align='left'>Tri/T</th><th title='Molybdenum Produced per Turn' align='left'>Moly/T</th><th title='Ready Checkbox Status' align='left'>R</th>";
 		if (view == 12)
@@ -79,7 +79,15 @@ function wrapper() { // wrapper for injection
 			var show = 0; //for what's interesting view
 			var html = "";
 			var temphtml = "";
+			var readyclass = "";
 			temphtml += "<tr class='RowSelect'><td><img class='TinyIcon' src='" + planet.img + "'/></td><td>" + planet.id + "</td><td>" + planet.name + "</td>";
+			if (planet.readystatus === 0) {
+				readyclass = 'far fa-square';
+			} else if (planet.readystatus === 1) {
+				readyclass = 'fas fa-check';
+			} else if (planet.readystatus === 2) {
+				readyclass = 'fas fa-check-double';
+			}
 			if (view == 1) {
 				//-------------------Home Sector-------------------------
 				if (vgap.isHomeSector()) {
@@ -158,7 +166,9 @@ function wrapper() { // wrapper for injection
 					temphtml += '<td>' + note.body.replace(/\n/g, "<br/>") + '</td>';
 				else
 					temphtml += '<td></td>';
-				temphtml += "<td>" + (planet.readystatus > 0 ? (planet.readystatus == 1 ? "-" : "+") : "") + "</td></tr>";
+
+				// Icono de estado
+                temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
 			}
 			if (view == 12) {
 				if (planet.podhullid > 0) {
@@ -259,12 +269,13 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td style='color:yellow' title='only 5 turn left of mining at this rate. Ground minerals " + planet.groundmolybdenum + "'>" + molyRate + "</td>";
 				else temphtml += "<td title='Ground minerals " + planet.groundmolybdenum + "'>" + molyRate + "</td>";
 
-				temphtml += "<td>" + (planet.readystatus > 0 ? (planet.readystatus == 1 ? "-" : "+") : "") + "</td></tr>";
+				// Icono de estado
+				temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
 			}
 			if ((view == 0) || (view == 5)) {
 				//-------------------Star Base-------------------------
 				if (vgap.getStarbase(planet.id) != null)
-					temphtml += "<td style='color:white' title='Planet has SB'>" + "X" + "</td>";
+					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else {
 					var count = 5;
 					if ((planet.megacredits + planet.supplies) >= 900) count--;
@@ -364,7 +375,8 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td></td>";
 				}
 				//-------------------Starbase Mission Dropdown-------------
-				temphtml += "<td>" + (planet.readystatus > 0 ? (planet.readystatus == 1 ? "-" : "+") : "") + "</td></tr>";
+				// Icono de estado
+				temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";  
 			}
 
 
@@ -373,7 +385,7 @@ function wrapper() { // wrapper for injection
 			if ((view != 5) || (show == 1)) {
 				var rowHtml = $(temphtml); // Convertir el HTML en un objeto jQuery
 				var select = function (id) {return function () {vgap.map.selectPlanet(id);};};
-				rowHtml.find("td:not(:has(select))").click(select(planet.id));
+				rowHtml.find("td:not(.toggle-pcell):not(:has(select))").click(select(planet.id));
 				rowHtml.appendTo("#PlanetRows");
 			}
 		}
@@ -539,7 +551,7 @@ function wrapper() { // wrapper for injection
         }
 
         return missions;
-    };
+    }
 
 	setSBMission = function (selectElement) {
 		const selectedIndex = selectElement.selectedIndex;
@@ -550,7 +562,27 @@ function wrapper() { // wrapper for injection
 		vgap.getPlanet(starbase.planetid).changed = 1;
 		vgap.save();
 		vgap.map.draw();
-	};
+	}
+
+	togglePlanetReadyStatus = function (index) {
+        var icon = $("#PlanetIcon" + index);
+        var currentClass = icon.attr("class");
+		var id = vgap.myplanets[index].id;
+    
+        if (currentClass === "far fa-square") {
+            icon.removeClass("far fa-square").addClass("fas fa-check");
+            vgap.getPlanet(id).readystatus = 1;
+			vgap.getPlanet(id).changed = 1;
+        } else if (currentClass === "fas fa-check") {
+            icon.removeClass("fas fa-check").addClass("fas fa-check-double");
+            vgap.getPlanet(id).readystatus = 2;
+			vgap.getPlanet(id).changed = 1;
+        } else if (currentClass === "fas fa-check-double") {
+            icon.removeClass("fas fa-check-double").addClass("far fa-square");
+            vgap.getPlanet(id).readystatus = 0;
+			vgap.getPlanet(id).changed = 1;
+        }
+    }
 
 } //wrapper for injection
 
