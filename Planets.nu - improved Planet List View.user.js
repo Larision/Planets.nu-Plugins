@@ -50,7 +50,13 @@ function wrapper() { // wrapper for injection
 				html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
 			}
 			html += "<th title='Megacredits' align='left'>MC</th>";
-			html += "<th title='Supplies' align='left'>Sup</th><th title='Neutronium' align='left'>Neu</th><th title='Duranium' align='left'>Dur</th><th title='Tritanium' align='left'>Tri</th><th title='Molybdenum' align='left'>Mol</th><th title='Ground Neutronium (unmined)' align='left'>GNeu</th><th title='Ground Duranium (unmined)' align='left'>GDur</th><th title='Ground Tritanium (unmined)' align='left'>GTri</th><th title='Ground Molybdenum (unmined)' align='left'>GMol</th><th title='Neutronium Density' align='left'>DNeu</th><th title='Duranium Density' align='left'>DDur</th><th title='Tritanium Density' align='left'>DTri</th><th title='Molybdenum Density' align='left'>DMol</th>";
+			if (!vgap.settings.nosupplies) {
+				html += "<th title='Supplies' align='left'>Sup</th>";
+			}
+			if (!vgap.settings.unlimitedfuel)
+				html += "<th title='Neutronium' align='left'>Neu</th><th title='Duranium' align='left'>Dur</th><th title='Tritanium' align='left'>Tri</th><th title='Molybdenum' align='left'>Mol</th><th title='Ground Neutronium (unmined)' align='left'>GNeu</th><th title='Ground Duranium (unmined)' align='left'>GDur</th><th title='Ground Tritanium (unmined)' align='left'>GTri</th><th title='Ground Molybdenum (unmined)' align='left'>GMol</th><th title='Neutronium Density' align='left'>DNeu</th><th title='Duranium Density' align='left'>DDur</th><th title='Tritanium Density' align='left'>DTri</th><th title='Molybdenum Density' align='left'>DMol</th>";
+			else 
+				html += "<th title='Duranium' align='left'>Dur</th><th title='Tritanium' align='left'>Tri</th><th title='Molybdenum' align='left'>Mol</th><th title='Ground Duranium (unmined)' align='left'>GDur</th><th title='Ground Tritanium (unmined)' align='left'>GTri</th><th title='Ground Molybdenum (unmined)' align='left'>GMol</th><th title='Duranium Density' align='left'>DDur</th><th title='Tritanium Density' align='left'>DTri</th><th title='Molybdenum Density' align='left'>DMol</th>";
 		}
 		if ((view == 0) || (view == 5)) {
 			html += "<th title='Starbase' align='left'>SB</th>";
@@ -64,8 +70,12 @@ function wrapper() { // wrapper for injection
 		}
 		if (view == 2)
 			html += "<th title='Starbase' align='left'>SB</th><th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th><th title='Natives' align='left'>Natives</th><th title='Native Population' align='left'>Pop</th><th title='Notes' align='left'>Notes</th><th title='Ready Checkbox Status' align='left'>R</th>";
-		if (view == 3)
-			html += "<th title='Starbase' align='left'>SB</th><th title='Total MC Generated per Turn' align='left'>MC/T</th><th title='Total Supplies Generated per Turn' align='left'>Supplies/T</th><th title='Total Supplies + MC Generated per Turn' align='left'>S+MC/T</th><th title='Neutronium Produced per Turn' align='left'>Neut/T</th><th title='Duranium Produced per Turn' align='left'>Dur/T</th><th title='Tritanium Produced per Turn' align='left'>Tri/T</th><th title='Molybdenum Produced per Turn' align='left'>Moly/T</th><th title='Ready Checkbox Status' align='left'>R</th>";
+		if (view == 3) {
+			html += "<th title='Starbase' align='left'>SB</th><th title='Total MC Generated per Turn' align='left'>MC/T</th><th title='Total Supplies Generated per Turn' align='left'>Supplies/T</th><th title='Total Supplies + MC Generated per Turn' align='left'>S+MC/T</th>";
+			if (!vgap.settings.unlimitedfuel)
+				html += "<th title='Neutronium Produced per Turn' align='left'>Neut/T</th>";
+			html += "<th title='Duranium Produced per Turn' align='left'>Dur/T</th><th title='Tritanium Produced per Turn' align='left'>Tri/T</th><th title='Molybdenum Produced per Turn' align='left'>Moly/T</th><th title='Ready Checkbox Status' align='left'>R</th>";
+		}
 		if (view == 12)
 			html += "<th title='Hull Image' align='left'></th><th title='Hull' align='left'>Hull</th><th title='Cargo' align='left'>Cargo</th><th title='Speed' align='left'>Speed</th><th title='Target' align='left'>Target</th><th title='Accelerator' align='left'>Accelerator</th>";
 
@@ -119,13 +129,19 @@ function wrapper() { // wrapper for injection
 				} else {
 					temphtml += "<td>" + planet.megacredits + "</td>";
 				}
-
-				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
-
-				if (planet.groundneutronium < 10)
-					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
-				else
-					temphtml += "<td>" + planet.groundneutronium + "</td>";
+				// No supplies games
+				if (!vgap.settings.nosupplies)
+					temphtml += "<td>" + planet.supplies + "</td>";
+				if (!vgap.settings.unlimitedfuel)
+					temphtml += "<td>" + planet.neutronium + "</td>";
+				temphtml += "<td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
+				// No fuel games
+				if (!vgap.settings.unlimitedfuel) {
+					if (planet.groundneutronium < 10)
+						temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
+					else
+						temphtml += "<td>" + planet.groundneutronium + "</td>";
+				}
 				if (planet.groundduranium < 10)
 					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundduranium + "</td>";
 				else
@@ -138,8 +154,11 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundmolybdenum + "</td>";
 				else
 					temphtml += "<td>" + planet.groundmolybdenum + "</td>";
-				temphtml += "<td>" + planet.densityneutronium + "</td><td>" + planet.densityduranium + "</td><td>" + planet.densitytritanium + "</td><td>" + planet.densitymolybdenum + "</td></tr>";
-			}
+				// No fuel games
+				if (!vgap.settings.unlimitedfuel)
+					temphtml += "<td>" + planet.densityneutronium + "</td>";
+				temphtml += "<td>" + planet.densityduranium + "</td><td>" + planet.densitytritanium + "</td><td>" + planet.densitymolybdenum + "</td></tr>";
+		}
 			if (view == 2) {
 				if (vgap.getStarbase(planet.id) != null)
 					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
@@ -233,16 +252,17 @@ function wrapper() { // wrapper for injection
 					tritRate = tritText.slice(2, -1);
 					molyRate = molyText.slice(2, -1);
 				}
-				if (planet.groundneutronium == neutRate && neutRate < 6)
-					temphtml += "<td style='color:grey' title='mining at subsistence level. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
-				else if (planet.groundneutronium < (neutRate * 2)) {
-					temphtml += "<td style='color:red' title='only 1 turn left of full mining at this rate. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
-					show = 1;
+				if (!vgap.settings.unlimitedfuel) {
+					if (planet.groundneutronium == neutRate && neutRate < 6)
+						temphtml += "<td style='color:grey' title='mining at subsistence level. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
+					else if (planet.groundneutronium < (neutRate * 2)) {
+						temphtml += "<td style='color:red' title='only 1 turn left of full mining at this rate. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
+						show = 1;
+					}
+					else if (planet.groundneutronium < (neutRate * 5))
+						temphtml += "<td style='color:yellow' title='only 5 turn left of mining at this rate. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
+					else temphtml += "<td title='Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
 				}
-				else if (planet.groundneutronium < (neutRate * 5))
-					temphtml += "<td style='color:yellow' title='only 5 turn left of mining at this rate. Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
-				else temphtml += "<td title='Ground minerals " + planet.groundneutronium + "'>" + neutRate + "</td>";
-
 				if (planet.groundduranium == durRate && durRate < 6)
 					temphtml += "<td style='color:grey' title='mining at subsistence level. Ground minerals " + planet.groundduranium + "'>" + durRate + "</td>";
 				else if (planet.groundduranium < (durRate * 2)) {
