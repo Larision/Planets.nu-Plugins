@@ -80,13 +80,17 @@ function wrapper() { // wrapper for injection
 			var html = "";
 			var temphtml = "";
 			var readyclass = "";
+			var readystyle = "";
 			temphtml += "<tr class='RowSelect'><td><img class='TinyIcon' src='" + planet.img + "'/></td><td>" + planet.id + "</td><td>" + planet.name + "</td>";
 			if (planet.readystatus === 0) {
 				readyclass = 'far fa-square';
+				readystyle = 'color:grey';
 			} else if (planet.readystatus === 1) {
 				readyclass = 'fas fa-check';
+				readystyle = 'color:lime';
 			} else if (planet.readystatus === 2) {
 				readyclass = 'fas fa-check-double';
+				readystyle = 'color:green';
 			}
 			if (vgap.getStarbase(planet.id) != null) {
 				var starbase = vgap.getStarbase(planet.id);
@@ -168,7 +172,7 @@ function wrapper() { // wrapper for injection
 					temphtml += '<td></td>';
 
 				// Icono de estado
-                temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
+                temphtml += "<td class='toggle-pcell'><i style='" + readystyle + "' class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
 			}
 			if (view == 12) {
 				if (planet.podhullid > 0) {
@@ -270,7 +274,7 @@ function wrapper() { // wrapper for injection
 				else temphtml += "<td title='Ground minerals " + planet.groundmolybdenum + "'>" + molyRate + "</td>";
 
 				// Icono de estado
-				temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
+				temphtml += "<td class='toggle-pcell'><i style='" + readystyle + "' class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";
 			}
 			if ((view == 0) || (view == 5)) {
 				//-------------------Star Base-------------------------
@@ -368,7 +372,7 @@ function wrapper() { // wrapper for injection
 				}
 				//-------------------Starbase Mission Dropdown-------------
 				// Icono de estado
-				temphtml += "<td class='toggle-pcell'><i class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";  
+				temphtml += "<td class='toggle-pcell'><i style='" + readystyle + "' class='" + readyclass + "' id='PlanetIcon" + i + "' onclick='togglePlanetReadyStatus(" + i + ");'></i></td>";  
 			}
 
 
@@ -576,15 +580,15 @@ function wrapper() { // wrapper for injection
 		var id = vgap.myplanets[index].id;
     
         if (currentClass === "far fa-square") {
-            icon.removeClass("far fa-square").addClass("fas fa-check");
+            icon.removeClass("far fa-square").addClass("fas fa-check").css("color", "lime");
             vgap.getPlanet(id).readystatus = 1;
 			vgap.getPlanet(id).changed = 1;
         } else if (currentClass === "fas fa-check") {
-            icon.removeClass("fas fa-check").addClass("fas fa-check-double");
+            icon.removeClass("fas fa-check").addClass("fas fa-check-double").css("color", "green");
             vgap.getPlanet(id).readystatus = 2;
 			vgap.getPlanet(id).changed = 1;
         } else if (currentClass === "fas fa-check-double") {
-            icon.removeClass("fas fa-check-double").addClass("far fa-square");
+            icon.removeClass("fas fa-check-double").addClass("far fa-square").css("color", "grey");
             vgap.getPlanet(id).readystatus = 0;
 			vgap.getPlanet(id).changed = 1;
         }
