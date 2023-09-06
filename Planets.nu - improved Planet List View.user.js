@@ -88,23 +88,20 @@ function wrapper() { // wrapper for injection
 			} else if (planet.readystatus === 2) {
 				readyclass = 'fas fa-check-double';
 			}
+			if (vgap.getStarbase(planet.id) != null) {
+				var starbase = vgap.getStarbase(planet.id);
+  				var missionDropdown = createMissionDropdown(starbase, starbase.mission);
+			}
+
 			if (view == 1) {
 				//-------------------Home Sector-------------------------
 				if (vgap.isHomeSector()) {
 					//-------------------Starbase Mission Dropdown-------------	
 					if (vgap.getStarbase(planet.id) != null) {
-						var starbase = vgap.getStarbase(planet.id);
-						var mission_list = returnSBMissionArray(starbase);
-						temphtml += "<td><select id='Dropdown" + i + "' onChange='setSBMission(this)'>";
-						for (var k = 0; k < mission_list.length; k++) {
-							if (starbase.mission == mission_list[k].id)
-								temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-							else
-								temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-						}
-						temphtml += "</select></td>";
+						temphtml += "<td><select id='Dropdown" + i + "' ";
+						temphtml += missionDropdown + "</select></td>";
 					} else {
-						temphtml += "<td></td>";
+  						temphtml += "<td></td>";
 					}
 					//-------------------Starbase Mission Dropdown-------------
 					//-------------------MC to Develop-----------------------
@@ -115,6 +112,8 @@ function wrapper() { // wrapper for injection
 						temphtml += "<td>" + planet.megacredits + "</td>";
 					}
 					//-------------------MC to Develop-----------------------
+				} else {
+					temphtml += "<td>" + planet.megacredits + "</td>";
 				}
 
 				temphtml += "<td>" + planet.supplies + "</td><td>" + planet.neutronium + "</td><td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
@@ -139,7 +138,7 @@ function wrapper() { // wrapper for injection
 			}
 			if (view == 2) {
 				if (vgap.getStarbase(planet.id) != null)
-					temphtml += "<td style='color:white' title='Planet has SB'>" + "X" + "</td>";
+					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else
 					temphtml += "<td>" + "" + "</td>";
 				temphtml += "<td>" + planet.friendlycode + "</td>";
@@ -151,6 +150,7 @@ function wrapper() { // wrapper for injection
 				//-------------------MC to Develop-----------------------
 				if (vgap.isHomeSector() && canDevelop(planet)) {
 					temphtml += "<td style='color:green' title='Can raise Dev level'>" + planet.megacredits + "</td>";
+					show =1;
 				} else {
 					temphtml += "<td>" + planet.megacredits + "</td>";
 				}
@@ -197,7 +197,7 @@ function wrapper() { // wrapper for injection
 
 			if (view == 3) {
 				if (vgap.getStarbase(planet.id) != null)
-					temphtml += "<td style='color:white' title='Planet has SB'>" + "X" + "</td>";
+					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else
 					temphtml += "<td>" + "" + "</td>";
 				var SuppliesTotal = planet.factories;
@@ -361,18 +361,10 @@ function wrapper() { // wrapper for injection
 				}
 				//-------------------Starbase Mission Dropdown-------------	
 				if (vgap.getStarbase(planet.id) != null) {
-					var starbase = vgap.getStarbase(planet.id);
-					var mission_list = returnSBMissionArray(starbase);
-					temphtml += "<td><select id='Dropdown" + i + "' onChange='setSBMission(this)'>";
-					for (var k = 0; k < mission_list.length; k++) {
-						if (starbase.mission == mission_list[k].id)
-							temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-						else
-							temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-					}
-					temphtml += "</select></td>";
+					temphtml += "<td><select id='Dropdown" + i + "' ";
+					temphtml += missionDropdown + "</select></td>";
 				} else {
-					temphtml += "<td></td>";
+					  temphtml += "<td></td>";
 				}
 				//-------------------Starbase Mission Dropdown-------------
 				// Icono de estado
@@ -556,12 +548,26 @@ function wrapper() { // wrapper for injection
 	setSBMission = function (selectElement) {
 		const selectedIndex = selectElement.selectedIndex;
 		const starbaseIndex = parseInt(selectElement.id.replace("Dropdown", ""));
-		const starbase = vgap.mystarbases[starbaseIndex];
-		const mission_list = returnSBMissionArray(starbase);
+		var starbase = vgap.mystarbases[starbaseIndex];
+		var mission_list = returnSBMissionArray(starbase);
 		starbase.mission = mission_list[selectedIndex]?.id;
 		vgap.getPlanet(starbase.planetid).changed = 1;
 		vgap.save();
 		vgap.map.draw();
+	}
+
+	createMissionDropdown = function (starbase, selectedMissionId) {
+		var mission_list = returnSBMissionArray(starbase);
+		var dropdownHtml = " onChange='setSBMission(this)'>";
+	
+		for (var k = 0; k < mission_list.length; k++) {
+			if (mission_list[k].id == selectedMissionId) {
+				dropdownHtml += "<option value='" + k + "' selected>" + mission_list[k].name + "</option>";
+			} else {
+				dropdownHtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>";
+			}
+		}
+		return dropdownHtml;
 	}
 
 	togglePlanetReadyStatus = function (index) {
