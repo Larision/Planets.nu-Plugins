@@ -366,8 +366,10 @@ function wrapper1() { // wrapper for injection
 					console.log("destroyBuildingsCheck CLICKED");
 					if (plg.destroyBuildings == true)
 						plg.destroyBuildings = false;
-					else
+					else {
 						plg.destroyBuildings = true;
+						alert("BE CAREFUL WITH THIS! Please check your target mines and factories");
+					}
 					console.log("destroyBuildings is now: " + plg.destroyBuildings);
 				});
 
