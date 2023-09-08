@@ -134,7 +134,7 @@ function wrapper() { // wrapper for injection
             html += "<th title='Hull' align='left'>Hull</th><th align='left'>Id</th><th title='Ship Name' align='left'>Ship Name</th><th title='Destination' align='left'>Destination</th><th title='Ship Mission' align='left'>Mission</th>";
 
         if (view == 1)
-            html += "<th title='Megacredits' align='left'>MC</th><th title='Supplies' align='left'>S</th><th title='Neutronium' align='left'>N</th><th title='Duranium' align='left'>D</th><th title='Tritanium' align='left'>T</th><th title='Molybdenum' align='left'>M</th><th title='Torpedos or Fighters' align='left'>Ammo</th><th title='Clans' align='left'>Clan</th><th title='Total' align='left'>Total</th>";
+            html += "<span style='align:left'><th title='Megacredits'>MC</th><th title='Supplies'>S</th><th title='Neutronium'>N</th><th title='Duranium'>D</th><th title='Tritanium'>T</th><th title='Molybdenum'>M</th><th title='Clans'>Clan</th><th title='Torpedos or Fighters'>Ammo</th><th title='Total' align='center'>Total</th></span>";
         if ((view == 0) || (view == 6)) {
 
             html += "<th title='Hull' align='left'>Hull</th><th title='Engine' align='left'>Engine</th><th title='Beams' align='left'>Beams</th><th align='left'>Torps/Bays [Ammo]</th><th title='Damage' align='left'>Dam</th><th title='Crew' align='left'>Crew</th><th title='Friendly Code' align='left'>FC</th><th title='Ready Checkbox Status' align='left'>R</th>";
@@ -167,25 +167,9 @@ function wrapper() { // wrapper for injection
 
         for (var i = 0; i < vgap.myships.length; i++) {
             var ship = vgap.myships[i];
-            var hull = vgap.getHull(ship.hullid);
+            const hull = vgap.getHull(ship.hullid);
             var dam = (ship.damage > 0 ? "<span class='WarnText'>" + ship.damage + "%</span>" : ship.damage + "%");
             var crew = (ship.crew < hull.crew ? "<span class='WarnText'>" + ship.crew + "</span>" : ship.crew);
-
-            // Definir constantes para valores utilizados en el código.
-            const HYP_NONE = 0;
-            const HYP_YELLOW = 1;
-            const HYP_RED = 2;
-            const HYP_GREEN = 3;
-            const HYP_BLUE = 4;
-            const HYP_AQUA = 5;
-            const HYP_ORANGE = 6;
-
-            const CLOAK_NONE = 0;
-            const CLOAK_YELLOW = 1;
-            const CLOAK_RED = 2;
-            const CLOAK_GREEN = 3;
-            const CLOAK_BLUE = 4;
-            const CLOAK_ORANGE = 5;
 
             var show = 0;
             var temphtml = "";
@@ -204,6 +188,22 @@ function wrapper() { // wrapper for injection
             }
             //-----------------START NEW CODE------------------
             if ((view != 4) && (view != 5)) {
+                // Definir constantes para valores utilizados en el código.
+                const HYP_NONE = 0;
+                const HYP_YELLOW = 1; // HYP is set & destination less than 20 LY
+                const HYP_RED = 2;  // Wrong distance or not enough fuel
+                const HYP_GREEN = 3; // No problem with HYP
+                const HYP_BLUE = 4;  // No set to HYP
+                const HYP_AQUA = 5;  // HYP is set, no destination set
+                const HYP_ORANGE = 6;  // Valid destination but not enough fuel
+
+                const CLOAK_NONE = 0;
+                const CLOAK_YELLOW = 1;  // cloaked now, but won't be cloaked.
+                const CLOAK_RED = 2;  // not cloaked now, won't be cloaking
+                const CLOAK_GREEN = 3;  // cloaked now, will be cloaked.
+                const CLOAK_BLUE = 4;  // not cloaked now, but will be cloaked
+                const CLOAK_ORANGE = 5;  // set to cloak but PE is set
+
                 var hyp = HYP_NONE;
                 var cloak = CLOAK_NONE;
                 var destination = "Deep Space";
@@ -224,7 +224,6 @@ function wrapper() { // wrapper for injection
                     else
                         cloak = CLOAK_RED; //not cloaked now, won't be cloaking
                 }
-
                 if ((hull.cancloak) && (ship.mission == 9 || (vgap.player.raceid == 3 && ship.mission == 8)) && ship.enemy) cloak = CLOAK_ORANGE;
 
                 if ((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) {
@@ -327,19 +326,18 @@ function wrapper() { // wrapper for injection
                     temphtml += "<td>" + destination + "</td>";
                 }
                 var SelfAssault = 0;
-                if ((vgap.player.raceid == 4) || (vgap.player.raceid == 10)) {
-                    if (ship.mission == 8) {
-                        var AssaultTarget = idWarpWell(dest.x, dest.y);
-                        var targetPlanet;
-                        if (AssaultTarget != -1)
-                            targetPlanet = vgap.getPlanet(AssaultTarget);
-
-                        if ((targetPlanet != null) && (targetPlanet.ownerid == ship.ownerid))
-                            SelfAssault = 1;
-                        else if ((targetPlanet != null) && vgap.allied(targetPlanet.ownerid))
-                            SelfAssault = 2;
-                        else if (targetPlanet != null)
-                            SelfAssault = 3;
+                if ((vgap.player.raceid == 4 || vgap.player.raceid == 10) && ship.mission == 8) {
+                    var AssaultTarget = idWarpWell(dest.x, dest.y);
+                    if (AssaultTarget != -1) {
+                        var targetPlanet = vgap.getPlanet(AssaultTarget);
+                        if (targetPlanet != null) {
+                            if (targetPlanet.ownerid == ship.ownerid)
+                                SelfAssault = 1;
+                            else if (vgap.allied(targetPlanet.ownerid))
+                                SelfAssault = 2;
+                            else
+                                SelfAssault = 3;
+                        }
                     }
                 }
                 var towproblem = 0;
@@ -400,11 +398,11 @@ function wrapper() { // wrapper for injection
                 if (carga == hull.cargo)
                     cargostyle = 'color:orange';
                 else if (carga < hull.cargo)
-                    cargostyle = 'color:limegreen';
+                    cargostyle = 'color:forestgreen';
                 else
                     cargostyle = 'color:red';
 
-                temphtml += "<td>" + ship.megacredits + "</td><td>" + ship.supplies + "</td><td>" + ship.neutronium + "</td><td>" + ship.duranium + "</td><td>" + ship.tritanium + "</td><td>" + ship.molybdenum + "</td><td>" + ship.ammo + "</td><td>" + ship.clans + "</td><td><span style='display:inline-block; " + cargostyle + "; font-size: 13px'>" + carga + "</span>" + "/" + hull.cargo + "</td></tr>";
+                temphtml += "<td>" + ship.megacredits + "</td><td>" + ship.supplies + "</td><td>" + ship.neutronium + "</td><td>" + ship.duranium + "</td><td>" + ship.tritanium + "</td><td>" + ship.molybdenum + "</td><td>" + ship.clans + "</td><td>" + ship.ammo + "</td><td><span style='display:inline-block; " + cargostyle + "; font-size: 13px'>" + carga + "</span>" + "/" + hull.cargo + "</td></tr>";
             }
 
             if ((view == 0) || (view == 6)) {

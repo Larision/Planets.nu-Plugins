@@ -102,8 +102,8 @@ function wrapper() { // wrapper for injection
 				readyclass = 'fas fa-check-double';
 				readystyle = 'color:green';
 			}
-			if (vgap.getStarbase(planet.id) != null) {
-				var starbase = vgap.getStarbase(planet.id);
+			const starbase = vgap.getStarbase(planet.id);
+			if (starbase != null) {
   				var missionDropdown = createMissionDropdown(starbase, starbase.mission);
 			}
 
@@ -111,12 +111,13 @@ function wrapper() { // wrapper for injection
 				//-------------------Home Sector-------------------------
 				if (vgap.isHomeSector()) {
 					//-------------------Starbase Mission Dropdown-------------	
-					if (vgap.getStarbase(planet.id) != null) {
+					if (starbase != null) {
 						temphtml += "<td><select id='Dropdown" + i + "' ";
 						temphtml += missionDropdown + "</select></td>";
 					} else {
   						temphtml += "<td></td>";
 					}
+
 					//-------------------Starbase Mission Dropdown-------------
 					//-------------------MC to Develop-----------------------
 					if (canDevelop(planet)) {
@@ -129,38 +130,34 @@ function wrapper() { // wrapper for injection
 				} else {
 					temphtml += "<td>" + planet.megacredits + "</td>";
 				}
-				// No supplies games
-				if (!vgap.settings.nosupplies)
-					temphtml += "<td>" + planet.supplies + "</td>";
-				if (!vgap.settings.unlimitedfuel)
-					temphtml += "<td>" + planet.neutronium + "</td>";
-				temphtml += "<td>" + planet.duranium + "</td><td>" + planet.tritanium + "</td><td>" + planet.molybdenum + "</td>";
-				// No fuel games
-				if (!vgap.settings.unlimitedfuel) {
-					if (planet.groundneutronium < 10)
-						temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundneutronium + "</td>";
-					else
-						temphtml += "<td>" + planet.groundneutronium + "</td>";
-				}
-				if (planet.groundduranium < 10)
-					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundduranium + "</td>";
-				else
-					temphtml += "<td>" + planet.groundduranium + "</td>";
-				if (planet.groundtritanium < 10)
-					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundtritanium + "</td>";
-				else
-					temphtml += "<td>" + planet.groundtritanium + "</td>";
-				if (planet.groundmolybdenum < 10)
-					temphtml += "<td style='color:red' title='Mineral Exhausted'>" + planet.groundmolybdenum + "</td>";
-				else
-					temphtml += "<td>" + planet.groundmolybdenum + "</td>";
-				// No fuel games
-				if (!vgap.settings.unlimitedfuel)
-					temphtml += "<td>" + planet.densityneutronium + "</td>";
-				temphtml += "<td>" + planet.densityduranium + "</td><td>" + planet.densitytritanium + "</td><td>" + planet.densitymolybdenum + "</td></tr>";
+				const supplies = vgap.settings.nosupplies ? "" : `<td>${planet.supplies}</td>`;
+				const neutronium = vgap.settings.unlimitedfuel ? "" : `<td>${planet.neutronium}</td>`;
+				const groundNeutronium = !vgap.settings.unlimitedfuel ?
+					(planet.groundneutronium < 10 ? `<td style='color:red' title='Mineral Exhausted'>${planet.groundneutronium}</td>` : `<td>${planet.groundneutronium}</td>`) :
+					'';
+				const groundDuranium = planet.groundduranium < 10 ? `<td style='color:red' title='Mineral Exhausted'>${planet.groundduranium}</td>` : `<td>${planet.groundduranium}</td>`;
+				const groundTritanium = planet.groundtritanium < 10 ? `<td style='color:red' title='Mineral Exhausted'>${planet.groundtritanium}</td>` : `<td>${planet.groundtritanium}</td>`;
+				const groundMolybdenum = planet.groundmolybdenum < 10 ? `<td style='color:red' title='Mineral Exhausted'>${planet.groundmolybdenum}</td>` : `<td>${planet.groundmolybdenum}</td>`;
+
+				const temp2html = `
+					${supplies}
+					${neutronium}
+					<td>${planet.duranium}</td>
+					<td>${planet.tritanium}</td>
+					<td>${planet.molybdenum}</td>
+					${groundNeutronium}
+					${groundDuranium}
+					${groundTritanium}
+					${groundMolybdenum}
+					${vgap.settings.unlimitedfuel ? "" : `<td>${planet.densityneutronium}</td>`}
+					<td>${planet.densityduranium}</td>
+					<td>${planet.densitytritanium}</td>
+					<td>${planet.densitymolybdenum}</td>
+				`;
+				temphtml += temp2html;
 		}
 			if (view == 2) {
-				if (vgap.getStarbase(planet.id) != null)
+				if (starbase != null)
 					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else
 					temphtml += "<td>" + "" + "</td>";
@@ -219,7 +216,7 @@ function wrapper() { // wrapper for injection
 			}
 
 			if (view == 3) {
-				if (vgap.getStarbase(planet.id) != null)
+				if (starbase != null)
 					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else
 					temphtml += "<td>" + "" + "</td>";
@@ -298,7 +295,7 @@ function wrapper() { // wrapper for injection
 			}
 			if ((view == 0) || (view == 5)) {
 				//-------------------Star Base-------------------------
-				if (vgap.getStarbase(planet.id) != null)
+				if (starbase != null)
 					temphtml += "<td title='Planet has SB'><i style='color:green' class='fas fa-check'></i></td>";
 				else {
 					var count = 5;
@@ -384,7 +381,7 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td></td><td></td><td></td><td></td><td></td><td></td>";
 				}
 				//-------------------Starbase Mission Dropdown-------------	
-				if (vgap.getStarbase(planet.id) != null) {
+				if (starbase != null) {
 					temphtml += "<td><select id='Dropdown" + i + "' ";
 					temphtml += missionDropdown + "</select></td>";
 				} else {
