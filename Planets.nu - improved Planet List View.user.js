@@ -197,22 +197,22 @@ function wrapper() { // wrapper for injection
 					if (planet.target)
 						targettext = planet.target.id + ": " + planet.target.name;
 					targettext += " (" + planet.targetx + ", " + planet.targety + ")";
-					html += "<td><img class='TinyIcon' src='" + hullImg(planet.podhullid) + "'/></td><td>" + hull.name + "</td>";
+					temphtml += "<td><img class='TinyIcon' src='" + hullImg(planet.podhullid) + "'/></td><td>" + hull.name + "</td>";
 					if (nu.isHullPod(planet.podhullid)) {
-						html += "<td>" + planet.podcargo + " / " + hull.cargo + "</td><td>" + planet.podspeed + "</td><td>" + targettext + "</td>";
+						temphtml += "<td>" + planet.podcargo + " / " + hull.cargo + "</td><td>" + planet.podspeed + "</td><td>" + targettext + "</td>";
 						if (planet.builtdefense > 0) { //accelerator target
 							var acc = vgap.getShip(planet.builtdefense);
-							html += "<td>" + acc.id + " (" + acc.x + ", " + acc.y + ")</td>";
+							temphtml += "<td>" + acc.id + " (" + acc.x + ", " + acc.y + ")</td>";
 						}
 						else
-							html += "<td/>";
+							temphtml += "<td/>";
 					}
 					else
-						html += "<td/><td/><td/><td/>";
+						temphtml += "<td/><td/><td/><td/>";
 				}
 				else
-					html += "<td/><td/><td/><td/><td/><td/>";
-				html += "</tr>";
+					temphtml += "<td/><td/><td/><td/><td/><td/>";
+				temphtml += "</tr>";
 			}
 
 			if (view == 3) {
