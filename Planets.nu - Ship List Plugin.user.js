@@ -858,7 +858,6 @@ const ShipList = function (vgap) {
                     groundneutronium: vgapPlanet.groundneutronium,
                     groundtritanium: vgapPlanet.groundtritanium,
                     infoturn: vgapPlanet.infoturn,
-                    img: vgapPlanet.img,
                     megacredits: vgapPlanet.megacredits,
                     mines: vgapPlanet.mines,
                     molybdenum: vgapPlanet.molybdenum,
@@ -3975,9 +3974,7 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     let listPlanet = {};
     const listPlanets = vgap.plugins.shipList.planets;
 
-    const planetIds = listPlanets.map(function (planet) {
-        return planet.id;
-    });
+    const planetIds = listPlanets.map((planet) => {return planet.id;});
     const planetIdx = planetIds.indexOf(planet.id);
 
     if (planet.ownerid == vgap.player.id)
@@ -4008,7 +4005,7 @@ sharedContent.prototype.planetScan = function (planet, tempAtTop, showTitle, sma
     if (listPlanet.temp >= 0 && !showTitle)
         html += shtml.getTempIcon(listPlanet, "position:relative;" + offset);
 
-    html += "<img src='" + vgap.planets[planetIdx].img + "'" + (showTitle ? "" : " style='top:10px;'") + "/>";
+    html += "<img src='" + listPlanet.img + "'" + (showTitle ? "" : " style='top:10px;'") + "/>";
 
     //html += "<div class='scantitle'>" + Math.abs(planet.id) + ": " + planet.name + "</div>";
 
