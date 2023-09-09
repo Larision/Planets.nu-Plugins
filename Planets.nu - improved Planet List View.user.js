@@ -41,10 +41,10 @@ function wrapper() { // wrapper for injection
 		$("<li " + (view == 5 ? "class='SelectedFilter'" : "") + ">What's Interesting</li>").tclick(function () {vgap.dash.showPlanets(5);}).appendTo(filterMenu);
 
 		//loop through all planets and show the ones owned by this player
-		html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 70) + "px;'>";
+		html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 30) + "px;'>";
 
-		html += "<table id='PlanetTable' align='left' class='CleanTable' border='0' width='100%' style='cursor:pointer;'><thead>";
-		html += "<th></th><th align='left'>Id</th><th align='left'>Name</th>";
+		html += "<table id='PlanetTable' align='left' class='CleanTable' border='0' width='100%' style='cursor:pointer;'><thead><tr style='position: sticky; top: 0; border-spacing: 0; white-space: nowrap; background-color: #666; '>";
+		html += "<th></th><th title='Id' align='left'>Id</th><th title='Name' align='left' style='padding: 10px 5px;'>Name</th>";
 		if (view == 1) {
 			if (vgap.isHomeSector()) {
 				html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
@@ -63,7 +63,7 @@ function wrapper() { // wrapper for injection
 			if (vgap.isHomeSector()) {
 				html += "<th title='DevelopmentLevel' align='left'>DLvl</th>";
 			}
-			html += "<th align='left' class=\"{sorter: 'text'}\">FC</th><th title='Temperature' align='left'>Temp</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th>";
+			html += "<th title='FCode' align='left' class=\"{sorter: 'text'}\">FC</th><th title='Temperature' align='left'>Temp</th><th title='Colonists' align='left'>Cols</th><th title='Megacredits' align='left'>MC</th>";
 			html += "<th title='Colonist Tax Rate' align='left'>Tx</th><th title='Colonist Happiness' align='left'>Hp</th><th title='Colonist Happiness Change' align='left'>+/-</th><th title='Natives' align='left'>Natives</th><th title='Native Government' align='left'>Gov</th><th title='Native Population' align='left'>Pop</th><th title='Native Tax Rate' align='left'>Tx</th><th title='Native Happiness' align='left'>Hp</th><th title='Native Happiness Change' align='left'>+/-</th>";
 			html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
 			html += "<th title='Ready Checkbox Status' align='left'>R</th>";
@@ -79,7 +79,7 @@ function wrapper() { // wrapper for injection
 		if (view == 12)
 			html += "<th title='Hull Image' align='left'></th><th title='Hull' align='left'>Hull</th><th title='Cargo' align='left'>Cargo</th><th title='Speed' align='left'>Speed</th><th title='Target' align='left'>Target</th><th title='Accelerator' align='left'>Accelerator</th>";
 
-		html += "</thead><tbody id='PlanetRows'></tbody></table></div>";
+		html += "</tr></thead><tbody id='PlanetRows'></tbody></table></div>";
 
 		this.pane = $(html).appendTo(this.content);
 

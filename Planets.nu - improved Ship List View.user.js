@@ -116,7 +116,7 @@ function wrapper() { // wrapper for injection
         //---------------END NEW CODE-----------------------
 
 
-        html += "<table id='ShipTable' align='left' border='0' width='100%' style='cursor:pointer;'><thead>";
+        html += "<table id='ShipTable' align='left' border='0' width='100%' style='cursor:pointer;'><thead style='position: sticky; top: 0; '>";
 
         //---------------START NEW CODE-----------------------
         if (view == 5) {
@@ -289,7 +289,7 @@ function wrapper() { // wrapper for injection
                     if (ship.x == dest.x && ship.y == dest.y)
                         destination = "Not Moving";
                     else
-                        destination = ship.target.id + " " + ship.target.name.substr(0, 20);
+                        destination = "Id " + ship.target.id + " " + ship.target.name.substr(0, 20);
                 }
                 var hypCheck = 0;
                 if (((ship.hullid == 87) || (ship.hullid == 77) || (ship.hullid == 51)) && (ship.friendlycode.toUpperCase() == "HYP")) hypCheck = 1;
