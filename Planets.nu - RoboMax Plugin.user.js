@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name          Planets.nu - RoboMax Plugin
 // @description   RoboMax Plugin
-// @version       0.9.3
-// @date          2020-05-08
+// @version       0.9.5
+// @date          2023-09-11
 // @author        robodoc
 // @match         http://*.planets.nu/*
 // @match         https://*.planets.nu/*
@@ -14,8 +14,10 @@
 // @exclude       https://profile*.planets.nu/*
 // @history       0.9.0    Preview release
 
+
 // @namespace https://greasyfork.org/users/5275
 // ==/UserScript==
+// 0.9.5 - Added Home sector settings, added advanced settings, and some minor bug fixes.
 
 
 function wrapper1() { // wrapper for injection
@@ -25,7 +27,7 @@ function wrapper1() { // wrapper for injection
 		return;
 	}
 
-	var plugin_version = "0.9.3";
+	var plugin_version = "0.9.5";
 	console.log("RoboMax plugin version: v" + plugin_version);
 
 	var roboMaxPlugin = {
