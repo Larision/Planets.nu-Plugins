@@ -222,7 +222,7 @@ function wrapper() { // wrapper for injection
 					temphtml += "<td>" + "" + "</td>";
 				var SuppliesTotal = planet.factories;
 				//--------------------------MC Produced-----------------------------------				
-				var colTax = MyColTaxAmount(planet);
+				var colTax = calculateColTaxAmount(planet);
 				var nativeTax = myNativeTaxAmount(planet);
 
 				temphtml += "<td>" + (colTax + nativeTax) + "</td>";
@@ -448,17 +448,11 @@ function wrapper() { // wrapper for injection
 
 		return val;
 	};
-	MyColTaxAmount = function (planet) {
-		var colTax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
-		//player tax rate (fed bonus)
-		var taxbonus = 1;
-		if (vgap.advActive(2))
-			taxbonus = 2;
-		colTax = colTax * taxbonus;
-
-		if (colTax > 5000)
-			colTax = 5000;
-		return (colTax)
+	const calculateColTaxAmount = (planet) => {
+	  const colTax = Math.round((planet.colonisttaxrate * planet.clans) / 1000);
+	  const taxbonus = vgap.advActive(2) ? 2 : 1;
+	  const adjustedColTax = Math.min(colTax * taxbonus, 5000);
+	  return adjustedColTax;
 	};
 	maxColonistAmountHTML = function (planet) {
 		//-------------------Colonist amount-------------------
