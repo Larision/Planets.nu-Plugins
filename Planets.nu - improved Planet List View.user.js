@@ -44,7 +44,7 @@ function wrapper() { // wrapper for injection
 		html = "<div class='DashPane' style='height:" + ($("#DashboardContent").height() - 30) + "px;'>";
 
 		html += "<table id='PlanetTable' align='left' class='CleanTable' border='0' width='100%' style='cursor:pointer;'><thead><tr style='position: sticky; top: 0; border-spacing: 0; white-space: nowrap; background-color: #666; '>";
-		html += "<th></th><th title='Id' align='left'>Id</th><th title='Name' align='left' style='padding: 10px 5px;'>Name</th>";
+		html += "<th></th><th title='Id' align='left'>Id</th><th title='Name' align='left' style='padding: 8px 5px;'>Name</th>";
 		if (view == 1) {
 			if (vgap.isHomeSector()) {
 				html += "<th title='Starbase Mission' align='left'>SB Mission</th>";
