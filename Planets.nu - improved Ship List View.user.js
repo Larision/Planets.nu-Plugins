@@ -186,6 +186,9 @@ function wrapper() { // wrapper for injection
                 readyclass = 'fas fa-check-double';
                 readystyle = 'color:green';
             }
+            
+            var shipMissionDropdown = createshipMissionDropdown(ship, ship.mission);
+
             //-----------------START NEW CODE------------------
             if ((view != 4) && (view != 5)) {
                 // Definir constantes para valores utilizados en el código.
@@ -364,7 +367,8 @@ function wrapper() { // wrapper for injection
 
 
                 if (view != 2) {
-                    const mission_list = returnMissionArray(ship);
+                    var shipMissionDropdown = createshipMissionDropdown(ship, ship.mission);
+
                     if (SelfAssault == 1) {
                         temphtml += "<td style='color:red' title='Your ship is set to RGA/Pillage your own planet'>";
                         show = 1;
@@ -383,12 +387,8 @@ function wrapper() { // wrapper for injection
                         show = 1;
                     }
                     else temphtml += "<td>";
-                    for (const mission of mission_list) {
-                        if (ship.mission === mission.id) {
-                            const missionName = mission.name;
-                            temphtml += missionName + "</td>";
-                        }
-                    }
+                    temphtml += "<td><select id='DropdownS" + i + "' ";
+					temphtml += shipMissionDropdown + "</select></td>";
                 }
             }
 
@@ -452,15 +452,9 @@ function wrapper() { // wrapper for injection
 
             if (view == 2) {
                 var dest = vgap.getDest(ship);
-                var mission_list = returnMissionArray(ship);
-                temphtml += "<td><select id='Dropdown" + i + "' onChange='setShipMission(this)'>";
-                for (var k = 0; k < mission_list.length; k++) {
-                    if (ship.mission == mission_list[k].id)
-                        temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-                    else
-                        temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-                }
-                temphtml += "</select></td>";
+                
+                temphtml += "<td><select id='DropdownS" + i + "' ";
+                temphtml += shipMissionDropdown + "</select></td>";
 
                 temphtml += "<td>" + vgap.getBattleValue(ship) + "</td><td>" + ship.x + "-" + ship.y + "</td><td>" + dest.x + "-" + dest.y + "</td><td>" + vgap.getTravelDist(ship).toFixed(1) + "</td><td>" + ship.warp + "</td><td>" + ship.neutronium + "</td>";
                 temphtml += "<td><input type='text' size='3' maxlength='3' id='Input" + i + "' onchange='setFC(this);' value='" + ship.friendlycode + "'/></td>";
@@ -571,7 +565,7 @@ function wrapper() { // wrapper for injection
                 select = function (id) {return function () { };};
             else
                 select = function (id) {return function () {vgap.map.selectShip(id);};};
-            rowHtml.find("td:not(:has(select, input, button))").click(select(ship.id));
+            rowHtml.find("td:not(.toggle-cell):not(:has(select, input, button))").click(select(ship.id));
             rowHtml.appendTo("#ShipRows");
         }
         if (view == 5) {
@@ -613,18 +607,13 @@ function wrapper() { // wrapper for injection
                                 destination2 = output2;
                             if (ship2.target != null)
                                 destination2 = ship2.target.name.substr(0, 20);
-                            var mission_list = returnMissionArray(ship2);
+                            var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
                             html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                             html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                             html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                            html += "<td><select id='DropdownA" + count + "' onChange='setShipMission(this)'>";
-                            for (var k = 0; k < mission_list.length; k++) {
-                                if (ship2.mission == mission_list[k].id)
-                                    temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-                                else
-                                    temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-                            }
-                            html += "</select></td>";
+
+                            temphtml += "<td><select id='DropdownS" + count + "' ";
+                            temphtml += shipMissionDropdown + "</select></td>";
 
                             html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
@@ -665,18 +654,13 @@ function wrapper() { // wrapper for injection
                                 destination2 = output2;
                             if (ship2.target != null)
                                 destination2 = ship2.target.name.substr(0, 20);
-                            var mission_list = returnMissionArray(ship2);
+                            
                             html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                             html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                             html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                            html += "<td><select id='DropdownA" + count + "' onChange='setShipMission(this)'>";
-                            for (var k = 0; k < mission_list.length; k++) {
-                                if (ship2.mission == mission_list[k].id)
-                                    temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-                                else
-                                    temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-                            }
-                            html += "</select></td>";
+                            var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
+                            temphtml += "<td><select id='DropdownS" + count + "' ";
+                            temphtml += shipMissionDropdown + "</select></td>";
 
                             html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
@@ -727,18 +711,13 @@ function wrapper() { // wrapper for injection
                                     destination2 = output2;
                                 if (ship2.target != null)
                                     destination2 = ship2.target.name.substr(0, 20);
-                                var mission_list = returnMissionArray(ship2);
+                                var mission_list = returnShipMissionArray(ship2);
                                 html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                                 html += "<td style='width:10%'>" + fleetNames2[i] + "</td><td style='width:5%'>" + fleetSizes2[i] + "</td><td style='width:10%'>" + destination2 + "</td>";
                                 html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                                html += "<td><select id='DropdownA" + j + "' onChange='setShipMission(this)'>";
-                                for (var k = 0; k < mission_list.length; k++) {
-                                    if (ship2.mission == mission_list[k].id)
-                                        temphtml += "<option value='" + k + "' selected=>" + mission_list[k].name + "</option>"
-                                    else
-                                        temphtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>"
-                                }
-                                html += "</select></td>";
+                                var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
+                                temphtml += "<td><select id='DropdownS" + j + "' ";
+                                temphtml += shipMissionDropdown + "</select></td>";
 
                                 html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
@@ -771,7 +750,7 @@ function wrapper() { // wrapper for injection
                 select = function (id) {return function () { };};
             else
                 select = function (id) {return function () {vgap.map.selectShip(id);};};
-            rowHtml.find("td:not(:has(select, input, button))").click(select(ship.id));
+            rowHtml.find("td:not(.toggle-cell):not(:has(select, input, button))").click(select(ship.id));
             rowHtml.appendTo("#ShipRows");
         }
         //---------------END NEW CODE-----------------------
@@ -916,37 +895,29 @@ function wrapper() { // wrapper for injection
     };
 
     setShipMission = function (selectElement) {
-        const selectedIndex = selectElement.selectedIndex;
-        let shipIndex = parseInt(selectElement.id.replace("Dropdown", ""));
-        let command = 0;
-        if (shipIndex.toString().charAt(0) == 'A') {
-            shipIndex = parseInt(selectElement.id.replace("DropdownA", ""));
-            command = 1;
-        }
-        const ship = vgap.myships[shipIndex];
-        const mission_list = returnMissionArray(ship);
-        ship.mission = mission_list[selectedIndex]?.id;
-        ship.changed = 1;
-        if (command == 0)
-            vgap.dash.showShips(2);
-        else
-            vgap.dash.showShips(5);
-        // Alerts when target involved in mission
-        if (ship.mission == 6) {
-            alert("Tow mission selected, ensure what you towing!!");
-            vgap.map.selectShip(ship.id);
-        } else if (ship.mission == 7) {
-            alert("Intercept mission selected, ensure you have correct waypoint to target!!");
-            vgap.map.selectShip(ship.id);
-        } else if (ship.mission == 20) {
-            alert("Cloak and intercept mission selected, ensure you have correct waypoint to target!!");
-            vgap.map.selectShip(ship.id);
-        }
+		const selectedIndex = selectElement.selectedIndex;
+		const shipIndex = parseInt(selectElement.id.replace("DropdownS", ""));
+		var ship = vgap.myships[shipIndex];
+		var mission_list = returnShipMissionArray(ship);
+		ship.mission = mission_list[selectedIndex]?.id;
+		ship.changed = 1;
+		vgap.save();
+		vgap.map.draw();
+	}
 
-        if (vgaPlanets.prototype.version < 3)
-            vgap.map.updateZoom();
-        vgap.map.draw();
-    };
+	createshipMissionDropdown = function (ship, selectedMissionId) {
+		var mission_list = returnShipMissionArray(ship);
+		var shipDropdownHtml = " onChange='setShipMission(this)'>";
+	
+		for (var k = 0; k < mission_list.length; k++) {
+			if (mission_list[k].id == selectedMissionId) {
+				shipDropdownHtml += "<option value='" + k + "' selected>" + mission_list[k].name + "</option>";
+			} else {
+				shipDropdownHtml += "<option value='" + k + "'>" + mission_list[k].name + "</option>";
+			}
+		}
+		return shipDropdownHtml;
+	}
 
     setCB = function (cb__cb) {
         var cb_length = cb__cb.id.length;
@@ -998,10 +969,10 @@ function wrapper() { // wrapper for injection
 
 
 
-    returnMissionArray = function (ship) {
+    returnShipMissionArray = function (ship) {
 
         const missions = new Array();
-        const hull = vgap.getHull(ship.hullid);
+        var hull = vgap.getHull(ship.hullid);
         const owner = vgap.getPlayer(ship.ownerid);
 
         //explore
@@ -1126,12 +1097,12 @@ function wrapper() { // wrapper for injection
         if (vgap.settings.maxwormholes > 0)
             missions.push({id: 23, name: "Enter Wormhole", desc: "Travel through a wormhole at your destination.", helpKey: "mis-enter-wormhole"});
 
-        // TODO: Load Artifact and Transfer Artifact work
-        /*   if (this.planet && this.planet.artifacts)
-              missions.push({ id: 24, name: "Load Artifact", desc: "Load an artifact from " + this.planet.name, helpKey: "mis-load-artifact" });
-          if (ship.artifacts && (this.planet != null || vgap.shipsAt(ship.x, ship.y).length > 1))
-              missions.push({ id: 25, name: "Transfer Artifact", desc: "Send an artifact to another ship or planet.", helpKey: "mis-transfer-artifact"});
-   */
+        
+        /* if (vgap.planetAt(ship.x, ship.y) && this.planet.artifacts)
+            missions.push({ id: 24, name: "Load Artifact", desc: "Load an artifact from " + this.planet.name, helpKey: "mis-load-artifact" });
+        if (ship.artifacts && (this.planet != null || vgap.shipsAt(ship.x, ship.y).length > 1))
+            missions.push({ id: 25, name: "Transfer Artifact", desc: "Send an artifact to another ship or planet.", helpKey: "mis-transfer-artifact"});
+ */  
 
         //hide in warp well
         if (hull.mass < 60 && vgap.advActive(73))
