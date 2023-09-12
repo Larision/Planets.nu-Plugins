@@ -367,7 +367,6 @@ function wrapper() { // wrapper for injection
 
 
                 if (view != 2) {
-                    var shipMissionDropdown = createshipMissionDropdown(ship, ship.mission);
 
                     if (SelfAssault == 1) {
                         temphtml += "<td style='color:red' title='Your ship is set to RGA/Pillage your own planet'>";
@@ -386,10 +385,13 @@ function wrapper() { // wrapper for injection
                         temphtml += "<td style='color:orange' title='You are intercepting an enemy ship without PE set'>";
                         show = 1;
                     }
-                    else temphtml += "<td>";
-                    temphtml += "<td><select id='DropdownS" + i + "' ";
-					temphtml += shipMissionDropdown + "</select></td>";
+                    else {
+                        temphtml += "<td>";
+                    }
+                    temphtml += "<select id='DropdownS" + i + "'>";
+                    temphtml += shipMissionDropdown + "</select></td>";
                 }
+
             }
 
             if (view == 1) {
@@ -453,7 +455,7 @@ function wrapper() { // wrapper for injection
             if (view == 2) {
                 var dest = vgap.getDest(ship);
                 
-                temphtml += "<td><select id='DropdownS" + i + "' ";
+                temphtml += "<td><select id='DropdownS" + i + "'>";
                 temphtml += shipMissionDropdown + "</select></td>";
 
                 temphtml += "<td>" + vgap.getBattleValue(ship) + "</td><td>" + ship.x + "-" + ship.y + "</td><td>" + dest.x + "-" + dest.y + "</td><td>" + vgap.getTravelDist(ship).toFixed(1) + "</td><td>" + ship.warp + "</td><td>" + ship.neutronium + "</td>";
@@ -583,7 +585,7 @@ function wrapper() { // wrapper for injection
 
                         if ((showDestination == 0) && (vgap.myships[count].x == enteredShip.x) && (vgap.myships[count].y == enteredShip.y)) {
                             //alert("match");
-                            var ship = vgap.myships[count];
+                            /* var ship = vgap.myships[count];
                             var hull = vgap.getHull(ship.hullid);
                             var destination = "Deep Space";
                             var dest = vgap.getDest(ship);
@@ -594,12 +596,13 @@ function wrapper() { // wrapper for injection
                                 destination = ship.target.name.substr(0, 20);
                             var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
                             var speed = vgap.getSpeed(ship.warp, ship.hullid);
-                            var location = "Deep Space";
+                            var location = "Deep Space"; */
 
                             //html+='<tr class="RowSelect" title="' + ship.name + '" onClick="changeShowFleet('+i+');" style="vertical-align:top; font-weight:bold;">';
                             //html += "<td style='width:10%'>" +  "adHoc" + "</td><td style='width:5%'>" +  "N/A" + "</td><td style='width:10%'>"+destination+"</td>";
                             //----------
                             var ship2 = vgap.myships[count];
+                            var hull = vgap.getHull(ship2.hullid);
                             var destination2 = "Deep Space";
                             var dest2 = vgap.getDest(ship2);
                             var output2 = betterWarpWell(dest2.x, dest2.y);
@@ -607,19 +610,22 @@ function wrapper() { // wrapper for injection
                                 destination2 = output2;
                             if (ship2.target != null)
                                 destination2 = ship2.target.name.substr(0, 20);
+                            var distance = Math.dist(ship2.x, ship2.y, ship2.targetx, ship2.targety);
+                            var speed = vgap.getSpeed(ship2.warp, ship2.hullid);
+                            var location = "Deep Space";
                             var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
+
                             html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                             html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                             html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-
-                            temphtml += "<td><select id='DropdownS" + count + "' ";
-                            temphtml += shipMissionDropdown + "</select></td>";
+                            html += "<td><select id='DropdownS" + count + "'>";
+                            html += shipMissionDropdown + "</select></td>";
 
                             html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
                             //---------------START NEW CODE-----------------------
                             html += "<td><input type='text' id='InputA" + count + "' size='3' maxlength='3' onchange='setFC(this);' value='" + ship2.friendlycode + "'/></td>";
-                            html += "<td><button type='button' id='ButtonA" + count + "' onClick='setFleetDest(this);'>Set Flt Dest</button></td>";
+                            html += "<td><button type='button' id='Button" + count + "' onClick='setFleetDest(this);'>Set Flt Dest</button></td>";
                             if (ship2.readystatus > 0)
                                 html += "<td><input type='checkbox' id='CheckA" + count + "' checked='checked' onchange='setCB(this);'/></td>";
                             else
@@ -630,7 +636,7 @@ function wrapper() { // wrapper for injection
                         }
                         //else alert("no match "+ showDestination + count + vgap.myships[count].x + enteredShip.x + vgap.myships[count].y +  enteredShip.y);
                         if ((showDestination == 1) && (vgap.myships[count].targetx == enteredShip.targetx) && (vgap.myships[count].targety == enteredShip.targety)) {
-                            var ship = vgap.myships[count];
+                            /* var ship = vgap.myships[count];
                             var hull = vgap.getHull(ship.hullid);
                             var destination = "Deep Space";
                             var dest = vgap.getDest(ship);
@@ -641,12 +647,13 @@ function wrapper() { // wrapper for injection
                                 destination = ship.target.name.substr(0, 20);
                             var distance = Math.dist(ship.x, ship.y, ship.targetx, ship.targety);
                             var speed = vgap.getSpeed(ship.warp, ship.hullid);
-                            var location = "Deep Space";
+                            var location = "Deep Space"; */
 
                             //html+='<tr class="RowSelect" title="' + ship.name + '" onClick="changeShowFleet('+i+');" style="vertical-align:top; font-weight:bold;">';
                             //html += "<td style='width:10%'>" +  "adHoc" + "</td><td style='width:5%'>" +  "N/A" + "</td><td style='width:10%'>"+destination+"</td>";
                             //----------
                             var ship2 = vgap.myships[count];
+                            var hull = vgap.getHull(ship2.hullid);
                             var destination2 = "Deep Space";
                             var dest2 = vgap.getDest(ship2);
                             var output2 = betterWarpWell(dest2.x, dest2.y);
@@ -654,19 +661,22 @@ function wrapper() { // wrapper for injection
                                 destination2 = output2;
                             if (ship2.target != null)
                                 destination2 = ship2.target.name.substr(0, 20);
+                            var distance = Math.dist(ship2.x, ship2.y, ship2.targetx, ship2.targety);
+                            var speed = vgap.getSpeed(ship2.warp, ship2.hullid);
+                            var location = "Deep Space";
                             
                             html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                             html += "<td style='width:10%'>" + "" + "</td><td style='width:5%'>" + "" + "</td><td style='width:10%'>" + destination2 + "</td>";
                             html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
                             var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
-                            temphtml += "<td><select id='DropdownS" + count + "' ";
-                            temphtml += shipMissionDropdown + "</select></td>";
+                            html += "<td><select id='DropdownS" + count + "'>";
+                            html += shipMissionDropdown + "</select></td>";
 
                             html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
                             //---------------START NEW CODE-----------------------
                             html += "<td><input type='text' size='3' maxlength='3' id='InputA" + count + "' onchange='setFC(this);' value='" + ship2.friendlycode + "'/></td>";
-                            html += "<td><button type='button' id='ButtonA" + count + "' onClick='setFleetDest(this);'>Set Flt Dest</button></td>";
+                            html += "<td><button type='button' id='Button" + count + "' onClick='setFleetDest(this);'>Set Flt Dest</button></td>";
                             if (ship2.readystatus > 0)
                                 html += "<td><input type='checkbox' id='CheckA" + count + "' checked='checked' onchange='setCB(this);'/></td>";
                             else
@@ -711,13 +721,14 @@ function wrapper() { // wrapper for injection
                                     destination2 = output2;
                                 if (ship2.target != null)
                                     destination2 = ship2.target.name.substr(0, 20);
-                                var mission_list = returnShipMissionArray(ship2);
+                                var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
+
                                 html += '<tr class="RowSelect" title="' + ship2.name + '" style="vertical-align:top;">';
                                 html += "<td style='width:10%'>" + fleetNames2[i] + "</td><td style='width:5%'>" + fleetSizes2[i] + "</td><td style='width:10%'>" + destination2 + "</td>";
                                 html += "<td style='width:5%' onclick='vgap.map.selectShip(" + ship2.id + ");'><img class='TinyIcon' src='" + hullImg(ship2.hullid) + "'/></td><td onclick='vgap.map.selectShip(" + ship2.id + ");' style='width:5%'>" + ship2.id + "</td><td onclick='vgap.map.selectShip(" + ship2.id + ");'>" + ship2.name + "</td>";
-                                var shipMissionDropdown = createshipMissionDropdown(ship2, ship2.mission);
-                                temphtml += "<td><select id='DropdownS" + j + "' ";
-                                temphtml += shipMissionDropdown + "</select></td>";
+                                
+                                html += "<td><select id='DropdownS" + j + "'>";
+                                html += shipMissionDropdown + "</select></td>";
 
                                 html += "<td>" + vgap.getBattleValue(ship2) + "</td><td>" + ship2.enemy + "</td><td>" + ship2.x + "-" + ship2.y + "</td><td>" + vgap.getTravelDist(ship2).toFixed(1) + "</td><td>" + ship2.warp + "</td><td>" + ship2.neutronium + "</td>";
 
@@ -948,7 +959,6 @@ function wrapper() { // wrapper for injection
         set_cookie("showDestination", passed, 2099, 1, 1);
     };
 
-
     changeShow = function (race) {
         if (showShip[race] == false)
             showShip[race] = true;
@@ -956,7 +966,6 @@ function wrapper() { // wrapper for injection
             showShip[race] = false;
         vgap.dash.showShips(4);
     };
-
 
     changeShowFleet = function (index) {
         //alert("hi");
@@ -966,8 +975,6 @@ function wrapper() { // wrapper for injection
             showFleet[index] = false;
         vgap.dash.showShips(5);
     };
-
-
 
     returnShipMissionArray = function (ship) {
 
@@ -1219,7 +1226,6 @@ function wrapper() { // wrapper for injection
         buildFleetList2();
     };
 
-
     //================END FLEET FUNCTIONS=================================
     //====================FUEL FUNCTIONS==================================
     checkFuel = function (ship) {
@@ -1247,7 +1253,6 @@ function wrapper() { // wrapper for injection
     turnFuel2 = function (distance, mass, xv, turndistance, ship) {
         return Math.floor(xv * Math.floor(mass / 10) * ((Math.floor(distance) / turndistance) / 10000)) + cloakedFuel(ship);
     };
-
 
     getFuelUsage2 = function (ship, x1, y1, x2, y2) {
         var engine = vgap.getEngine(ship.engineid);
