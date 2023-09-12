@@ -862,15 +862,9 @@ function wrapper1() { // wrapper for injection
 				}
 				// MAX INCOME IS 5000!!! colonist + natives cant be more than 5000
 				// Make sure that we don't tax more than we can collect:
-				//colTax = colTax * taxbonus;
-				var nattax = this.nativeTaxAmount(planet);
-				if (nattax <= 0) {
-					if (colTax > 5000)
-						return rate - 1;
-				} else {
-					if (colTax + this.nativeTaxAmount(planet) > 5000)
-						return rate;
-				}
+				//colTax = colTax * taxbonus;		
+				if (colTax + this.nativeTaxAmount(planet) > 5000)
+					return rate -1;
 			}
 			if (plg.roboColonistHappyChange(planet, 100) > maxHappyChange)
 				return 100
