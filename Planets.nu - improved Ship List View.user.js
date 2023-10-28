@@ -1394,16 +1394,16 @@ function wrapper() { // wrapper for injection
 
         if (currentClass === "far fa-square") {
             icon.removeClass("far fa-square").addClass("fas fa-check").css("color", "lime");
-            vgap.getship(id).readystatus = 1;
-            vgap.getship(id).changed = 1;
+            vgap.getShip(id).readystatus = 1;
+            vgap.getShip(id).changed = 1;
         } else if (currentClass === "fas fa-check") {
             icon.removeClass("fas fa-check").addClass("fas fa-check-double").css("color", "green");
-            vgap.getship(id).readystatus = 2;
-            vgap.getship(id).changed = 1;
+            vgap.getShip(id).readystatus = 2;
+            vgap.getShip(id).changed = 1;
         } else if (currentClass === "fas fa-check-double") {
             icon.removeClass("fas fa-check-double").addClass("far fa-square").css("color", "grey");
-            vgap.getship(id).readystatus = 0;
-            vgap.getship(id).changed = 1;
+            vgap.getShip(id).readystatus = 0;
+            vgap.getShip(id).changed = 1;
         }
     }
 
