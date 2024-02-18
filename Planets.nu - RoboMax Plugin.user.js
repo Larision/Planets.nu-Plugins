@@ -155,6 +155,7 @@ function wrapper1() { // wrapper for injection
 		homeSector: false,
 		maxGrowthPriority: false,
 		growthAndTaxPriority: true,
+		growthAndTaxPlus1Priority: false,
 
 		// Main Display Function
 
@@ -263,6 +264,11 @@ function wrapper1() { // wrapper for injection
 							html += "<li><label><input type='checkbox' name='growthAndTaxPriorityCheck' id='growthAndTaxPriorityCheck' value='c' checked />Growth-Tax Priority</label></li>";
 						} else {
 							html += "<li><label><input type='checkbox' name='growthAndTaxPriorityCheck' id='growthAndTaxPriorityCheck' value='c' />Growth-Tax Priority</label></li>";
+						}
+						if (plg.growthAndTaxPlus1Priority == true) {
+							html += "<li><label><input type='checkbox' name='growthAndTaxPlus1PriorityCheck' id='growthAndTaxPlus1PriorityCheck' value='c' checked />Growth-Tax+1 Priority</label></li>";
+						} else {
+							html += "<li><label><input type='checkbox' name='growthAndTaxPlus1PriorityCheck' id='growthAndTaxPlus1PriorityCheck' value='c' />Growth-Tax+1 Priority</label></li>";
 						}
 						html += "</ul></li>"; //Fin de opciones anidadas
 					}
@@ -435,28 +441,48 @@ function wrapper1() { // wrapper for injection
 					console.log("Growth Priority CLICKED");
 					if (plg.maxGrowthPriority == true) {
 						plg.maxGrowthPriority = false;
-						plg.growthAndTaxPriority = true;
-						$('#growthAndTaxPriorityCheck').prop("checked", true); // Marcar "Tax Priority"
+						//plg.growthAndTaxPriority = true;
+						//$('#growthAndTaxPriorityCheck').prop("checked", true); // Marcar "Tax Priority"
 					} else {
 						plg.maxGrowthPriority = true;
 						plg.growthAndTaxPriority = false;
+						plg.growthAndTaxPlus1Priority = false;
 						$('#growthAndTaxPriorityCheck').prop("checked", false); // Desmarcar "Tax Priority"
+						$('#growthAndTaxPlus1PriorityCheck').prop("checked", false); // Desmarcar "Tax+1 Priority"
 					}
-					console.log("Growth Priority " + plg.maxGrowthPriority + " Tax Priority " + plg.growthAndTaxPriority);
+					console.log("Growth Priority " + plg.maxGrowthPriority);
 				});
 
 				$('#growthAndTaxPriorityCheck').click(function () {
 					console.log("Tax Priority CLICKED");
 					if (plg.growthAndTaxPriority == true) {
 						plg.growthAndTaxPriority = false;
-						plg.maxGrowthPriority = true;
-						$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
+						//plg.maxGrowthPriority = true;
+						//$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
 					} else {
 						plg.growthAndTaxPriority = true;
 						plg.maxGrowthPriority = false;
+						plg.growthAndTaxPlus1Priority = false;
 						$('#maxGrowthPriorityCheck').prop("checked", false); // Desmarcar "Growth Priority"
+						$('#growthAndTaxPlus1PriorityCheck').prop("checked", false); // Desmarcar "Tax+1 Priority"
 					}
-					console.log("Growth Priority " + plg.maxGrowthPriority + " Tax Priority " + plg.growthAndTaxPriority);
+					console.log("Tax Priority " + plg.growthAndTaxPriority);
+				});
+
+				$('#growthAndTaxPlus1PriorityCheck').click(function () {
+					console.log("Tax+1 Priority CLICKED");
+					if (plg.growthAndTaxPlus1Priority == true) {
+						plg.growthAndTaxPlus1Priority = false;
+						//plg.maxGrowthPriority = true;
+						//$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
+					} else {
+						plg.growthAndTaxPlus1Priority = true;
+						plg.maxGrowthPriority = false;
+						plg.growthAndTaxPriority = false;
+						$('#maxGrowthPriorityCheck').prop("checked", false); // Desmarcar "Growth Priority"
+						$('#growthAndTaxPriorityCheck').prop("checked", false); // Desmarcar "Tax Priority"
+					}
+					console.log("Tax+1 Priority " + plg.growthAndTaxPlus1Priority);
 				});
 			}
 
@@ -862,7 +888,10 @@ function wrapper1() { // wrapper for injection
 				}
 				// MAX INCOME IS 5000!!! colonist + natives cant be more than 5000
 				// Make sure that we don't tax more than we can collect:
-				//colTax = colTax * taxbonus;		
+				//colTax = colTax * taxbonus;
+				// If Growth and Tax+1 them rate.
+				if (plg.growthAndTaxPlus1Priority == true && colTax + this.nativeTaxAmount(planet) > 5000)
+					return rate;	
 				if (colTax + this.nativeTaxAmount(planet) > 5000)
 					return rate -1;
 			}
