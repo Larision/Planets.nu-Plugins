@@ -148,14 +148,14 @@ function wrapper1() { // wrapper for injection
 		setNativeTaxes: false, // false default becouse nu manage them 
 		buildFactoriesAndMines: true,
 		destroyBuildings: false, // false default becouse special option
-		fcrandomize: true,
+		fcrandomize: false,
 		unloadMegacredits: false,
 		unloadCargo: true,
 		buildDefenses: false,
 		homeSector: false,
 		maxGrowthPriority: false,
-		growthAndTaxPriority: true,
-		growthAndTaxPlus1Priority: false,
+		growthAndTaxPriority: false,
+		growthAndTaxPlus1Priority: true,
 
 		// Main Display Function
 
@@ -693,7 +693,7 @@ function wrapper1() { // wrapper for injection
 		//// 12. roboColGrowthIsPossible
 		///////////////////////////////////////////////////////////////////////////////////
 		roboPlanetSetAllColonistTaxes: function () {
-			// Main function for setting taxes for colonists and natives
+			// Main function for setting taxes for colonists
 
 			var plg = vgap.plugins["roboMaxPlugin"];
 			plg.roboStatusUpdate(0, "Setting taxes");
@@ -715,7 +715,7 @@ function wrapper1() { // wrapper for injection
 		},
 
 		roboPlanetSetAllNativeTaxes: function () {
-			// Main function for setting taxes for colonists and natives
+			// Main function for setting taxes for natives
 
 			var plg = vgap.plugins["roboMaxPlugin"];
 			plg.roboStatusUpdate(0, "Setting taxes");
@@ -730,6 +730,12 @@ function wrapper1() { // wrapper for injection
 
 				// Tax natives:
 				if (planet.nativeclans > 0) {
+					var coltax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
+					if (coltax >= 5000) {
+						planet.nativetaxrate = 0;
+						planet.changed = 1;
+						return;
+					}
 					plg.roboSetNativeTax(planet, HISSeffect);
 				}
 			}
@@ -1217,6 +1223,7 @@ function wrapper1() { // wrapper for injection
 				return false;
 			}
 		},
+
 
 		///////////////////////////////////////////////////////////////////////////////////
 		////  Diplomacy Section
