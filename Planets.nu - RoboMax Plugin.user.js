@@ -730,12 +730,6 @@ function wrapper1() { // wrapper for injection
 
 				// Tax natives:
 				if (planet.nativeclans > 0) {
-					var coltax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
-					if (coltax >= 5000) {
-						planet.nativetaxrate = 0;
-						planet.changed = 1;
-						return;
-					}
 					plg.roboSetNativeTax(planet, HISSeffect);
 				}
 			}
