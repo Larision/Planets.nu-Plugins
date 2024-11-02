@@ -1464,7 +1464,7 @@ function wrapper1() { // wrapper for injection
 
 				// Maximize defense posts if home sector and planet upgraded
 				if (vgap.isHomeSector() && planet.developmentlevel > 0) {
-					numbuildtemp = 999;
+					numbuildtemp = 1500;
 				}
 				numbuildtemp = numbuildtemp - planet.defense;
 
