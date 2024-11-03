@@ -1237,58 +1237,58 @@ function wrapper1() { // wrapper for injection
 			}
 		},
 
-		roboOptimizeTaxes: function (planet) {
-			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
-			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0, "Optimization of taxes");
-			//var raceId = vgap.player.raceid;
+		// roboOptimizeTaxes: function (planet) {
+		// 	// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
+		// 	var plg = vgap.plugins["roboMaxPlugin"];
+		// 	plg.roboStatusUpdate(0, "Optimization of taxes");
+		// 	//var raceId = vgap.player.raceid;
 
-			for (var i = 0; i < vgap.myplanets.length; i++) {
-				var planet = vgap.myplanets[i];
+		// 	for (var i = 0; i < vgap.myplanets.length; i++) {
+		// 		var planet = vgap.myplanets[i];
 		
-				var colTax1 = Math.round(1 * planet.clans / 1000);
+		// 		var colTax1 = Math.round(1 * planet.clans / 1000);
 			
-				if (colTax1 > 5000)
-					colTax1 = 5000;
-				// Salta el planeta si no hay nativos
-				if (planet.nativeclans <= 0)
-					continue;
+		// 		if (colTax1 > 5000)
+		// 			colTax1 = 5000;
+		// 		// Salta el planeta si no hay nativos
+		// 		if (planet.nativeclans <= 0)
+		// 			continue;
 
-				//amorph none
-				if (planet.nativetype == 5)
-					return 0;
+		// 		//amorph none
+		// 		if (planet.nativetype == 5)
+		// 			return 0;
 
-				var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
-				// El maximo de impuestos esta capado por el numero de clanes que hay
-				if (natTax1 > planet.clans)
-					natTax1 = planet.clans;
+		// 		var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+		// 		// El maximo de impuestos esta capado por el numero de clanes que hay
+		// 		if (natTax1 > planet.clans)
+		// 			natTax1 = planet.clans;
 
-				//player tax rate (fed bonus)
-				//var taxbonus = vgap.taxBonus(planet);
-				//natTax1 = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
+		// 		//player tax rate (fed bonus)
+		// 		//var taxbonus = vgap.taxBonus(planet);
+		// 		//natTax1 = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
 
-				//insectoid bonus
-				if (planet.nativetype == 6)
-					natTax1 = natTax1 * 2;
+		// 		//insectoid bonus
+		// 		if (planet.nativetype == 6)
+		// 			natTax1 = natTax1 * 2;
 
-				if (natTax1 > 5000)
-					natTax1 = 5000;
+		// 		if (natTax1 > 5000)
+		// 			natTax1 = 5000;
 
-				// Checkeamos si podemos rebajar las tasas de los nativos
-				var totalTax = colTax1 + natTax1;
-				var counter = 0;
-				if (totalTax >= 5000) {
-					do {
-						totalTax -= natTax1;
-						counter += 1;
-					} while (totalTax <= 5000);
-				}
-				if (counter > 0) {
-					planet.nativeautotax = null;
-					planet.nativetaxrate = planet.nativetaxrate - counter;
-				}
-			}
-		},
+		// 		// Checkeamos si podemos rebajar las tasas de los nativos
+		// 		var totalTax = colTax1 + natTax1;
+		// 		var counter = 0;
+		// 		if (totalTax >= 5000) {
+		// 			do {
+		// 				totalTax -= natTax1;
+		// 				counter += 1;
+		// 			} while (totalTax <= 5000);
+		// 		}
+		// 		if (counter > 0) {
+		// 			planet.nativeautotax = null;
+		// 			planet.nativetaxrate = planet.nativetaxrate - counter;
+		// 		}
+		// 	}
+		// },
 
 				
 		
