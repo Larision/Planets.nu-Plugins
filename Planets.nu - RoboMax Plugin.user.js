@@ -156,6 +156,7 @@ function wrapper1() { // wrapper for injection
 		maxGrowthPriority: false,
 		growthAndTaxPriority: false,
 		growthAndTaxPlus1Priority: true,
+		bulkAutoTaxChange: false,
 
 		// Main Display Function
 
@@ -214,9 +215,9 @@ function wrapper1() { // wrapper for injection
 						html += "<li><label><input type='checkbox' name='buildFactCheck' id='buildFactoriesCheck' value ='c' checked />Build factories and mines</label>";
 						html += "<ul id='decreaseBuildings'>"; // opciones avanzadas para factories y mines
 						if (plg.destroyBuildings == true) {
-							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' checked />Decrease Mines and Factories to Target</label></li>";
+							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' title='Use with Caution!' value ='c' checked />Decrease Mines and Factories to Target</label></li>";
 						} else {
-							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' value ='c' />Decrease Mines and Factories to Target</label></li>";
+							html += "<li><label><input type='checkbox' name='destroyBuildingsCheck' id='destroyBuildingsCheck' title='Use with Caution!' value ='c' />Decrease Mines and Factories to Target</label></li>";
 						}
 						html += "</ul></li>"; // fin opciones avanzadas
 					} else {
@@ -842,7 +843,7 @@ function wrapper1() { // wrapper for injection
 				}
 			}
 
-			if (useGrowthTaxforColonists) {
+			if (useGrowthTaxforColonists == true) {
 				// Don't tax this turn if happiness is still rising.
 				// Try not to "waste" happiness points. Tax if happiness would rise
 				// to 100 without taxing.
@@ -890,15 +891,33 @@ function wrapper1() { // wrapper for injection
 				// Make sure that we don't tax more than we can collect:
 				//colTax = colTax * taxbonus;
 				// If Growth and Tax+1 them rate.
-				if (plg.growthAndTaxPlus1Priority == true && colTax + this.nativeTaxAmount(planet) > 5000)
+				if (plg.growthAndTaxPlus1Priority == true && colTax + plg.nativeTaxAmount(planet) > 5000)
 					return rate;	
-				if (colTax + this.nativeTaxAmount(planet) > 5000)
+				if (colTax + plg.nativeTaxAmount(planet) > 5000)
 					return rate -1;
 			}
 			if (plg.roboColonistHappyChange(planet, 100) > maxHappyChange)
 				return 100
 			else
 				return 0;
+		},
+
+		colonistTaxAmount: function (planet) {
+			var player = vgap.getPlayer(planet.ownerid);
+			var raceId = player.raceid;
+	
+			var colTax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
+	
+			//player tax rate (fed bonus)
+	
+			var taxbonus = vgap.taxBonus(planet);
+	
+			colTax = Math.floor(colTax * taxbonus * vgap.getAdjustedColonistTaxRate(raceId));
+	
+			if (colTax > 5000)
+				colTax = 5000;
+	
+			return colTax;
 		},
 
 		nativeTaxAmount: function (planet) {
@@ -1217,6 +1236,64 @@ function wrapper1() { // wrapper for injection
 				return false;
 			}
 		},
+
+		roboOptimizeTaxes: function (planet) {
+			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
+			var plg = vgap.plugins["roboMaxPlugin"];
+			plg.roboStatusUpdate(0, "Optimization of taxes");
+			//var raceId = vgap.player.raceid;
+
+			for (var i = 0; i < vgap.myplanets.length; i++) {
+				var planet = vgap.myplanets[i];
+		
+				var colTax1 = Math.round(1 * planet.clans / 1000);
+			
+				if (colTax1 > 5000)
+					colTax1 = 5000;
+				// Salta el planeta si no hay nativos
+				if (planet.nativeclans <= 0)
+					continue;
+
+				//amorph none
+				if (planet.nativetype == 5)
+					return 0;
+
+				var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+				// El maximo de impuestos esta capado por el numero de clanes que hay
+				if (natTax1 > planet.clans)
+					natTax1 = planet.clans;
+
+				//player tax rate (fed bonus)
+				//var taxbonus = vgap.taxBonus(planet);
+				//natTax1 = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
+
+				//insectoid bonus
+				if (planet.nativetype == 6)
+					natTax1 = natTax1 * 2;
+
+				if (natTax1 > 5000)
+					natTax1 = 5000;
+
+				// Checkeamos si podemos rebajar las tasas de los nativos
+				var totalTax = colTax1 + natTax1;
+				var counter = 0;
+				if (totalTax >= 5000) {
+					do {
+						totalTax -= natTax1;
+						counter += 1;
+					} while (totalTax <= 5000);
+				}
+				if (counter > 0) {
+					planet.nativeautotax = null;
+					planet.nativetaxrate = planet.nativetaxrate - counter;
+				}
+			}
+		},
+
+				
+		
+			
+		
 
 
 		///////////////////////////////////////////////////////////////////////////////////
