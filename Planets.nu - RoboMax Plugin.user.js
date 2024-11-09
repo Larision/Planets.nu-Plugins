@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          Planets.nu - RoboMax Plugin
 // @description   RoboMax Plugin
-// @version       0.9.5
+// @version       0.10.0
 // @date          2023-09-11
 // @author        robodoc
 // @match         http://*.planets.nu/*
@@ -18,7 +18,7 @@
 // @namespace https://greasyfork.org/users/5275
 // ==/UserScript==
 // 0.9.5 - Added Home sector settings, added advanced settings, and some minor bug fixes.
-
+// 0.10.0 - Fixed natives taxes, horwarps fight , bulk autotax change and better home sector growth optimizations.
 
 function wrapper1() { // wrapper for injection
 
@@ -27,7 +27,7 @@ function wrapper1() { // wrapper for injection
 		return;
 	}
 
-	var plugin_version = "0.9.5";
+	var plugin_version = "0.10.0";
 	console.log("RoboMax plugin version: v" + plugin_version);
 
 	var roboMaxPlugin = {
@@ -145,7 +145,7 @@ function wrapper1() { // wrapper for injection
 
 		setColonistTaxes: true,
 		noTaxWithBadClimate: false, // false default becouse special option
-		setNativeTaxes: false, // false default becouse nu manage them 
+		setNativeTaxes: true,
 		buildFactoriesAndMines: true,
 		destroyBuildings: false, // false default becouse special option
 		fcrandomize: false,
@@ -157,6 +157,8 @@ function wrapper1() { // wrapper for injection
 		growthAndTaxPriority: false,
 		growthAndTaxPlus1Priority: true,
 		bulkAutoTaxChange: false,
+		reoptimizeNativeTaxes: false,
+		enemyIsHorwasp: false,
 
 		// Main Display Function
 
@@ -272,7 +274,32 @@ function wrapper1() { // wrapper for injection
 							html += "<li><label><input type='checkbox' name='growthAndTaxPlus1PriorityCheck' id='growthAndTaxPlus1PriorityCheck' value='c' />Growth-Tax+1 Priority</label></li>";
 						}
 						html += "</ul></li>"; //Fin de opciones anidadas
+
+						// Agregar la sección "Advanced Options" con margen inferior
+    					html += "<li>Advanced Options"; // Sin checkbox
+    					html += "<ul id='advancedOptions' style='margin-top: 8px;'>"; // Opciones anidadas a "Advanced Options"
+
+						// Añade casilla de reoptimizacion de native taxes
+						if (plg.reoptimizeNativeTaxes == true) {
+							html += "<li><label><input type='checkbox' name='reoptimizeNativeTaxesCheck' id='reoptimizeNativeTaxesCheck' value='c' checked />Reoptimize native taxes</label></li>";
+						} else {
+							html += "<li><label><input type='checkbox' name='reoptimizeNativeTaxesCheck' id='reoptimizeNativeTaxesCheck' value='c' />Reoptimize native taxes</label></li>";
+						}
+						// Añade casilla si enemy es Horwasps
+						if (plg.enemyIsHorwasp == true) {
+							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' checked />Enemy is Horwasp</label></li>";
+						} else {
+							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' />Enemy is Horwasp</label></li>";
+						}
+
+						html += "<table cellpadding='2'>";
+						html += "<td class=BulkGrowth id='BulkGrowth' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Growth </b></td>";
+						html += "<td class=BulkOff id='BulkOff' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Off </b></td>";
+						html += "</table>";
+
+    					html += "</ul></li>"; // Fin de "Advanced Options"
 					}
+
 					html += "</ul>";
 					html += "</td>";
 
@@ -302,19 +329,13 @@ function wrapper1() { // wrapper for injection
 
 				$('#UnloadMegacreditsCheck').click(function () {
 					console.log("Unload Megacredits CLICKED");
-					if (plg.unloadMegacredits == true)
-						plg.unloadMegacredits = false;
-					else
-						plg.unloadMegacredits = true;
+					plg.unloadMegacredits = !plg.unloadMegacredits;
 					console.log("Unload Megacredits is now: " + plg.unloadMegacredits);
 				});
 
 				$('#UnloadCargoCheck').click(function () {
 					console.log("Unload Cargo CLICKED");
-					if (plg.unloadCargo == true)
-						plg.unloadCargo = false;
-					else
-						plg.unloadCargo = true;
+					unloadCargo = !unloadCargo;
 					console.log("Unload Cargo is now: " + plg.unloadCargo);
 				});
 
@@ -333,11 +354,15 @@ function wrapper1() { // wrapper for injection
 
 				$('#setNativeTaxesCheck').click(function () {
 					console.log("setNativeTaxesCheck CLICKED");
-					if (plg.setNativeTaxes == true) {
-						plg.setNativeTaxes = false;
-					} else {
-						plg.setNativeTaxes = true;
+					// if (plg.setNativeTaxes == true) {
+					// 	plg.setNativeTaxes = false;
+					// } else {
+					// 	plg.setNativeTaxes = true;
+					// }
+					if (!plg.setNativeTaxes) {
+						alert("¡ATENTION! Only planets with mative autotax setted in MANUAL mode will be taxed.");
 					}
+					plg.setNativeTaxes = !plg.setNativeTaxes;
 					console.log("setNativeTaxes is now: " + plg.setNativeTaxes);
 				});
 
@@ -485,6 +510,33 @@ function wrapper1() { // wrapper for injection
 					}
 					console.log("Tax+1 Priority " + plg.growthAndTaxPlus1Priority);
 				});
+
+
+				$('#reoptimizeNativeTaxesCheck').click(function () {
+					if (plg.reoptimizeNativeTaxes == true)
+						plg.reoptimizeNativeTaxes = false;
+					else
+						plg.reoptimizeNativeTaxes = true;
+					console.log("reoptimizeNativeTaxes is now: " + plg.reoptimizeNativeTaxes);
+				});
+
+				$('#enemyIsHorwaspsCheck').click(function () {
+					if (plg.enemyIsHorwasps == true)
+						plg.enemyIsHorwasps = false;
+					else
+						plg.enemyIsHorwasps = true;
+					console.log("enemyIsHorwasps is now: " + plg.enemyIsHorwasps);
+				});
+
+				$('.BulkGrowth').click(function () {
+					console.log("BulkGrowth CLICKed :)");
+					plg.roboBulkAutotaxGrowth();
+				});
+
+				$('.BulkOff').click(function () {
+					console.log("BulkOff CLICKed :)");
+					plg.roboBulkAutotaxOff();
+				});
 			}
 
 			if (view == 2) {
@@ -541,14 +593,13 @@ function wrapper1() { // wrapper for injection
 			if (plg.buildDefenses) {
 				plg.roboBuildDefenses();
 			}
-			// Assign taxes
-			if (plg.setColonistTaxes) {
-				plg.roboPlanetSetAllColonistTaxes();
-			}
+			// Assign taxes, first natives and then colonists
 			if (plg.setNativeTaxes) {
 				plg.roboPlanetSetAllNativeTaxes();
 			}
-
+			if (plg.setColonistTaxes) {
+				plg.roboPlanetSetAllColonistTaxes();
+			}
 			// Manage planetary friendly codes, and permute ship friendly codes
 			if (plg.fcrandomize) {
 				plg.roboMaxRandomizePlanetFcodes();
@@ -692,6 +743,10 @@ function wrapper1() { // wrapper for injection
 		//// 10. getMaxNatives
 		//// 11. getMaxColonists
 		//// 12. roboColGrowthIsPossible
+		//// 13. nativeTaxAmount
+		//// 14. colonistTaxAmount
+		//// 15. roboReoptimizeNativeTaxes
+		//// 16. roboBulkAutotaxGrowth
 		///////////////////////////////////////////////////////////////////////////////////
 		roboPlanetSetAllColonistTaxes: function () {
 			// Main function for setting taxes for colonists
@@ -707,11 +762,17 @@ function wrapper1() { // wrapper for injection
 				// Tax colonists:
 				plg.roboSetColonistTax(planet, HISSeffect);
 
+				if (plg.reoptimizeNativeTaxes == true) {
+					plg.roboReoptimizeNativeTaxes(planet);
+				}
+
 				// Tax natives:
 				// if (planet.nativeclans > 0) {
 				// 	plg.roboSetNativeTax(planet,HISSeffect);
 				// }
 			}
+			// Save data
+			vgap.map.draw();
 			return;
 		},
 
@@ -726,14 +787,19 @@ function wrapper1() { // wrapper for injection
 				var planet = vgap.myplanets[i];
 				var HISSeffect = plg.roboHISSeffect(planet);
 
+				// Dont tax if Autotax is on
+				if (planet.nativeautotax) {
+					continue;
+				}
+
 				// Tax colonists:
 				// plg.roboSetColonistTax(planet,HISSeffect);
 
 				// Tax natives:
-				if (planet.nativeclans > 0) {
-					plg.roboSetNativeTax(planet, HISSeffect);
-				}
+				
+				plg.roboSetNativeTax(planet, HISSeffect);
 			}
+			vgap.map.draw();
 			return;
 		},
 
@@ -858,7 +924,7 @@ function wrapper1() { // wrapper for injection
 				}
 			}
 			// Tax them!
-			console.log("Taxing colonists: ", planet.id, HISSeffect, useGrowthTaxforColonists, minColHappiness);
+			
 			// This is the happiness when taxing begins:
 			var startingHappiness = Math.min(planet.colonisthappypoints + HISSeffect, 100);
 			// This is the maximum change in happiness that is possible according to
@@ -866,6 +932,7 @@ function wrapper1() { // wrapper for injection
 			var maxColHappyChange = minColHappiness - startingHappiness;
 			planet.colonisttaxrate = plg.roboFindColonistRate(planet, maxColHappyChange);
 			planet.colhappychange = plg.roboColonistHappyChange(planet, planet.colonisttaxrate);
+			console.log("Taxing colonists: ", planet.id, HISSeffect, useGrowthTaxforColonists, minColHappiness, planet.colonisttaxrate);
 			planet.changed = 1;
 		},
 
@@ -891,8 +958,13 @@ function wrapper1() { // wrapper for injection
 				// Make sure that we don't tax more than we can collect:
 				//colTax = colTax * taxbonus;
 				// If Growth and Tax+1 them rate.
-				if (plg.growthAndTaxPlus1Priority == true && colTax + plg.nativeTaxAmount(planet) > 5000)
-					return rate;	
+				if (plg.growthAndTaxPlus1Priority == true && colTax + plg.nativeTaxAmount(planet) > 5000) {
+					if (plg.nativeTaxAmount(planet) >= 5000) {
+						return 0;
+					} else {
+						return rate;
+					}
+				}	
 				if (colTax + plg.nativeTaxAmount(planet) > 5000)
 					return rate -1;
 			}
@@ -900,65 +972,6 @@ function wrapper1() { // wrapper for injection
 				return 100
 			else
 				return 0;
-		},
-
-		colonistTaxAmount: function (planet) {
-			var player = vgap.getPlayer(planet.ownerid);
-			var raceId = player.raceid;
-	
-			var colTax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
-	
-			//player tax rate (fed bonus)
-	
-			var taxbonus = vgap.taxBonus(planet);
-	
-			colTax = Math.floor(colTax * taxbonus * vgap.getAdjustedColonistTaxRate(raceId));
-	
-			if (colTax > 5000)
-				colTax = 5000;
-	
-			return colTax;
-		},
-
-		nativeTaxAmount: function (planet) {
-			if (planet.nativeclans <= 0)
-				return 0;
-
-			var player = vgap.getPlayer(planet.ownerid);
-			var raceId = player.raceid;
-
-			//amorph none
-			if (planet.nativetype == 5)
-				return 0;
-
-			//cyborg max 20%
-			var nativetaxrate = planet.nativetaxrate;
-			if (player != null) {
-				var maxBorgRate = 20;
-				if (vgap.settings && vgap.settings.cyborgmaxnativetaxrateadjustment && vgap.settings.cyborgmaxnativetaxrateadjustment > 0)
-					maxBorgRate = vgap.settings.cyborgmaxnativetaxrateadjustment;
-				if (raceId == 6 && nativetaxrate > maxBorgRate)
-					nativetaxrate = maxBorgRate;
-			}
-
-			var val = Math.round(nativetaxrate * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
-
-			if (val > planet.clans)
-				val = planet.clans;
-
-			//player tax rate (fed bonus)
-			var taxbonus = vgap.taxBonus(planet);
-
-			val = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
-
-			//insectoid bonus
-			if (planet.nativetype == 6)
-				val = val * 2;
-
-			if (val > 5000)
-				val = 5000;
-
-			return val;
 		},
 
 		roboColonistHappyChange: function (planet, r) {
@@ -990,7 +1003,7 @@ function wrapper1() { // wrapper for injection
 			console.log("Entered roboSetNativeTax: ", planet.id, HISSeffect, planet.nativeclans);
 
 			//var rate;
-			var maxfactories = plg.roboMaxBldgs(planet, 100);
+			//var maxfactories = plg.roboMaxBldgs(planet, 100); // quitado por interaccion con el crecimiento d los nativos en home sector
 			var useGrowthTaxforNatives = true;
 			var minNatHappiness = 70;
 			var minNatClansForTaxing = 2500; // Don't tax if less than this number
@@ -1000,15 +1013,15 @@ function wrapper1() { // wrapper for injection
 
 			// Decide on a native tax strategy
 
-			if (planet.factories < maxfactories) {
-				// Tax more aggressively if we are still building factories
-				useGrowthTaxforNatives = false;
-				minNatHappiness = 70;
-			}
+			// if (planet.factories < maxfactories) {
+			// 	// Tax more aggressively if we are still building factories
+			// 	useGrowthTaxforNatives = false;
+			// 	minNatHappiness = 70;
+			// } // quitado por interaccion con el crecimiento d los nativos en home sector
 			if (planet.nativeclans > 66000 && planet.nativeclans < plg.getMaxNatives(planet, false)) {
 				// Tax more aggressively if population is high but can still grow
-				useGrowthTaxforNatives = false;
-				minNatHappiness = 70;
+				useGrowthTaxforNatives = true;
+				minNatHappiness = 50;
 				//console.log("Planet " + planet.name + ": Native  Assigning mid tax");
 
 				// Exceptions to this rule:
@@ -1018,12 +1031,12 @@ function wrapper1() { // wrapper for injection
 					useGrowthTaxforNatives = true;
 
 				// Continue to grow insectoids and avians if government is good
-				if ((planet.nativetype == 4 || planet.nativetype == 6) && planet.nativegovernment >= 120)
-					useGrowthTaxforNatives = true;
+				//if ((planet.nativetype == 4 || planet.nativetype == 6) && planet.nativegovernment >= 120)
+				//	useGrowthTaxforNatives = true;
 			}
 
 			// Safe tax if population can't grow
-			if (planet.nativeclans >= plg.getMaxNatives(planet, false)) {
+			if (planet.nativeclans >= plg.getMaxNatives(planet)) {
 				// No more native growth is possible, so tax even more aggressively
 				nativeGrowthIsPossible = false;
 				useGrowthTaxforNatives = false;
@@ -1038,6 +1051,10 @@ function wrapper1() { // wrapper for injection
 				} else if (vgap.player.raceid == 7 && planet.temp < 100) {
 					// Crystals might terraform these, so don't tax so aggressively
 					minColHappiness = 70 - zeroTaxHappyChange;
+				}
+				// safe tax 100% happiness if fighting Horwasps to avoid riots
+				if (plg.enemyIsHorwasp == true) {
+					minNatHappiness = 100;
 				}
 			}
 			if (planet.nativeclans < minNatClansForTaxing && nativeGrowthIsPossible) {
@@ -1237,63 +1254,142 @@ function wrapper1() { // wrapper for injection
 			}
 		},
 
-		// roboOptimizeTaxes: function (planet) {
-		// 	// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
-		// 	var plg = vgap.plugins["roboMaxPlugin"];
-		// 	plg.roboStatusUpdate(0, "Optimization of taxes");
-		// 	//var raceId = vgap.player.raceid;
+		colonistTaxAmount: function (planet) {
+			var player = vgap.getPlayer(planet.ownerid);
+			var raceId = player.raceid;
+	
+			var colTax = Math.round(planet.colonisttaxrate * planet.clans / 1000);
+	
+			//player tax rate (fed bonus)
+	
+			var taxbonus = vgap.taxBonus(planet);
+	
+			colTax = Math.floor(colTax * taxbonus * vgap.getAdjustedColonistTaxRate(raceId));
+	
+			if (colTax > 5000)
+				colTax = 5000;
+	
+			return colTax;
+		},
 
-		// 	for (var i = 0; i < vgap.myplanets.length; i++) {
-		// 		var planet = vgap.myplanets[i];
-		
-		// 		var colTax1 = Math.round(1 * planet.clans / 1000);
+		nativeTaxAmount: function (planet) {
+			if (planet.nativeclans <= 0)
+				return 0;
+
+			var player = vgap.getPlayer(planet.ownerid);
+			var raceId = player.raceid;
+
+			//amorph none
+			if (planet.nativetype == 5)
+				return 0;
+
+			//cyborg max 20%
+			var nativetaxrate = planet.nativetaxrate;
+			if (player != null) {
+				var maxBorgRate = 20;
+				if (vgap.settings && vgap.settings.cyborgmaxnativetaxrateadjustment && vgap.settings.cyborgmaxnativetaxrateadjustment > 0)
+					maxBorgRate = vgap.settings.cyborgmaxnativetaxrateadjustment;
+				if (raceId == 6 && nativetaxrate > maxBorgRate)
+					nativetaxrate = maxBorgRate;
+			}
+
+			var val = Math.round(nativetaxrate * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+
+			if (val > planet.clans)
+				val = planet.clans;
+
+			//player tax rate (fed bonus)
+			var taxbonus = vgap.taxBonus(planet);
+
+			val = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
+
+			//insectoid bonus
+			if (planet.nativetype == 6)
+				val = val * 2;
+
+			if (val > 5000)
+				val = 5000;
+
+			return val;
+		},
+
+		roboReoptimizeNativeTaxes: function (planet) {
+			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
+			var plg = vgap.plugins["roboMaxPlugin"];
+			plg.roboStatusUpdate(0, "Optimizing taxes");
+			//var raceId = vgap.player.raceid;
+			var coltax = plg.colonistTaxAmount(planet);
+			var nattax = plg.nativeTaxAmount(planet);
+			var totalTax = coltax + nattax;
+			var oldnativetaxrate = planet.nativetaxrate;
+
+			// si no hay nativos o son amorfos o esta el autotax saltamos
+			if (planet.nativeclans <= 0 || planet.nativetype === 5 || planet.nativeautotax !== null) {
+				return;
+			}
 			
-		// 		if (colTax1 > 5000)
-		// 			colTax1 = 5000;
-		// 		// Salta el planeta si no hay nativos
-		// 		if (planet.nativeclans <= 0)
-		// 			continue;
+			var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+			// El maximo de impuestos esta capado por el numero de clanes que hay
+			if (natTax1 > planet.clans)
+				natTax1 = planet.clans;
 
-		// 		//amorph none
-		// 		if (planet.nativetype == 5)
-		// 			return 0;
+			//player tax rate (fed bonus)
+			//var taxbonus = vgap.taxBonus(planet);
+			//natTax1 = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
 
-		// 		var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
-		// 		// El maximo de impuestos esta capado por el numero de clanes que hay
-		// 		if (natTax1 > planet.clans)
-		// 			natTax1 = planet.clans;
-
-		// 		//player tax rate (fed bonus)
-		// 		//var taxbonus = vgap.taxBonus(planet);
-		// 		//natTax1 = Math.floor(val * taxbonus * vgap.getAdjustedNativeTaxRate(raceId));
-
-		// 		//insectoid bonus
-		// 		if (planet.nativetype == 6)
-		// 			natTax1 = natTax1 * 2;
-
-		// 		if (natTax1 > 5000)
-		// 			natTax1 = 5000;
-
-		// 		// Checkeamos si podemos rebajar las tasas de los nativos
-		// 		var totalTax = colTax1 + natTax1;
-		// 		var counter = 0;
-		// 		if (totalTax >= 5000) {
-		// 			do {
-		// 				totalTax -= natTax1;
-		// 				counter += 1;
-		// 			} while (totalTax <= 5000);
-		// 		}
-		// 		if (counter > 0) {
-		// 			planet.nativeautotax = null;
-		// 			planet.nativetaxrate = planet.nativetaxrate - counter;
-		// 		}
-		// 	}
-		// },
-
-				
-		
+			//insectoid bonus
+			if (planet.nativetype == 6)
+				natTax1 = natTax1 * 2;
 			
-		
+			// Checkeamos si podemos rebajar las tasas de los nativos		
+			var counter = -1;
+			if (totalTax >= 5000) {
+				do {
+					totalTax -= natTax1;
+					counter += 1;
+				} while (totalTax >= 5000);
+			}
+			if (counter > 0) {
+				if (coltax >= 5000) {
+					planet.nativetaxrate = 0;
+				} else {
+					planet.nativetaxrate = planet.nativetaxrate - counter;
+				}
+				planet.nativehappychange = plg.roboNativeHappyChange(planet, planet.nativetaxrate);
+				planet.changed = 1;
+			}
+			console.log("[reoptimize] lowering taxes for " + planet.id + " from " + oldnativetaxrate + "% to " + planet.nativetaxrate + "%");
+		},
+		roboBulkAutotaxGrowth: function () {
+			var method = {
+				"name": "Growth",
+				"minhappy": 70,
+				"maxhappy": 100,
+				"minoffset": 0,
+				"maxoffset": 0,
+				"maxpophappy": 70
+			};
+			for (var i = 0; i < vgap.myplanets.length; i++) {
+				var planet = vgap.myplanets[i];
+					planet.nativeautotax = method;
+					planet.changed = 1;
+					vgap.map.draw();
+			}
+			alert("All planets autotax changed to Growth");
+			return;
+		},
+
+		roboBulkAutotaxOff: function () {
+			var method = null;
+			for (var i = 0; i < vgap.myplanets.length; i++) {
+				var planet = vgap.myplanets[i];
+					planet.nativeautotax = method;
+					planet.changed = 1;
+					vgap.map.draw();
+			}
+			alert("All planets autotax changed to Off");
+			return;
+		},
 
 
 		///////////////////////////////////////////////////////////////////////////////////
