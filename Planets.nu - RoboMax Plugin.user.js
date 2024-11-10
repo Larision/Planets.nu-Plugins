@@ -255,7 +255,7 @@ function wrapper1() { // wrapper for injection
 					html += "<td valign='top' style='width:40%'>";
 					html += "<ul>";
 
-					if (vgap.isHomeSector()) {
+					if (plg.homeSector) {
 						html += "<li><label><input type='checkbox' name='MngFCCheck' id='homesectorCheck' value='c' checked />Home Sector Settings</label>";
 						html += "<ul id='homesectorOptions'>"; //opciones anidadas a home sector
 						if (plg.maxGrowthPriority == true) {
@@ -293,8 +293,8 @@ function wrapper1() { // wrapper for injection
 						}
 
 						html += "<table cellpadding='2'>";
-						html += "<td class=BulkGrowth id='BulkGrowth' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Growth </b></td>";
-						html += "<td class=BulkOff id='BulkOff' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Off </b></td>";
+							html += "<td class=BulkGrowth id='BulkGrowth' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Growth </b></td>";
+							html += "<td class=BulkOff id='BulkOff' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Off </b></td>";
 						html += "</table>";
 
     					html += "</ul></li>"; // Fin de "Advanced Options"
@@ -354,11 +354,6 @@ function wrapper1() { // wrapper for injection
 
 				$('#setNativeTaxesCheck').click(function () {
 					console.log("setNativeTaxesCheck CLICKED");
-					// if (plg.setNativeTaxes == true) {
-					// 	plg.setNativeTaxes = false;
-					// } else {
-					// 	plg.setNativeTaxes = true;
-					// }
 					if (!plg.setNativeTaxes) {
 						alert("¡ATENTION! Only planets with mative autotax setted in MANUAL mode will be taxed.");
 					}
@@ -448,16 +443,28 @@ function wrapper1() { // wrapper for injection
 					console.log("RoboMaxRun CLICKED!!!");
 					if (plg.roboFinished) return; // skip if we've already run roboMax
 					acknowledgement = "By your command";
-					// for (var i=0; i < acknowledgement.length; i++) {
-					//   setTimeout(function(){plg.roboStatusUpdate(0,acknowledgement.substring(0,i));},200);
-					// }
-					plg.roboStatusUpdate(0, "By your command");
-					setTimeout(function () {plg.roboStatusUpdate(0, "RoboMax is running...");}, 600);
-					//plg.roboStatusUpdate(0,"RoboMax is running...");
+					plg.updateStatus(0, "By your command", "RoboMaxRun");
+					setTimeout(function () {plg.updateStatus(0, "RoboMax is running...", "RoboMaxRun");}, 600);
+					//plg.updateStatus(0,"RoboMax is running...");
 					setTimeout(function () {plg.runRoboMax();}, 200);
 					var identifier = "#RoboMaxRun";
-					//console.log("SELECTOR: " + identifier);
 					plg.roboFinished = true;
+				});
+
+				$('body').delegate('.BulkGrowth', 'click', function () {
+					console.log("Robobulk CLICKED!!!");
+					acknowledgement = "By your command";
+					plg.updateStatus(0, "By your command", "BulkGrowth");
+					setTimeout(function () {plg.updateStatus(0, "running...", "BulkGrowth");}, 600);
+					setTimeout(function () {plg.roboBulkAutotaxGrowth();}, 200);
+				});
+
+				$('body').delegate('.BulkOff', 'click', function () {
+					console.log("BulkOff CLICKED!!!");
+					acknowledgement = "By your command";
+					plg.updateStatus(0, "By your command", "BulkOff");
+					setTimeout(function () {plg.updateStatus(0, "running...", "BulkOff");}, 600);
+					setTimeout(function () {plg.roboBulkAutotaxOff();}, 200);
 				});
 
 				$("#ResetTurnButton").tclick(function () {vgap.resetTurn();});
@@ -467,8 +474,6 @@ function wrapper1() { // wrapper for injection
 					console.log("Growth Priority CLICKED");
 					if (plg.maxGrowthPriority == true) {
 						plg.maxGrowthPriority = false;
-						//plg.growthAndTaxPriority = true;
-						//$('#growthAndTaxPriorityCheck').prop("checked", true); // Marcar "Tax Priority"
 					} else {
 						plg.maxGrowthPriority = true;
 						plg.growthAndTaxPriority = false;
@@ -483,8 +488,6 @@ function wrapper1() { // wrapper for injection
 					console.log("Tax Priority CLICKED");
 					if (plg.growthAndTaxPriority == true) {
 						plg.growthAndTaxPriority = false;
-						//plg.maxGrowthPriority = true;
-						//$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
 					} else {
 						plg.growthAndTaxPriority = true;
 						plg.maxGrowthPriority = false;
@@ -499,8 +502,6 @@ function wrapper1() { // wrapper for injection
 					console.log("Tax+1 Priority CLICKED");
 					if (plg.growthAndTaxPlus1Priority == true) {
 						plg.growthAndTaxPlus1Priority = false;
-						//plg.maxGrowthPriority = true;
-						//$('#maxGrowthPriorityCheck').prop("checked", true); // Marcar "Growth Priority"
 					} else {
 						plg.growthAndTaxPlus1Priority = true;
 						plg.maxGrowthPriority = false;
@@ -513,6 +514,11 @@ function wrapper1() { // wrapper for injection
 
 
 				$('#reoptimizeNativeTaxesCheck').click(function () {
+					if (plg.setColonistTaxes == false) {  // check tolonist taxes are on
+						alert("Colonist Taxes MUST be checked to use this option.");
+						$("#reoptimizeNativeTaxesCheck").prop("checked", false);
+						return;
+					}
 					if (plg.reoptimizeNativeTaxes == true)
 						plg.reoptimizeNativeTaxes = false;
 					else
@@ -526,16 +532,6 @@ function wrapper1() { // wrapper for injection
 					else
 						plg.enemyIsHorwasps = true;
 					console.log("enemyIsHorwasps is now: " + plg.enemyIsHorwasps);
-				});
-
-				$('.BulkGrowth').click(function () {
-					console.log("BulkGrowth CLICKed :)");
-					plg.roboBulkAutotaxGrowth();
-				});
-
-				$('.BulkOff').click(function () {
-					console.log("BulkOff CLICKed :)");
-					plg.roboBulkAutotaxOff();
 				});
 			}
 
@@ -561,15 +557,21 @@ function wrapper1() { // wrapper for injection
 
 		},
 
-
-
 		// ****************************************************************************
 
-		roboStatusUpdate: function (col, msg) {
-			// Updates the status message
-			var plg = vgap.plugins["roboMaxPlugin"];
-			if (col == 0) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #680000;'><b>" + msg + "</b></td>");
-			if (col == 1) $("#RoboMaxRun").replaceWith("<td class=RoboMaxRun id='RoboMaxRun'  width='400' align='center' style='border: solid white 1px; color: #FFEBCD; background-color: #006400;'><b>" + msg + "</b></td>");
+		updateStatus: function (col, msg, elementId) {
+			// Define el color de fondo según el valor de `col`
+			const bgColor = col === 0 ? "#680000" : "#006400";
+			// Define el ancho según el elemento
+			const width = elementId === "RoboMaxRun" ? "400" : "200";
+			// Construye el HTML usando template literals
+			const html = `
+				<td class="${elementId}" id="${elementId}" width="${width}" align="center" 
+					style="border: solid white 1px; color: #FFEBCD; background-color: ${bgColor};">
+					<b>${msg}</b>
+				</td>
+			`;
+			$(`#${elementId}`).replaceWith(html);
 		},
 
 		runRoboMax: function () {
@@ -609,6 +611,11 @@ function wrapper1() { // wrapper for injection
 				console.log("Running Home sector optimizations");
 			}
 			// We're finished giving orders, so initiate save
+			plg.roboSave(1); // 1 = RoboMax, 2 = BulkGrowth, 3 = BulkOff
+		},
+
+		roboSave: function (module) { // module 1 = RoboMax, 2 = BulkGrowth, 3 = BulkOff
+			var plg = vgap.plugins["roboMaxPlugin"];
 			vgap.save();
 			// Check save, and end the function
 			var checkInterval = setInterval(function () {
@@ -617,9 +624,17 @@ function wrapper1() { // wrapper for injection
 					return;
 				} else {
 					clearInterval(checkInterval);
-					plg.roboStatusUpdate(1, "RoboMax is finished giving orders.");
-					vgap.loadWaypoints();
-					console.log("RoboMax is finished giving orders.");
+					if (module == 1) {
+						plg.updateStatus(1, "RoboMax is finished giving orders.", "RoboMaxRun");
+						vgap.loadWaypoints();
+						console.log("RoboMax is finished giving orders.");
+					} else if (module == 2) {
+						plg.updateStatus(1, "BulkGrowth finished.", "BulkGrowth");
+						console.log("BulkGrowth finished.");
+					} else if (module == 3) {
+						plg.updateStatus(1, "BulkOff finished.", "BulkOff");
+						console.log("BulkOff finished.");
+					}
 				}
 			}, 500);
 		},
@@ -645,7 +660,7 @@ function wrapper1() { // wrapper for injection
 			// Unloads megacredits from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
 			console.log("Unloading megacredits from ships");
-			plg.roboStatusUpdate(0, "Unloading ship megacredits.");
+			plg.updateStatus(0, "Unloading ship megacredits.", "RoboMaxRun");
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -669,7 +684,7 @@ function wrapper1() { // wrapper for injection
 			// Unloads cargo from ships
 			var plg = vgap.plugins["roboMaxPlugin"];
 			console.log("Unloading cargo from ships");
-			plg.roboStatusUpdate(0, "Unloading ship cargo.");
+			plg.updateStatus(0, "Unloading ship cargo.", "RoboMaxRun");
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -752,7 +767,7 @@ function wrapper1() { // wrapper for injection
 			// Main function for setting taxes for colonists
 
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0, "Setting taxes");
+			plg.updateStatus(0, "Setting taxes", "RoboMaxRun");
 			//var raceId = vgap.player.raceid;
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
@@ -780,7 +795,7 @@ function wrapper1() { // wrapper for injection
 			// Main function for setting taxes for natives
 
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0, "Setting taxes");
+			plg.updateStatus(0, "Setting taxes", "RoboMaxRun");
 			//var raceId = vgap.player.raceid;
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
@@ -820,7 +835,7 @@ function wrapper1() { // wrapper for injection
 			//var colonistGrowthIsPossible = true;
 
 			// Use "safe" tax if population is high and not playing Home Sector
-			if (!vgap.isHomeSector() && planet.clans > 66000) {
+			if (!plg.homeSector && planet.clans > 66000) {
 				useGrowthTaxforColonists = false;
 				minColHappiness = 70;
 				//console.log("Planet " + planet.name + ": Assigning mid tax");
@@ -1316,7 +1331,7 @@ function wrapper1() { // wrapper for injection
 		roboReoptimizeNativeTaxes: function (planet) {
 			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0, "Optimizing taxes");
+			plg.updateStatus(0, "Optimizing taxes", "RoboMaxRun");
 			//var raceId = vgap.player.raceid;
 			var coltax = plg.colonistTaxAmount(planet);
 			var nattax = plg.nativeTaxAmount(planet);
@@ -1361,6 +1376,7 @@ function wrapper1() { // wrapper for injection
 			console.log("[reoptimize] lowering taxes for " + planet.id + " from " + oldnativetaxrate + "% to " + planet.nativetaxrate + "%");
 		},
 		roboBulkAutotaxGrowth: function () {
+			var plg = vgap.plugins["roboMaxPlugin"];
 			var method = {
 				"name": "Growth",
 				"minhappy": 70,
@@ -1372,21 +1388,26 @@ function wrapper1() { // wrapper for injection
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
 					planet.nativeautotax = method;
-					planet.changed = 1;
+					vgap.setNativeAutoTax(planet, planet.nativeautotax);
+            		vgap.getPlanet(planet.id).changed = 1;
 					vgap.map.draw();
 			}
+			plg.roboSave(2);
 			alert("All planets autotax changed to Growth");
 			return;
 		},
 
 		roboBulkAutotaxOff: function () {
+			var plg = vgap.plugins["roboMaxPlugin"];
 			var method = null;
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
 					planet.nativeautotax = method;
-					planet.changed = 1;
+					vgap.setNativeAutoTax(planet, planet.nativeautotax);
+            		vgap.getPlanet(planet.id).changed = 1;
 					vgap.map.draw();
 			}
+			plg.roboSave(3);
 			alert("All planets autotax changed to Off");
 			return;
 		},
@@ -1636,7 +1657,7 @@ function wrapper1() { // wrapper for injection
 				}
 
 				// Maximize defense posts if home sector and planet upgraded
-				if (vgap.isHomeSector() && planet.developmentlevel > 0) {
+				if (plg.homeSector && planet.developmentlevel > 0) {
 					numbuildtemp = 1500;
 				}
 				numbuildtemp = numbuildtemp - planet.defense;
@@ -1745,7 +1766,7 @@ function wrapper1() { // wrapper for injection
 		roboMaxRandomizePlanetFcodes: function () {
 			// Manage planetary friendly codes
 			var plg = vgap.plugins["roboMaxPlugin"];
-			plg.roboStatusUpdate(0, "Managing planetary friendly codes");
+			plg.updateStatus(0, "Managing planetary friendly codes", "RoboMaxRun");
 			console.log("Managing planetary friendly codes");
 
 			// Planet fcode behavior for RoboMax:
