@@ -1067,11 +1067,13 @@ function wrapper1() { // wrapper for injection
 					// Crystals might terraform these, so don't tax so aggressively
 					minColHappiness = 70 - zeroTaxHappyChange;
 				}
-				// safe tax 100% happiness if fighting Horwasps to avoid riots
-				if (plg.enemyIsHorwasp == true) {
-					minNatHappiness = 100;
-				}
 			}
+
+			// safe tax 100% happiness if fighting Horwasps to avoid riots
+			if (plg.enemyIsHorwasp == true) {
+				minNatHappiness = 100;
+			}
+
 			if (planet.nativeclans < minNatClansForTaxing && nativeGrowthIsPossible) {
 				// Don't tax at all if native population is very low and can grow
 				//console.log("Planet " + planet.name + ": Nat Tax < Min Clans, 0");
@@ -1169,9 +1171,22 @@ function wrapper1() { // wrapper for injection
 					maxCanCollect = 5000; // 5000 is the absolute limit
 				//console.log("nativeTax",planet.id,nativeTax,planet.clans,plg.roboNativeHappyChange(planet,rate));
 
-				if (nativeTax > maxCanCollect && calcIdealRate == false) {
-					return rate - 1;
+				// Checkeamos si los nativos son avianos con un buen gobierno para aprovechar
+				// el +10 de happy adicional dejandolos de tasar 1 turno y luego sobretasandolos
+				// para reducir tasas de colonos a 0.
+				if (plg.roboReoptimizeNativeTaxes && planet.nativetype == 4 && planet.nativetaxvalue >= 160) {
+					var zeroTaxHappyChange = plg.roboNativeHappyChange(planet, 0);
+					if ((planet.nativehappypoints + zeroTaxHappyChange) < 100)
+						return 0;
 				}
+
+				if (nativeTax > maxCanCollect && calcIdealRate == false) {
+					if (plg.roboReoptimizeNativeTaxes) { // if reoptimizetaxes true no reduce las tasas por debajo de 5000.
+						return rate;
+					} else {
+						return rate - 1;
+					}
+				}	
 
 				// if (vgap.player.raceid != 1 && nativeTax > planet.clans) { 					return rate-1; // Can't collect more than our number of clans 				} else if (vgap.player.raceid == 1 && vgap.advActive(2) && nativeTax > 2*planet.clans) { 					console.log("Fed bonus active. ",nativeTax); 					return rate-1; // Feds with bonus 				} else if (vgap.player.raceid == 1 && nativeTax > planet.clans) { 					console.log("Fed bonus inactive. ",nativeTax); 					return rate-1; // Feds without bonus 				}
 				// if (nativeTax > 5000)
@@ -1332,18 +1347,18 @@ function wrapper1() { // wrapper for injection
 			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
 			var plg = vgap.plugins["roboMaxPlugin"];
 			plg.updateStatus(0, "Optimizing taxes", "RoboMaxRun");
-			//var raceId = vgap.player.raceid;
-			var coltax = plg.colonistTaxAmount(planet);
-			var nattax = plg.nativeTaxAmount(planet);
-			var totalTax = coltax + nattax;
-			var oldnativetaxrate = planet.nativetaxrate;
 
 			// si no hay nativos o son amorfos o esta el autotax saltamos
 			if (planet.nativeclans <= 0 || planet.nativetype === 5 || planet.nativeautotax !== null) {
 				return;
 			}
-			
+
+			var coltax = plg.colonistTaxAmount(planet);
+			var nattax = plg.nativeTaxAmount(planet);
+			var totalTax = coltax + nattax;
+			var oldnativetaxrate = planet.nativetaxrate;
 			var natTax1 = Math.round(1 * planet.nativetaxvalue / 100 * planet.nativeclans / 1000);
+
 			// El maximo de impuestos esta capado por el numero de clanes que hay
 			if (natTax1 > planet.clans)
 				natTax1 = planet.clans;
