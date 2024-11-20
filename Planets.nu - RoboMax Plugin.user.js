@@ -158,7 +158,7 @@ function wrapper1() { // wrapper for injection
 		growthAndTaxPlus1Priority: true,
 		bulkAutoTaxChange: false,
 		reoptimizeNativeTaxes: false,
-		enemyIsHorwasp: false,
+		horwaspFightTax: false,
 
 		// Main Display Function
 
@@ -286,7 +286,7 @@ function wrapper1() { // wrapper for injection
 							html += "<li><label><input type='checkbox' name='reoptimizeNativeTaxesCheck' id='reoptimizeNativeTaxesCheck' value='c' />Reoptimize native taxes</label></li>";
 						}
 						// Añade casilla si enemy es Horwasps
-						if (plg.enemyIsHorwasp == true) {
+						if (plg.horwaspFightTax == true) {
 							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' checked />Enemy is Horwasp</label></li>";
 						} else {
 							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' />Enemy is Horwasp</label></li>";
@@ -768,7 +768,6 @@ function wrapper1() { // wrapper for injection
 
 			var plg = vgap.plugins["roboMaxPlugin"];
 			plg.updateStatus(0, "Setting taxes", "RoboMaxRun");
-			//var raceId = vgap.player.raceid;
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -780,11 +779,6 @@ function wrapper1() { // wrapper for injection
 				if (plg.reoptimizeNativeTaxes == true) {
 					plg.roboReoptimizeNativeTaxes(planet);
 				}
-
-				// Tax natives:
-				// if (planet.nativeclans > 0) {
-				// 	plg.roboSetNativeTax(planet,HISSeffect);
-				// }
 			}
 			// Save data
 			vgap.map.draw();
@@ -796,7 +790,6 @@ function wrapper1() { // wrapper for injection
 
 			var plg = vgap.plugins["roboMaxPlugin"];
 			plg.updateStatus(0, "Setting taxes", "RoboMaxRun");
-			//var raceId = vgap.player.raceid;
 
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
@@ -807,11 +800,7 @@ function wrapper1() { // wrapper for injection
 					continue;
 				}
 
-				// Tax colonists:
-				// plg.roboSetColonistTax(planet,HISSeffect);
-
 				// Tax natives:
-				
 				plg.roboSetNativeTax(planet, HISSeffect);
 			}
 			vgap.map.draw();
@@ -922,6 +911,12 @@ function wrapper1() { // wrapper for injection
 					useGrowthTaxforColonists = false;
 					minColHappiness = 39;
 				}
+			}
+
+			// safe tax 100% happiness if fighting Horwasps to counter wasps pods
+			if (plg.horwaspFightTax == true) {
+				useGrowthTaxforColonists == false;
+				minColHappiness = 100;
 			}
 
 			if (useGrowthTaxforColonists == true) {
@@ -1069,11 +1064,6 @@ function wrapper1() { // wrapper for injection
 				}
 			}
 
-			// safe tax 100% happiness if fighting Horwasps to avoid riots
-			if (plg.enemyIsHorwasp == true) {
-				minNatHappiness = 100;
-			}
-
 			if (planet.nativeclans < minNatClansForTaxing && nativeGrowthIsPossible) {
 				// Don't tax at all if native population is very low and can grow
 				//console.log("Planet " + planet.name + ": Nat Tax < Min Clans, 0");
@@ -1176,7 +1166,7 @@ function wrapper1() { // wrapper for injection
 				// para reducir tasas de colonos a 0.
 				if (plg.roboReoptimizeNativeTaxes && planet.nativetype == 4 && planet.nativetaxvalue >= 160) {
 					var zeroTaxHappyChange = plg.roboNativeHappyChange(planet, 0);
-					if ((planet.nativehappypoints + zeroTaxHappyChange) < 100)
+					if ((planet.nativehappypoints + zeroTaxHappyChange) < 90)
 						return 0;
 				}
 
@@ -1343,6 +1333,12 @@ function wrapper1() { // wrapper for injection
 			return val;
 		},
 
+		/**
+		 * Reoptimizes the taxes on a given planet.
+		 * This function tries to reduce the native tax rate to minimize the total tax
+		 * paid by the player, while still keeping the colonists happy.
+		 * @param {Planet} planet - The planet to reoptimize.
+		 */
 		roboReoptimizeNativeTaxes: function (planet) {
 			// Code para optimizar el cobro de taxes cuando hay gran numero de colonists
 			var plg = vgap.plugins["roboMaxPlugin"];
@@ -1370,7 +1366,7 @@ function wrapper1() { // wrapper for injection
 			//insectoid bonus
 			if (planet.nativetype == 6)
 				natTax1 = natTax1 * 2;
-			
+
 			// Checkeamos si podemos rebajar las tasas de los nativos		
 			var counter = -1;
 			if (totalTax >= 5000) {
@@ -1390,8 +1386,13 @@ function wrapper1() { // wrapper for injection
 			}
 			console.log("[reoptimize] lowering taxes for " + planet.id + " from " + oldnativetaxrate + "% to " + planet.nativetaxrate + "%");
 		},
+		/**
+		 * Sets the autotax method for native populations on all planets to 'Growth'.
+		 * This method focuses on maximizing growth by setting specific happiness thresholds.
+		 */
 		roboBulkAutotaxGrowth: function () {
 			var plg = vgap.plugins["roboMaxPlugin"];
+			// Define the autotax method focusing on growth
 			var method = {
 				"name": "Growth",
 				"minhappy": 70,
@@ -1400,29 +1401,41 @@ function wrapper1() { // wrapper for injection
 				"maxoffset": 0,
 				"maxpophappy": 70
 			};
+			// Iterate over all player planets
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
-					planet.nativeautotax = method;
-					vgap.setNativeAutoTax(planet, planet.nativeautotax);
-            		vgap.getPlanet(planet.id).changed = 1;
-					vgap.map.draw();
+				// Set the planet's native autotax to the defined method
+				planet.nativeautotax = method;
+				vgap.setNativeAutoTax(planet, planet.nativeautotax);
+				vgap.getPlanet(planet.id).changed = 1;
+				vgap.map.draw();
 			}
+			// Save changes to the plugin
 			plg.roboSave(2);
+			// Notify the user of the changes
 			alert("All planets autotax changed to Growth");
 			return;
 		},
 
+		/**
+		 * Sets the autotax method for native populations on all planets to 'Off'.
+		 * This method disables automatic native taxation.
+		 */
 		roboBulkAutotaxOff: function () {
 			var plg = vgap.plugins["roboMaxPlugin"];
 			var method = null;
 			for (var i = 0; i < vgap.myplanets.length; i++) {
 				var planet = vgap.myplanets[i];
-					planet.nativeautotax = method;
-					vgap.setNativeAutoTax(planet, planet.nativeautotax);
-            		vgap.getPlanet(planet.id).changed = 1;
-					vgap.map.draw();
+				// Set the planet's native autotax to the defined method
+				planet.nativeautotax = method;
+				// Set the planet's native autotax setting
+				vgap.setNativeAutoTax(planet, planet.nativeautotax);
+				vgap.getPlanet(planet.id).changed = 1;
+				vgap.map.draw();
 			}
+			// Save changes to the plugin
 			plg.roboSave(3);
+			// Notify the user of the changes
 			alert("All planets autotax changed to Off");
 			return;
 		},
