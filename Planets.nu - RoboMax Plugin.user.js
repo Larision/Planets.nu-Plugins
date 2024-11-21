@@ -38,11 +38,6 @@ function wrapper1() { // wrapper for injection
 
 			vgap.plugins["roboMaxPlugin"].mobile_version = vgap.plugins["roboMaxPlugin"].checkIfMobileVersion();
 
-			// Initialize arrays
-
-			//need = []; // stores the resource needs of each planet
-			//surplus = []; // stores the resource surplus of each planet
-
 			plg.roboFinished = false;
 
 			//console.log("END roboMaxPlugin PROCESS LOAD");
@@ -158,7 +153,7 @@ function wrapper1() { // wrapper for injection
 		growthAndTaxPlus1Priority: true,
 		bulkAutoTaxChange: false,
 		reoptimizeNativeTaxes: false,
-		horwaspFightTax: false,
+		// horwaspFightTax: false, // removed for future update
 
 		// Main Display Function
 
@@ -285,13 +280,14 @@ function wrapper1() { // wrapper for injection
 						} else {
 							html += "<li><label><input type='checkbox' name='reoptimizeNativeTaxesCheck' id='reoptimizeNativeTaxesCheck' value='c' />Reoptimize native taxes</label></li>";
 						}
+						/* removed for future update
 						// Añade casilla si enemy es Horwasps
 						if (plg.horwaspFightTax == true) {
 							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' checked />Enemy is Horwasp</label></li>";
 						} else {
 							html += "<li><label><input type='checkbox' name='enemyIsHorwaspCheck' id='enemyIsHorwaspCheck' value='c' />Enemy is Horwasp</label></li>";
 						}
-
+ */
 						html += "<table cellpadding='2'>";
 							html += "<td class=BulkGrowth id='BulkGrowth' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Growth </b></td>";
 							html += "<td class=BulkOff id='BulkOff' width='200' align='center' style='border: solid white 1px; color: #FFEBCD; background-color:#006400; '><b> Bulk AutoTax Off </b></td>";
@@ -912,13 +908,13 @@ function wrapper1() { // wrapper for injection
 					minColHappiness = 39;
 				}
 			}
-
+/* removed for future update
 			// safe tax 100% happiness if fighting Horwasps to counter wasps pods
 			if (plg.horwaspFightTax == true) {
 				useGrowthTaxforColonists == false;
 				minColHappiness = 100;
 			}
-
+ */
 			if (useGrowthTaxforColonists == true) {
 				// Don't tax this turn if happiness is still rising.
 				// Try not to "waste" happiness points. Tax if happiness would rise
